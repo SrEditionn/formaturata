@@ -282,8 +282,7 @@
   }
   .pix-card-body { flex: 1; }
   .pix-card-status { font-size: 10px; font-weight: 700; color: #22c55e; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1px; }
-  .pix-card-name { font-size: 14px; font-weight: 700; color: #0f172a; }
-  .pix-card-bank { font-size: 11px; color: #64748b; font-weight: 500; margin-top: 1px; }
+  .pix-card-bank { font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 1px; }
   .pix-card-value { font-size: 18px; font-weight: 800; color: #0070ba; margin-top: 2px; }
   .pix-card-assigned { font-size: 11px; color: #22c55e; font-weight: 600; margin-top: 2px; }
   .pix-card-meta { text-align: right; flex-shrink: 0; }
@@ -2475,7 +2474,7 @@ const EXPORTED_DATA = ${dataJson};
         renderPixList();
         updatePixBadge();
         for (const n of newOnes) {
-          logAction('add', `💸 Pix recebido — ${n.name}${n.bank ? ' via ' + n.bank : ''} (${fmtPix(n.value)})`);
+          logAction('add', `💸 Pix recebido — ${n.bank || 'Banco não identificado'} (${fmtPix(n.value)})`);
           if (pixNotifEnabled) sendPixNotification(n);
         }
       }
@@ -2556,8 +2555,7 @@ const EXPORTED_DATA = ${dataJson};
         <div class="pix-card-icon">💸</div>
         <div class="pix-card-body">
           <div class="pix-card-status">✓ Pix recebido</div>
-          <div class="pix-card-name">${p.name}</div>
-          ${p.bank ? `<div class="pix-card-bank">${p.bank}</div>` : ''}
+          <div class="pix-card-bank">${p.bank || 'Banco não identificado'}</div>
           <div class="pix-card-value">${fmtPix(p.value)}</div>
           ${p.assignedTo ? `<div class="pix-card-assigned">↳ ${p.assignedTo}</div>` : ''}
         </div>
@@ -2585,6 +2583,7 @@ const EXPORTED_DATA = ${dataJson};
   window.closePixPanel = function() {
     document.getElementById('pixPanel').classList.remove('open');
     document.body.style.overflow = '';
+    // Polling continua rodando em background para notificações funcionarem com painel fechado
   };
 
   window.clearPixLogs = function() {
@@ -2601,6 +2600,8 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = false;
       savePixNotifState();
       updateNotifBtn();
+      // Para o polling quando notificações são desativadas
+      if (pixPollingInterval) { clearInterval(pixPollingInterval); pixPollingInterval = null; }
       return;
     }
     if (!('Notification' in window)) { alert('Seu navegador não suporta notificações.'); return; }
@@ -2609,7 +2610,12 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = true;
       savePixNotifState();
       updateNotifBtn();
-      new Notification('Formatura 🎓', { body: 'Notificações de Pix ativadas!' });
+      new Notification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas ao receber Pix.' });
+      // Garante que o polling está rodando para as notificações funcionarem
+      fetchMPPayments();
+      if (!pixPollingInterval) {
+        pixPollingInterval = setInterval(fetchMPPayments, 12000);
+      }
     } else {
       alert('Permissão de notificação negada.\nAbra as configurações do navegador e permita notificações para este site.');
     }
@@ -2617,10 +2623,9 @@ const EXPORTED_DATA = ${dataJson};
 
   function sendPixNotification(p) {
     if (!pixNotifEnabled || Notification.permission !== 'granted') return;
-    const linhas = [p.name];
-    if (p.bank) linhas.push(p.bank);
-    linhas.push(fmtPix(p.value));
-    new Notification('Formatura: Pix recebido 💸', { body: linhas.join('\n') });
+    const banco = p.bank || 'Banco não identificado';
+    const body = banco + '\n' + fmtPix(p.value) + '\n' + p.hora;
+    new Notification('💸 Pix recebido!', { body: body, tag: p.id });
   }
 
   // ── Atribuir Pix a categoria ──
@@ -2628,7 +2633,7 @@ const EXPORTED_DATA = ${dataJson};
     const p = pixLogs.find(l => l.id === pixId);
     if (!p) return;
     pixAssignTarget = p;
-    document.getElementById('pixAssignName').textContent = p.name;
+    document.getElementById('pixAssignName').textContent = p.bank || 'Banco não identificado';
     document.getElementById('pixAssignVal').textContent = fmtPix(p.value);
 
     // Se já foi atribuído, mostra modo de remoção
