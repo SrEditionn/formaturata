@@ -2451,6 +2451,13 @@ const EXPORTED_DATA = ${dataJson};
         const personName = additionalPayerName || directName || p.payer?.email || p.description || '';
         const payer = personName || 'Pagador';
         const dt = new Date(p.date_approved || p.date_created);
+        // DEBUG TEMP: guarda os campos brutos relevantes para descobrir onde está o nome real.
+        const debugRaw = JSON.stringify({
+          payer: p.payer,
+          additional_info_payer: p.additional_info?.payer,
+          bank_info_payer: p.point_of_interaction?.transaction_data?.bank_info?.payer,
+          description: p.description
+        }, null, 2);
         newOnes.push({
           id: 'pix_' + p.id,
           mpId: String(p.id),
@@ -2460,7 +2467,8 @@ const EXPORTED_DATA = ${dataJson};
           data: dt.toLocaleDateString('pt-BR'),
           hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
           ts: dt.getTime(),
-          assignedTo: null
+          assignedTo: null,
+          debugRaw
         });
         pixSeenIds.add(String(p.id));
       }
@@ -2558,6 +2566,7 @@ const EXPORTED_DATA = ${dataJson};
           ${p.bank ? `<div class="pix-card-bank">${p.bank}</div>` : ''}
           <div class="pix-card-value">${fmtPix(p.value)}</div>
           ${p.assignedTo ? `<div class="pix-card-assigned">↳ ${p.assignedTo}</div>` : ''}
+          ${p.debugRaw ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;text-decoration:underline;" onclick="event.stopPropagation(); alert(pixLogs.find(x=>x.id==='${p.id}').debugRaw)">🔍 ver dados brutos (debug)</div>` : ''}
         </div>
         <div class="pix-card-meta">
           <div class="pix-card-date">${p.data}</div>
