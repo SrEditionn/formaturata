@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debug Pix</title>
+<style>
+  body { font-family: monospace; background: #111; color: #0f0; padding: 16px; font-size: 13px; }
+  h2 { color: #fff; margin-bottom: 12px; }
+  pre { background: #1a1a1a; padding: 12px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+  .card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+  .label { color: #aaa; font-size: 11px; }
+  .val { color: #0f0; font-weight: bold; }
+  .val.x { color: #f55; }
+  .val.ok { color: #0f0; }
+  button { background: #0070ba; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<h2>🔍 Debug Proxy Mercado Pago</h2>
+<button onclick="runDebug()">▶ Buscar agora</button>
+<div id="out">Clique em "Buscar agora"...</div>
+
+<script>
+async function runDebug() {
+  const out = document.getElementById('out');
+  out.innerHTML = 'Buscando...';
+  try {
+    const r = await fetch('/.netlify/functions/mp-proxy?limit=5', { cache: 'no-store' });
+    const data = await r.json();
+    const results = data.results || [];
+
+    if (results.length === 0) {
+      out.innerHTML = '<pre>Nenhum pagamento retornado.\n\nResposta completa:\n' + JSON.stringify(data, null, 2) + '</pre>';
+      return;
+    }
+
+    let html = `<p style="color:#fff">Total retornado: <b>${results.length}</b> pagamentos</p>`;
+
+    results.forEach((p, i) => {
+      const addFirst  = p.additional_info?.payer?.first_name  || '(vazio)';
+      const addLast   = p.additional_info?.payer?.last_name   || '(vazio)';
+      const payFirst  = p.payer?.first_name  || '(vazio)';
+      const payLast   = p.payer?.last_name   || '(vazio)';
+      const payEmail  = p.payer?.email       || '(vazio)';
+      const bankName  = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '(vazio)';
+      const desc      = p.description        || '(vazio)';
+
+      const isX = v => v === 'XXXXXXXXXXXX' || v === 'XXXXXXXXXXX';
+      const cl  = v => isX(v) ? 'val x' : 'val ok';
+
+      html += `<div class="card">
+        <div class="label">Pagamento #${i+1} — ID: ${p.id} — R$ ${p.transaction_amount}</div>
+        <br>
+        <div class="label">additional_info.payer.first_name:</div>
+        <div class="${cl(addFirst)}">${addFirst}</div>
+        <div class="label">additional_info.payer.last_name:</div>
+        <div class="${cl(addLast)}">${addLast}</div>
+        <br>
+        <div class="label">payer.first_name:</div>
+        <div class="${cl(payFirst)}">${payFirst}</div>
+        <div class="label">payer.last_name:</div>
+        <div class="${cl(payLast)}">${payLast}</div>
+        <div class="label">payer.email:</div>
+        <div class="val">${payEmail}</div>
+        <br>
+        <div class="label">bank_info.payer.long_name (banco):</div>
+        <div class="val">${bankName}</div>
+        <div class="label">description:</div>
+        <div class="val">${desc}</div>
+        <br>
+        <details>
+          <summary style="color:#aaa;cursor:pointer">Ver JSON completo do pagamento</summary>
+          <pre>${JSON.stringify(p, null, 2)}</pre>
+        </details>
+      </div>`;
+    });
+
+    out.innerHTML = html;
+  } catch(e) {
+    out.innerHTML = '<pre style="color:red">Erro: ' + e.message + '</pre>';
+  }
+}
+</script>
+</body>
+</html>
