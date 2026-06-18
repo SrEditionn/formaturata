@@ -1429,7 +1429,14 @@
         <div class="pix-assign-info-val" id="pixAssignVal">R$ 0,00</div>
       </div>
     </div>
-    <div class="field">
+    <!-- Bloco: já atribuído -->
+    <div id="pixAssignAlready" style="display:none;margin-bottom:14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">✓ Já atribuído a</div>
+      <div id="pixAssignedLabel" style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:12px;">—</div>
+      <button onclick="removePixAssign()" style="width:100%;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;padding:11px;font-size:14px;font-weight:700;color:#dc2626;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🗑 Remover esta atribuição</button>
+    </div>
+    <!-- Bloco: formulário de nova atribuição -->
+    <div id="pixAssignForm" class="field">
       <label>Categoria</label>
       <select id="pixAssignCat" onchange="onPixCatChange()" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
         <option value="">Selecione uma categoria...</option>
@@ -1439,7 +1446,7 @@
         <option value="">Selecione uma entrada...</option>
       </select>
     </div>
-    <button class="btn-confirm" onclick="confirmPixAssign()">Adicionar a esta entrada</button>
+    <button id="pixAssignConfirmBtn" class="btn-confirm" onclick="confirmPixAssign()">Adicionar a esta entrada</button>
   </div>
 </div>
 
@@ -2428,13 +2435,15 @@ const EXPORTED_DATA = ${dataJson};
       let newOnes = [];
       for (const p of results) {
         if (pixLogs.find(l => l.mpId === String(p.id))) continue;
-        const firstName = p.payer?.first_name || p.additional_info?.payer?.first_name || '';
-        const lastName  = p.payer?.last_name  || p.additional_info?.payer?.last_name  || '';
-        // Para Pix, o nome real do pagador fica em point_of_interaction → bank_info → payer → long_name
+        // Tenta extrair o nome real do pagador em todas as localizações conhecidas da API do MP
         const bankPayerName = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '';
-        const payer = firstName
-          ? (firstName + (lastName ? ' ' + lastName : '')).trim()
-          : bankPayerName || (p.payer?.email || p.description || 'Pagador');
+        const additionalPayerName = p.additional_info?.payer?.first_name
+          ? ((p.additional_info.payer.first_name || '') + ' ' + (p.additional_info.payer.last_name || '')).trim()
+          : '';
+        const firstName = p.payer?.first_name || '';
+        const lastName  = p.payer?.last_name  || '';
+        const directName = firstName ? (firstName + (lastName ? ' ' + lastName : '')).trim() : '';
+        const payer = bankPayerName || additionalPayerName || directName || p.payer?.email || p.description || 'Pagador';
         const dt = new Date(p.date_approved || p.date_created);
         newOnes.push({
           id: 'pix_' + p.id,
@@ -2590,10 +2599,25 @@ const EXPORTED_DATA = ${dataJson};
     pixAssignTarget = p;
     document.getElementById('pixAssignName').textContent = p.name;
     document.getElementById('pixAssignVal').textContent = fmtPix(p.value);
-    const selCat = document.getElementById('pixAssignCat');
-    selCat.innerHTML = '<option value="">Selecione uma categoria...</option>' +
-      categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    document.getElementById('pixAssignEntry').innerHTML = '<option value="">Selecione uma entrada...</option>';
+
+    // Se já foi atribuído, mostra modo de remoção
+    const alreadyBlock = document.getElementById('pixAssignAlready');
+    const formBlock = document.getElementById('pixAssignForm');
+    const confirmBtn = document.getElementById('pixAssignConfirmBtn');
+    if (p.assignedTo) {
+      document.getElementById('pixAssignedLabel').textContent = p.assignedTo;
+      alreadyBlock.style.display = 'block';
+      formBlock.style.display = 'none';
+      confirmBtn.style.display = 'none';
+    } else {
+      alreadyBlock.style.display = 'none';
+      formBlock.style.display = 'block';
+      confirmBtn.style.display = 'block';
+      const selCat = document.getElementById('pixAssignCat');
+      selCat.innerHTML = '<option value="">Selecione uma categoria...</option>' +
+        categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      document.getElementById('pixAssignEntry').innerHTML = '<option value="">Selecione uma entrada...</option>';
+    }
     document.getElementById('pixAssignOverlay').classList.add('open');
   };
 
@@ -2644,11 +2668,57 @@ const EXPORTED_DATA = ${dataJson};
     }
 
     pixAssignTarget.assignedTo = cat.name + ' → ' + (entry.desc || 'Entrada');
+    pixAssignTarget.assignedCatId = catId;
+    pixAssignTarget.assignedEntryId = entryId;
     const idx = pixLogs.findIndex(l => l.id === pixAssignTarget.id);
     if (idx >= 0) pixLogs[idx] = { ...pixAssignTarget };
     savePixLogs();
 
     logAction('add', `Pix de ${pixAssignTarget.name} (${fmtPix(val)}) atribuído a "${entry.desc || 'Entrada'}" (${cat.name})`);
+    render();
+    saveToFirebase();
+    renderPixList();
+
+    document.getElementById('pixAssignOverlay').classList.remove('open');
+    pixAssignTarget = null;
+  };
+
+  window.removePixAssign = function() {
+    if (!pixAssignTarget) return;
+    const p = pixAssignTarget;
+    const catId = p.assignedCatId;
+    const entryId = p.assignedEntryId;
+    const val = Number(p.value);
+
+    if (catId && entryId) {
+      const cat = categories.find(c => c.id === catId);
+      if (cat) {
+        const entry = cat.entries.find(e => e.id === entryId);
+        if (entry) {
+          if (entry.type === 'free') {
+            entry.freeValues = entry.freeValues || [];
+            const fIdx = entry.freeValues.lastIndexOf(val);
+            if (fIdx >= 0) entry.freeValues.splice(fIdx, 1);
+            entry.count = entry.freeValues.length;
+          } else if (entry.type === 'fixed') {
+            entry.count = Math.max(0, (entry.count || 0) - 1);
+          } else {
+            entry.value = Math.max(0, (entry.value || 0) - val);
+          }
+        }
+      }
+    }
+
+    const oldLabel = p.assignedTo;
+    p.assignedTo = null;
+    p.assignedCatId = null;
+    p.assignedEntryId = null;
+
+    const pIdx = pixLogs.findIndex(l => l.id === p.id);
+    if (pIdx >= 0) pixLogs[pIdx] = { ...p };
+    savePixLogs();
+
+    logAction('remove', `Pix de ${p.name} (${fmtPix(val)}) removido de "${oldLabel}"`);
     render();
     saveToFirebase();
     renderPixList();
