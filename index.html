@@ -2436,8 +2436,11 @@ const EXPORTED_DATA = ${dataJson};
 
       let newOnes = [];
       for (const p of results) {
-        // Dedup contra TODOS os IDs já vistos (mesmo que o card tenha sido limpo da lista visível)
-        if (pixSeenIds.has(String(p.id))) continue;
+        const sid = String(p.id);
+        // Pula se já está na lista visível (pixLogs) — evita duplicata na tela
+        if (pixLogs.some(l => l.mpId === sid)) continue;
+        // Pula se foi processado antes E limpo intencionalmente (seenIds persistido)
+        if (pixSeenIds.has(sid)) continue;
         // O campo bank_info.payer.long_name traz a INSTITUIÇÃO/banco de origem do Pix (ex: "Banco Inter S.A."),
         // não o nome da pessoa. O nome da pessoa vem de additional_info.payer ou payer.first_name/last_name.
         const bankName = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '';
@@ -2624,8 +2627,12 @@ const EXPORTED_DATA = ${dataJson};
   function sendPixNotification(p) {
     if (!pixNotifEnabled || Notification.permission !== 'granted') return;
     const banco = p.bank || 'Banco não identificado';
-    const body = banco + '\n' + fmtPix(p.value) + '\n' + p.hora;
-    new Notification('💸 Pix recebido!', { body: body, tag: p.id });
+    const body = 'Pix recebido do banco ' + banco + '\nValor: ' + fmtPix(p.value) + '\nHorário: ' + p.hora;
+    try {
+      new Notification('Formatura: Pix recebido', { body: body, tag: p.id, requireInteraction: false });
+    } catch(e) {
+      console.warn('[Notif] Erro ao disparar notificação:', e);
+    }
   }
 
   // ── Atribuir Pix a categoria ──
@@ -2770,7 +2777,14 @@ const EXPORTED_DATA = ${dataJson};
   // Garante que qualquer Pix já presente na lista visível também conste como "visto"
   pixLogs.forEach(p => pixSeenIds.add(p.mpId));
   updatePixBadge();
-  updateNotifBtn(); // garante que o botão reflita o estado salvo ao abrir o painel
+  updateNotifBtn();
+  // Se notificações já estavam ativas (salvas no localStorage), retoma o polling automaticamente
+  if (pixNotifEnabled && Notification.permission === 'granted') {
+    fetchMPPayments();
+    if (!pixPollingInterval) {
+      pixPollingInterval = setInterval(fetchMPPayments, 12000);
+    }
+  }
 
   // ═══════════════════════════════════════════════════════
   // FIM DO SISTEMA DE PIX
