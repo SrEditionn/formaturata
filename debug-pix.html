@@ -20,7 +20,6 @@
 <h2>🔍 Debug Proxy Mercado Pago</h2>
 <button onclick="runDebug()">▶ Buscar agora</button>
 <div id="out">Clique em "Buscar agora"...</div>
-
 <script>
 async function runDebug() {
   const out = document.getElementById('out');
@@ -29,53 +28,36 @@ async function runDebug() {
     const r = await fetch('/.netlify/functions/mp-proxy?limit=5', { cache: 'no-store' });
     const data = await r.json();
     const results = data.results || [];
-
     if (results.length === 0) {
-      out.innerHTML = '<pre>Nenhum pagamento retornado.\n\nResposta completa:\n' + JSON.stringify(data, null, 2) + '</pre>';
+      out.innerHTML = '<pre>Nenhum pagamento.\n' + JSON.stringify(data, null, 2) + '</pre>';
       return;
     }
-
-    let html = `<p style="color:#fff">Total retornado: <b>${results.length}</b> pagamentos</p>`;
-
+    let html = `<p style="color:#fff">Total: <b>${results.length}</b></p>`;
     results.forEach((p, i) => {
-      const addFirst  = p.additional_info?.payer?.first_name  || '(vazio)';
-      const addLast   = p.additional_info?.payer?.last_name   || '(vazio)';
-      const payFirst  = p.payer?.first_name  || '(vazio)';
-      const payLast   = p.payer?.last_name   || '(vazio)';
-      const payEmail  = p.payer?.email       || '(vazio)';
-      const bankName  = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '(vazio)';
-      const desc      = p.description        || '(vazio)';
-
-      const isX = v => v === 'XXXXXXXXXXXX' || v === 'XXXXXXXXXXX';
+      const isX = v => !v || v === 'XXXXXXXXXXXX' || v === 'null';
       const cl  = v => isX(v) ? 'val x' : 'val ok';
-
+      const resolved     = p._resolvedName || '(não resolvido)';
+      const addFirst     = p.additional_info?.payer?.first_name || '(vazio)';
+      const payFirst     = p.payer?.first_name  || '(vazio)';
+      const payerId      = p.payer?.id           || '(vazio)';
+      const bankName     = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '(vazio)';
       html += `<div class="card">
-        <div class="label">Pagamento #${i+1} — ID: ${p.id} — R$ ${p.transaction_amount}</div>
-        <br>
+        <div class="label">Pagamento #${i+1} — ID: ${p.id} — R$ ${p.transaction_amount}</div><br>
+        <div class="label">✅ _resolvedName (campo resolvido pelo proxy):</div>
+        <div class="${cl(resolved)}" style="font-size:15px">${resolved}</div><br>
         <div class="label">additional_info.payer.first_name:</div>
         <div class="${cl(addFirst)}">${addFirst}</div>
-        <div class="label">additional_info.payer.last_name:</div>
-        <div class="${cl(addLast)}">${addLast}</div>
-        <br>
         <div class="label">payer.first_name:</div>
         <div class="${cl(payFirst)}">${payFirst}</div>
-        <div class="label">payer.last_name:</div>
-        <div class="${cl(payLast)}">${payLast}</div>
-        <div class="label">payer.email:</div>
-        <div class="val">${payEmail}</div>
-        <br>
-        <div class="label">bank_info.payer.long_name (banco):</div>
+        <div class="label">payer.id (conta MP):</div>
+        <div class="val">${payerId}</div>
+        <div class="label">banco:</div>
         <div class="val">${bankName}</div>
-        <div class="label">description:</div>
-        <div class="val">${desc}</div>
-        <br>
-        <details>
-          <summary style="color:#aaa;cursor:pointer">Ver JSON completo do pagamento</summary>
+        <details><summary style="color:#aaa;cursor:pointer">JSON completo</summary>
           <pre>${JSON.stringify(p, null, 2)}</pre>
         </details>
       </div>`;
     });
-
     out.innerHTML = html;
   } catch(e) {
     out.innerHTML = '<pre style="color:red">Erro: ' + e.message + '</pre>';

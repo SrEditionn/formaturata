@@ -2442,13 +2442,15 @@ const EXPORTED_DATA = ${dataJson};
         // O campo bank_info.payer.long_name traz a INSTITUIÇÃO/banco de origem do Pix (ex: "Banco Inter S.A."),
         // não o nome da pessoa. O nome da pessoa vem de additional_info.payer ou payer.first_name/last_name.
         const bankName = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '';
-        const additionalPayerName = p.additional_info?.payer?.first_name
+        // _resolvedName é injetado pelo proxy quando ele consegue buscar o nome via payer.id
+        const resolvedName = (p._resolvedName && p._resolvedName !== 'XXXXXXXXXXXX') ? p._resolvedName : '';
+        const additionalPayerName = p.additional_info?.payer?.first_name && p.additional_info.payer.first_name !== 'XXXXXXXXXXXX'
           ? ((p.additional_info.payer.first_name || '') + ' ' + (p.additional_info.payer.last_name || '')).trim()
           : '';
-        const firstName = p.payer?.first_name || '';
-        const lastName  = p.payer?.last_name  || '';
+        const firstName = (p.payer?.first_name && p.payer.first_name !== 'XXXXXXXXXXXX') ? p.payer.first_name : '';
+        const lastName  = (p.payer?.last_name  && p.payer.last_name  !== 'XXXXXXXXXXXX') ? p.payer.last_name  : '';
         const directName = firstName ? (firstName + (lastName ? ' ' + lastName : '')).trim() : '';
-        const personName = additionalPayerName || directName || p.payer?.email || p.description || '';
+        const personName = resolvedName || additionalPayerName || directName || p.description || '';
         const payer = personName || 'Pagador';
         const dt = new Date(p.date_approved || p.date_created);
         newOnes.push({
