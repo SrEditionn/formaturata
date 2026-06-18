@@ -11,7 +11,6 @@ exports.handler = async function(event, context) {
   const params = event.queryStringParameters || {};
   const limit = params.limit || '20';
 
-  // Sem range/begin_date/end_date — busca os últimos pagamentos aprovados via Pix
   const mpUrl = 'https://api.mercadopago.com/v1/payments/search'
     + '?sort=date_created&criteria=desc'
     + '&limit=' + limit
@@ -26,6 +25,29 @@ exports.handler = async function(event, context) {
     });
 
     const data = await response.json();
+
+    // Para cada pagamento, garante que bank_info esteja disponível
+    // A API às vezes requer uma segunda chamada por ID para obter bank_info completo
+    if (Array.isArray(data.results)) {
+      const enriched = await Promise.all(data.results.map(async (p) => {
+        // Se já tem long_name no bank_info, não precisa buscar de novo
+        const hasName = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name;
+        if (hasName) return p;
+
+        // Busca detalhes completos do pagamento pelo ID
+        try {
+          const detailRes = await fetch(`https://api.mercadopago.com/v1/payments/${p.id}`, {
+            headers: { 'Authorization': 'Bearer ' + MP_ACCESS_TOKEN }
+          });
+          if (detailRes.ok) {
+            const detail = await detailRes.json();
+            return detail;
+          }
+        } catch(e) { /* ignora erro, retorna original */ }
+        return p;
+      }));
+      data.results = enriched;
+    }
 
     return {
       statusCode: 200,
