@@ -1531,6 +1531,7 @@
       setSyncStatus('syncing', 'Conectando...');
       startRealtimeSync();
       startLogsRealtimeSync();
+      if (window._startPixRealtimeSync) window._startPixRealtimeSync();
     } catch(e) {
       alert('Erro ao conectar: verifique o Project ID.\n' + e.message);
     }
@@ -2497,8 +2498,14 @@ const EXPORTED_DATA = ${dataJson};
     if (s === 'erro' && detail) console.warn('[Pix] Erro:', detail);
   }
 
+  // ── Persistência dos Pix (compartilhada via Firestore, com fallback local) ──
+  let ignoreNextPixSnapshot = false;
+  let pixSaveTimeout = null;
+
   function savePixLogs() {
+    // Cache local imediato (evita "flash" vazio caso o Firestore demore/ falhe)
     try { localStorage.setItem('formatura_pix_logs', JSON.stringify(pixLogs)); } catch(e) {}
+    schedulePixFirestoreSave();
   }
 
   function loadPixLogs() {
@@ -2522,7 +2529,55 @@ const EXPORTED_DATA = ${dataJson};
       pixSeenIds = new Set(arr);
       localStorage.setItem('formatura_pix_seen', JSON.stringify(arr));
     } catch(e) {}
+    schedulePixFirestoreSave();
   }
+
+  // Junta pixLogs + pixSeenIds num único doc e salva no Firestore com pequeno debounce
+  // (evita gravar a cada milissegundo quando vários Pix chegam juntos)
+  function schedulePixFirestoreSave() {
+    if (!db) return; // ainda sem conexão Firebase: fica só no cache local, sincroniza quando conectar
+    if (pixSaveTimeout) clearTimeout(pixSaveTimeout);
+    pixSaveTimeout = setTimeout(savePixToFirestore, 400);
+  }
+
+  async function savePixToFirestore() {
+    if (!db) return;
+    try {
+      ignoreNextPixSnapshot = true;
+      const docRef = doc(db, 'formatura', 'pix');
+      let seenArr = Array.from(pixSeenIds);
+      if (seenArr.length > PIX_SEEN_MAX) seenArr = seenArr.slice(seenArr.length - PIX_SEEN_MAX);
+      await setDoc(docRef, { logs: pixLogs, seen: seenArr, updatedAt: Date.now() });
+    } catch(e) {
+      ignoreNextPixSnapshot = false;
+      console.warn('[Pix] Erro ao salvar no Firestore:', e);
+    }
+  }
+
+  // Sincronização em tempo real: garante que "Limpar" e novos Pix aparecem para todo mundo
+  function startPixRealtimeSync() {
+    if (!db) return;
+    const docRef = doc(db, 'formatura', 'pix');
+    onSnapshot(docRef, (snap) => {
+      if (ignoreNextPixSnapshot) { ignoreNextPixSnapshot = false; return; }
+      if (snap.exists()) {
+        const data = snap.data();
+        pixLogs = data.logs || [];
+        pixSeenIds = new Set(data.seen || []);
+        try {
+          localStorage.setItem('formatura_pix_logs', JSON.stringify(pixLogs));
+          localStorage.setItem('formatura_pix_seen', JSON.stringify(Array.from(pixSeenIds)));
+        } catch(e) {}
+        renderPixList();
+        updatePixBadge();
+      } else {
+        // Doc ainda não existe no Firestore: envia o que tiver localmente (ex: primeira execução)
+        savePixToFirestore();
+      }
+    }, () => {});
+  }
+  window._startPixRealtimeSync = startPixRealtimeSync;
+
 
   function updatePixBadge() {
     const badge = document.getElementById('pixCountBadge');
@@ -2598,6 +2653,60 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   // ── Notificações ──
+  const VAPID_PUBLIC_KEY = 'BE4MscUkWvkoRhjXPj_ixZ57h4-PBnUHlxsxKug1BW8T57EU-bkAR5zun0td8aJUxzu6_nQcru15_Z8J9XcPfNE';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  // Registra o Service Worker e inscreve este navegador para receber push
+  // mesmo com o site fechado (a notificação chega via mp-webhook.js no servidor).
+  async function enablePushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.warn('[Push] Navegador não suporta push notifications (apenas notificação local com o site aberto será usada).');
+      return;
+    }
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const existing = await reg.pushManager.getSubscription();
+      const sub = existing || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      await fetch('/.netlify/functions/mp-save-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub, action: 'add' }),
+      });
+    } catch (e) {
+      console.warn('[Push] Não foi possível ativar push real (notificações continuarão funcionando com o site aberto):', e);
+    }
+  }
+
+  async function disablePushNotifications() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+      if (!reg) return;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        await fetch('/.netlify/functions/mp-save-subscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub, action: 'remove' }),
+        });
+        await sub.unsubscribe();
+      }
+    } catch (e) {
+      console.warn('[Push] Erro ao desativar push:', e);
+    }
+  }
+
   window.togglePixNotifications = async function() {
     if (pixNotifEnabled) {
       pixNotifEnabled = false;
@@ -2605,6 +2714,7 @@ const EXPORTED_DATA = ${dataJson};
       updateNotifBtn();
       // Para o polling quando notificações são desativadas
       if (pixPollingInterval) { clearInterval(pixPollingInterval); pixPollingInterval = null; }
+      disablePushNotifications();
       return;
     }
     if (!('Notification' in window)) { alert('Seu navegador não suporta notificações.'); return; }
@@ -2613,16 +2723,19 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = true;
       savePixNotifState();
       updateNotifBtn();
-      new Notification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas ao receber Pix.' });
-      // Garante que o polling está rodando para as notificações funcionarem
+      new Notification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas mesmo com o site fechado.' });
+      // Garante que o polling está rodando para as notificações funcionarem com o site aberto
       fetchMPPayments();
       if (!pixPollingInterval) {
         pixPollingInterval = setInterval(fetchMPPayments, 12000);
       }
+      // Inscreve este navegador para push real (funciona com o site fechado/minimizado)
+      enablePushNotifications();
     } else {
       alert('Permissão de notificação negada.\nAbra as configurações do navegador e permita notificações para este site.');
     }
   };
+
 
   function sendPixNotification(p) {
     if (!pixNotifEnabled || Notification.permission !== 'granted') return;
@@ -2784,6 +2897,8 @@ const EXPORTED_DATA = ${dataJson};
     if (!pixPollingInterval) {
       pixPollingInterval = setInterval(fetchMPPayments, 12000);
     }
+    // Garante que a inscrição de push continua válida (ex: após reabrir o site)
+    enablePushNotifications();
   }
 
   // ═══════════════════════════════════════════════════════
