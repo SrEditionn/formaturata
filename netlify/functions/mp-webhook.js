@@ -42,6 +42,17 @@ exports.handler = async function (event) {
     console.log('[mp-webhook] querystring:', JSON.stringify(params));
     console.log('[mp-webhook] body:', JSON.stringify(body));
 
+    // Salva uma "fotografia" desta chamada no Firestore, para diagnóstico via
+    // /.netlify/functions/mp-ver-ultima-chamada (sem precisar do painel do Netlify)
+    try {
+      await setDocREST('formatura', 'webhook_debug', {
+        recebidoEm: new Date().toISOString(),
+        method: event.httpMethod,
+        querystring: JSON.stringify(params),
+        body: JSON.stringify(body),
+      });
+    } catch (e) { /* não deixa o diagnóstico quebrar o fluxo principal */ }
+
     // ── Extração do paymentId nos TODOS os formatos conhecidos do Mercado Pago ──
     //
     // Formato 1 (Notificações v1 — mais antigo):
