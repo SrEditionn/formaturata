@@ -2664,6 +2664,26 @@ const EXPORTED_DATA = ${dataJson};
     return outputArray;
   }
 
+  // Mostra uma notificação local (com o site aberto). No Android/Chrome mobile,
+  // "new Notification()" direto é PROIBIDO (lança erro "Illegal constructor") —
+  // é obrigatório usar o Service Worker (reg.showNotification) para mostrar
+  // notificações ali. No desktop, o SW também funciona, então usamos ele sempre
+  // que disponível e caímos para o construtor direto só como último recurso.
+  async function showLocalNotification(title, options) {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+        if (reg) {
+          await reg.showNotification(title, options);
+          return;
+        }
+      }
+      new Notification(title, options);
+    } catch (e) {
+      console.warn('[Notif] Erro ao mostrar notificação local:', e);
+    }
+  }
+
   // Registra o Service Worker e inscreve este navegador para receber push
   // mesmo com o site fechado (a notificação chega via mp-webhook.js no servidor).
   async function enablePushNotifications() {
@@ -2723,14 +2743,16 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = true;
       savePixNotifState();
       updateNotifBtn();
-      new Notification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas mesmo com o site fechado.' });
+      // Inscreve este navegador para push real (funciona com o site fechado/minimizado)
+      // ANTES de mostrar a notificação de teste, pois é o registro do Service Worker
+      // feito aqui que permite mostrar notificações no Android/Chrome mobile.
+      await enablePushNotifications();
+      showLocalNotification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas mesmo com o site fechado.' });
       // Garante que o polling está rodando para as notificações funcionarem com o site aberto
       fetchMPPayments();
       if (!pixPollingInterval) {
         pixPollingInterval = setInterval(fetchMPPayments, 12000);
       }
-      // Inscreve este navegador para push real (funciona com o site fechado/minimizado)
-      enablePushNotifications();
     } else {
       alert('Permissão de notificação negada.\nAbra as configurações do navegador e permita notificações para este site.');
     }
@@ -2741,11 +2763,7 @@ const EXPORTED_DATA = ${dataJson};
     if (!pixNotifEnabled || Notification.permission !== 'granted') return;
     const banco = p.bank || 'Banco não identificado';
     const body = 'Pix recebido do banco ' + banco + '\nValor: ' + fmtPix(p.value) + '\nHorário: ' + p.hora;
-    try {
-      new Notification('Formatura: Pix recebido', { body: body, tag: p.id, requireInteraction: false });
-    } catch(e) {
-      console.warn('[Notif] Erro ao disparar notificação:', e);
-    }
+    showLocalNotification('Formatura: Pix recebido', { body: body, tag: p.id, requireInteraction: false });
   }
 
   // ── Atribuir Pix a categoria ──
