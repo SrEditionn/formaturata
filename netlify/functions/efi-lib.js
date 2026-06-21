@@ -206,6 +206,7 @@ async function ativarNotificacaoPagador(chave) {
             webhook: {
               ...webhookAtual,
               notificacao: {
+                tarifa: false,
                 ...notificacaoAtual,
                 pagador: true,
               },
