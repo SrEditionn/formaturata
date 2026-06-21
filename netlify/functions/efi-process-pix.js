@@ -103,6 +103,18 @@ async function processarPixRecebidos(pixArrayBruto) {
     const e2eid = item.endToEndId;
     if (!e2eid) continue;
 
+    // CRÍTICO: o webhook da Efí manda no MESMO array "pix" tanto Pix recebidos de verdade
+    // quanto o resultado de envios/repasses feitos pela própria chave (ex: o repasse
+    // automático pro Nubank, sobretudo quando ele FALHA por limite diário). Esses eventos
+    // de envio vêm com "tipo" e "status" preenchidos (ex: tipo "SOLICITACAO", status
+    // "NAO_REALIZADO"); um Pix recebido de verdade nunca tem esses campos. Se não
+    // filtrarmos isso aqui, uma falha de repasse é processada como "Pix novo", o que
+    // dispara OUTRO repasse, que falha de novo, que gera OUTRO evento — loop infinito.
+    if (item.tipo || item.status) {
+      console.log('[efi-process-pix] ignorado (evento de envio/repasse, não é Pix recebido):', e2eid, '| tipo:', item.tipo, '| status:', item.status);
+      continue;
+    }
+
     // IMPORTANTE: a checagem de idempotência usa SOMENTE "seen", nunca "logs".
     // "logs" é o que aparece na tela e é esvaziado pelo botão "Limpar" do front-end —
     // se a checagem dependesse de "logs", um Pix limpo da tela passaria a parecer
