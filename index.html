@@ -2445,16 +2445,16 @@ const EXPORTED_DATA = ${dataJson};
         if (pixSeenIds.has(sid)) continue;
 
         const payer = p.name || 'Pagador';
-        const dt = new Date(p.date || Date.now());
+        const dt = p.ts ? new Date(p.ts) : new Date();
         newOnes.push({
           id: 'pix_' + sid,
           pixId: sid,
           name: payer,
           bank: p.bank || 'Banco não identificado',
           value: p.value,
-          data: dt.toLocaleDateString('pt-BR'),
-          hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          ts: dt.getTime(),
+          data: p.data || dt.toLocaleDateString('pt-BR'),
+          hora: p.hora || dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          ts: p.ts || dt.getTime(),
           assignedTo: null
         });
         pixSeenIds.add(sid);
