@@ -145,8 +145,8 @@ async function processarPixRecebidos(pixArrayBruto) {
       name: nome,
       bank: banco,
       value: valor,
-      data: dt.toLocaleDateString('pt-BR'),
-      hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      data: dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+      hora: dt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       ts: dt.getTime(),
       assignedTo: null,
     };
