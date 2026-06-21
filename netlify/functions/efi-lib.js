@@ -108,7 +108,7 @@ async function getAccessToken() {
   }
 
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-  const data = await rawRequest('POST', '/v2/oauth/token', {
+  const data = await rawRequest('POST', '/oauth/token', {
     headers: { Authorization: `Basic ${basic}` },
     body: {
       grant_type: 'client_credentials',
