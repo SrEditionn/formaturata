@@ -19,8 +19,8 @@ const VAPID_PUBLIC_KEY = 'BE4MscUkWvkoRhjXPj_ixZ57h4-PBnUHlxsxKug1BW8T57EU-bkAR5
 const VAPID_PRIVATE_KEY = 'nOveZwVINacfN_lw7fZTkjDEFSpwHlswkSNOx07bCVg';
 const VAPID_SUBJECT = 'mailto:contato@example.com';
 
-function extractNome(detalhe) {
-  const nome = detalhe?.pagador?.nome || detalhe?.devedor?.nome || '';
+function extractNome(obj) {
+  const nome = obj?.pagador?.nome || obj?.devedor?.nome || obj?.gnExtras?.pagador?.nome || '';
   return nome && nome.trim() ? nome.trim() : null;
 }
 
@@ -107,20 +107,24 @@ async function processarPixRecebidos(pixArrayBruto) {
     const alreadySeen = seen.includes(String(e2eid));
     if (alreadyLogged && alreadySeen) continue; // já processado antes, ignora (idempotência)
 
-    // Busca o detalhe OFICIAL e autenticado — a listagem (GET /v2/pix) às vezes não traz
-    // o nome do pagador completo, então buscamos individualmente por endToEndId.
-    let detalhe;
+    // Busca o detalhe OFICIAL e autenticado — usado principalmente para conferir o valor
+    // e o horário com precisão. NOTA: a API da Efí normalmente NÃO retorna o nome do
+    // pagador no Pix recebido (proteção de dados) — então "Pagador não identificado" é
+    // o resultado esperado na maioria dos casos, não um defeito.
+    // Se a busca de detalhe falhar (rede, rate limit, etc.), não descartamos o Pix: usamos
+    // os dados que já vieram na listagem, para não perder o registro pra sempre.
+    let detalhe = null;
     try {
       detalhe = await getPixPorE2eId(e2eid);
     } catch (err) {
-      console.error('[efi-process-pix] falha ao buscar detalhe do Pix', e2eid, err.message);
-      continue;
+      console.error('[efi-process-pix] falha ao buscar detalhe do Pix (usando dados da listagem):', e2eid, err.message);
     }
 
-    const nome = extractNome(detalhe) || 'Pagador não identificado';
-    const valor = Number(detalhe?.valor || item.valor || 0);
+    const nome = extractNome(detalhe) || extractNome(item) || 'Pagador não identificado';
+    const valor = Number(detalhe?.valor ?? item.valor ?? 0);
     const banco = bancoFromEndToEndId(e2eid) || 'Banco não identificado';
-    const horario = detalhe?.horario ? new Date(detalhe.horario).getTime() : Date.now();
+    const horarioBruto = detalhe?.horario || item.horario;
+    const horario = horarioBruto ? new Date(horarioBruto).getTime() : Date.now();
 
     console.log('[efi-process-pix] PIX RECEBIDO — nome:', nome, '| banco:', banco, '| valor:', valor);
 

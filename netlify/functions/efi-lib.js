@@ -166,9 +166,11 @@ function registrarWebhook(chave, webhookUrl) {
 function enviarPix({ idEnvio, valor, chaveOrigem, chaveDestino, descricao }) {
   return efiRequest('PUT', `/v3/gn/pix/${encodeURIComponent(idEnvio)}`, {
     valor: String(valor),
-    pagador: { chave: chaveOrigem },
+    pagador: {
+      chave: chaveOrigem,
+      ...(descricao ? { infoPagador: descricao } : {}),
+    },
     favorecido: { chave: chaveDestino },
-    ...(descricao ? { descricao } : {}),
   });
 }
 
