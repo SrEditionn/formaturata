@@ -165,14 +165,46 @@ function registrarWebhook(chave, webhookUrl) {
 // dados) — precisa desse PUT /v2/gn/config uma única vez por chave para ligar.
 // Depois de ativado, o campo "gnExtras.pagador.nome" passa a vir nas próximas notificações
 // (não retroage para Pix já recebidos antes da ativação).
-function ativarNotificacaoPagador(chave) {
-  return efiRequest('PUT', '/v2/gn/config', {
+// Busca a configuração atual da conta (necessário porque o PUT /v2/gn/config exige o
+// corpo completo, incluindo campos que talvez você nunca tenha mexido, como
+// "receberSemChave" — não dá pra mandar só o pedaço que quer mudar).
+function buscarConfig() {
+  return efiRequest('GET', '/v2/gn/config');
+}
+
+// Ativa o envio do nome completo (e CPF/CNPJ mascarado + banco) do pagador nas notificações
+// de webhook para uma chave específica. Por padrão a Efí NÃO manda esse dado (proteção de
+// dados) — precisa desse PUT /v2/gn/config uma única vez por chave para ligar.
+// Depois de ativado, o campo "gnExtras.pagador.nome" passa a vir nas próximas notificações
+// (não retroage para Pix já recebidos antes da ativação).
+//
+// IMPORTANTE: a API exige o corpo COMPLETO no PUT (inclusive "receberSemChave" e a config
+// das outras chaves, se houver) — por isso buscamos a config atual primeiro e só adicionamos
+// a opção do nome em cima dela, em vez de mandar um corpo novo do zero (o que apagaria
+// qualquer outra configuração que você já tivesse).
+async function ativarNotificacaoPagador(chave) {
+  const atual = (await buscarConfig()) || {};
+  const pixAtual = atual.pix || {};
+  const chavesAtuais = pixAtual.chaves || {};
+  const chaveAtual = chavesAtuais[chave] || {};
+  const recebimentoAtual = chaveAtual.recebimento || {};
+  const webhookAtual = recebimentoAtual.webhook || {};
+  const notificacaoAtual = webhookAtual.notificacao || {};
+
+  const novoBody = {
     pix: {
+      ...pixAtual,
+      receberSemChave: pixAtual.receberSemChave !== undefined ? pixAtual.receberSemChave : true,
       chaves: {
+        ...chavesAtuais,
         [chave]: {
+          ...chaveAtual,
           recebimento: {
+            ...recebimentoAtual,
             webhook: {
+              ...webhookAtual,
               notificacao: {
+                ...notificacaoAtual,
                 pagador: true,
               },
             },
@@ -180,7 +212,9 @@ function ativarNotificacaoPagador(chave) {
         },
       },
     },
-  });
+  };
+
+  return efiRequest('PUT', '/v2/gn/config', novoBody);
 }
 
 // Envia um Pix automaticamente (produto "Conta Digital Efí" / Envio de Pix).
