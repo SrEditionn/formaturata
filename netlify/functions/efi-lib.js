@@ -1,0 +1,177 @@
+// Cliente mínimo para a API Pix da Efí (ex-Gerencianet), sem dependências externas.
+// Arquivo: netlify/functions/efi-lib.js
+//
+// A API da Efí exige autenticação mTLS (certificado .p12 da própria conta) EM TODAS as
+// chamadas, inclusive para pegar o token OAuth2. Por isso usamos o módulo nativo 'https'
+// (em vez do fetch global), que permite passar pfx/passphrase por requisição.
+//
+// ── Variáveis de ambiente esperadas (configure no painel do Netlify, nunca no código) ──
+//   EFI_CLIENT_ID            -> Client_Id da aplicação Efí
+//   EFI_CLIENT_SECRET        -> Client_Secret da aplicação Efí
+//   EFI_CERTIFICADO_BASE64   -> o arquivo .p12 de produção, convertido para base64
+//   EFI_CERT_PASSPHRASE      -> senha do .p12 (deixe vazio se o certificado não tiver senha)
+//   EFI_AMBIENTE             -> 'producao' (padrão) ou 'homologacao'
+//   EFI_PIX_KEY              -> a chave Pix cadastrada na Efí que RECEBE os pagamentos
+//   EFI_PIX_KEY_ORIGEM_ENVIO -> chave Pix de origem usada para autorizar envios (Conta Digital Efí)
+//   NUBANK_PIX_KEY           -> chave Pix da conta Nubank para onde o valor é repassado
+
+const https = require('https');
+
+function env(name, fallback) {
+  const v = process.env[name];
+  return (v === undefined || v === null || v === '') ? fallback : v;
+}
+
+function baseHost() {
+  const ambiente = env('EFI_AMBIENTE', 'producao');
+  return ambiente === 'homologacao' ? 'pix-h.api.efipay.com.br' : 'pix.api.efipay.com.br';
+}
+
+let cachedAgentOptions = null;
+function getAgentOptions() {
+  if (cachedAgentOptions) return cachedAgentOptions;
+
+  const certB64 = process.env.EFI_CERTIFICADO_BASE64;
+  if (!certB64) {
+    throw new Error('EFI_CERTIFICADO_BASE64 não configurado nas variáveis de ambiente do Netlify.');
+  }
+
+  cachedAgentOptions = {
+    pfx: Buffer.from(certB64, 'base64'),
+    passphrase: env('EFI_CERT_PASSPHRASE', ''),
+  };
+  return cachedAgentOptions;
+}
+
+// Requisição HTTPS genérica com mTLS, usando o módulo nativo (sem libs externas)
+function rawRequest(method, path, { headers = {}, body, host } = {}) {
+  return new Promise((resolve, reject) => {
+    const agentOpts = getAgentOptions();
+    const bodyStr = body !== undefined ? JSON.stringify(body) : undefined;
+
+    const req = https.request(
+      {
+        method,
+        host: host || baseHost(),
+        path,
+        pfx: agentOpts.pfx,
+        passphrase: agentOpts.passphrase,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
+          ...headers,
+        },
+      },
+      (res) => {
+        let chunks = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => {
+          const raw = Buffer.concat(chunks).toString('utf8');
+          let parsed = null;
+          try { parsed = raw ? JSON.parse(raw) : null; } catch (e) { parsed = raw; }
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(parsed);
+          } else {
+            const err = new Error(`Efí HTTP ${res.statusCode} em ${method} ${path}: ${raw.slice(0, 500)}`);
+            err.statusCode = res.statusCode;
+            err.body = parsed;
+            reject(err);
+          }
+        });
+      }
+    );
+    req.on('error', reject);
+    if (bodyStr) req.write(bodyStr);
+    req.end();
+  });
+}
+
+// ── OAuth2 (client_credentials), com cache do token em memória entre invocações "quentes" ──
+let tokenCache = { token: null, expiresAt: 0 };
+
+async function getAccessToken() {
+  const now = Date.now();
+  if (tokenCache.token && tokenCache.expiresAt > now + 10_000) {
+    return tokenCache.token;
+  }
+
+  const clientId = process.env.EFI_CLIENT_ID;
+  const clientSecret = process.env.EFI_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error('EFI_CLIENT_ID / EFI_CLIENT_SECRET não configurados nas variáveis de ambiente do Netlify.');
+  }
+
+  const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  const data = await rawRequest('POST', '/v2/oauth/token', {
+    headers: { Authorization: `Basic ${basic}` },
+    body: {
+      grant_type: 'client_credentials',
+      scope: 'cob.write cob.read pix.write pix.read webhook.write webhook.read gn.pix.send.write gn.pix.send.read gn.balance.read',
+    },
+  });
+
+  if (!data || !data.access_token) {
+    throw new Error('Efí não retornou access_token: ' + JSON.stringify(data));
+  }
+
+  tokenCache = {
+    token: data.access_token,
+    expiresAt: now + (Number(data.expires_in || 3600) * 1000),
+  };
+  return tokenCache.token;
+}
+
+// Requisição autenticada (token + mTLS) na API da Efí
+async function efiRequest(method, path, body) {
+  const token = await getAccessToken();
+  return rawRequest(method, path, {
+    headers: { Authorization: `Bearer ${token}` },
+    body,
+  });
+}
+
+// ── Endpoints Pix usados pelo site ──
+
+// Busca o detalhe oficial e autenticado de um Pix recebido a partir do endToEndId.
+// Importante: NUNCA confiamos em valor/pagador que vier direto no corpo do webhook —
+// sempre buscamos de novo aqui, autenticado, para evitar que alguém forje uma notificação.
+function getPixPorE2eId(e2eid) {
+  return efiRequest('GET', `/v2/pix/${encodeURIComponent(e2eid)}`);
+}
+
+// Lista os Pix recebidos num intervalo (usado para popular/atualizar a lista no front-end)
+function listarPixRecebidos({ inicio, fim, itensPorPagina = 100 }) {
+  const qs = new URLSearchParams({
+    inicio,
+    fim,
+    'paginacao.itensPorPagina': String(itensPorPagina),
+  }).toString();
+  return efiRequest('GET', `/v2/pix?${qs}`);
+}
+
+// Registra (ou atualiza) a URL de webhook associada à chave Pix de recebimento
+function registrarWebhook(chave, webhookUrl) {
+  return efiRequest('PUT', `/v2/webhook/${encodeURIComponent(chave)}`, { webhookUrl });
+}
+
+// Envia um Pix automaticamente (produto "Conta Digital Efí" / Envio de Pix).
+// Requer que a aplicação tenha o escopo de envio liberado pela Efí — nem toda conta tem
+// isso habilitado por padrão. idEnvio precisa ser único (usamos o txid/e2eid recebido).
+function enviarPix({ idEnvio, valor, chaveOrigem, chaveDestino, descricao }) {
+  return efiRequest('PUT', `/v3/gn/pix/${encodeURIComponent(idEnvio)}`, {
+    valor: String(valor),
+    pagador: { chave: chaveOrigem },
+    favorecido: { chave: chaveDestino },
+    ...(descricao ? { descricao } : {}),
+  });
+}
+
+module.exports = {
+  env,
+  getAccessToken,
+  efiRequest,
+  getPixPorE2eId,
+  listarPixRecebidos,
+  registrarWebhook,
+  enviarPix,
+};
