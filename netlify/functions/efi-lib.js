@@ -200,6 +200,7 @@ async function ativarNotificacaoPagador(chave) {
         [chave]: {
           ...chaveAtual,
           recebimento: {
+            txidObrigatorio: false,
             ...recebimentoAtual,
             webhook: {
               ...webhookAtual,
