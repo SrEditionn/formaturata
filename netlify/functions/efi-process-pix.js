@@ -103,9 +103,14 @@ async function processarPixRecebidos(pixArrayBruto) {
     const e2eid = item.endToEndId;
     if (!e2eid) continue;
 
-    const alreadyLogged = logs.some((l) => String(l.pixId) === String(e2eid));
-    const alreadySeen = seen.includes(String(e2eid));
-    if (alreadyLogged && alreadySeen) continue; // já processado antes, ignora (idempotência)
+    // IMPORTANTE: a checagem de idempotência usa SOMENTE "seen", nunca "logs".
+    // "logs" é o que aparece na tela e é esvaziado pelo botão "Limpar" do front-end —
+    // se a checagem dependesse de "logs", um Pix limpo da tela passaria a parecer
+    // "novo" de novo no próximo polling (já que não está mais em logs) e voltaria
+    // sozinho, que é exatamente o bug relatado. "seen" é o registro permanente de
+    // processamento: só cresce, nunca é esvaziado pelo "Limpar".
+    const jaProcessado = seen.includes(String(e2eid));
+    if (jaProcessado) continue;
 
     // Busca o detalhe OFICIAL e autenticado — usado principalmente para conferir o valor
     // e o horário com precisão. NOTA: a API da Efí normalmente NÃO retorna o nome do
@@ -120,7 +125,7 @@ async function processarPixRecebidos(pixArrayBruto) {
       console.error('[efi-process-pix] falha ao buscar detalhe do Pix (usando dados da listagem):', e2eid, err.message);
     }
 
-    const nome = extractNome(detalhe) || extractNome(item) || 'Pagador não identificado';
+    const nome = extractNome(item) || extractNome(detalhe) || 'Pagador não identificado';
     const valor = Number(detalhe?.valor ?? item.valor ?? 0);
     const banco = bancoFromEndToEndId(e2eid) || 'Banco não identificado';
     const horarioBruto = detalhe?.horario || item.horario;
@@ -128,44 +133,35 @@ async function processarPixRecebidos(pixArrayBruto) {
 
     console.log('[efi-process-pix] PIX RECEBIDO — nome:', nome, '| banco:', banco, '| valor:', valor);
 
-    if (!alreadyLogged) {
-      // IMPORTANTE: o front-end (index.html) espera os campos "data" e "hora" já formatados
-      // em pt-BR (strings), e "id" no formato "pix_<e2eid>" — é o mesmo formato que
-      // fetchEfiPayments() monta no client. Os dois caminhos gravam no mesmo documento
-      // Firestore (formatura/pix), então o formato precisa ser idêntico nos dois lados,
-      // senão o front-end mostra "undefined" ao receber a versão gravada pelo backend.
-      const entry = {
-        id: 'pix_' + e2eid,
-        pixId: String(e2eid),
-        txid: detalhe?.txid || item.txid || null,
-        name: nome,
-        bank: banco,
-        value: valor,
-        data: dt.toLocaleDateString('pt-BR'),
-        hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        ts: dt.getTime(),
-        assignedTo: null,
-      };
-      logs.unshift(entry);
-      if (logs.length > 200) logs.length = 200;
-      novos.push(entry);
-      mudou = true;
-    }
-    if (!alreadySeen) {
-      seen.push(String(e2eid));
-      if (seen.length > 500) seen.splice(0, seen.length - 500);
-      mudou = true;
-    }
+    // IMPORTANTE: o front-end (index.html) espera os campos "data" e "hora" já formatados
+    // em pt-BR (strings), e "id" no formato "pix_<e2eid>" — é o mesmo formato que
+    // fetchEfiPayments() monta no client. Os dois caminhos gravam no mesmo documento
+    // Firestore (formatura/pix), então o formato precisa ser idêntico nos dois lados,
+    // senão o front-end mostra "undefined" ao receber a versão gravada pelo backend.
+    const entry = {
+      id: 'pix_' + e2eid,
+      pixId: String(e2eid),
+      txid: detalhe?.txid || item.txid || null,
+      name: nome,
+      bank: banco,
+      value: valor,
+      data: dt.toLocaleDateString('pt-BR'),
+      hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      ts: dt.getTime(),
+      assignedTo: null,
+    };
+    logs.unshift(entry);
+    if (logs.length > 200) logs.length = 200;
+    novos.push(entry);
+    mudou = true;
+
+    seen.push(String(e2eid));
+    if (seen.length > 500) seen.splice(0, seen.length - 500);
 
     // ── Repasse automático para a conta Nubank ──
-    // Só tenta na primeira vez que este Pix é registrado (alreadyLogged == false). Se você
-    // já tinha visto este Pix numa execução anterior (ex: antes de uma correção de bug),
-    // ele não vai tentar de novo automaticamente — veja o aviso abaixo.
-    if (!alreadyLogged) {
-      await tentarRepasse(e2eid, valor);
-    } else {
-      console.log('[efi-process-pix] repasse NÃO tentado (Pix já estava registrado antes):', e2eid);
-    }
+    // Roda sempre que o Pix é processado pela primeira vez (ou seja, toda vez que
+    // passa pelo "if (jaProcessado) continue" acima sem ser pulado).
+    await tentarRepasse(e2eid, valor);
   }
 
   if (mudou) {
