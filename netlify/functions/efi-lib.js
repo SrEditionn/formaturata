@@ -5,10 +5,14 @@
 // chamadas, inclusive para pegar o token OAuth2. Por isso usamos o módulo nativo 'https'
 // (em vez do fetch global), que permite passar pfx/passphrase por requisição.
 //
+// O certificado fica em netlify/functions/efi-cert.p12 (embutido no pacote da function via
+// "included_files" no netlify.toml) — NÃO como variável de ambiente, porque o AWS Lambda
+// (que roda por trás do Netlify) tem um limite de 4KB para todas as env vars somadas, e o
+// certificado sozinho já estoura isso.
+//
 // ── Variáveis de ambiente esperadas (configure no painel do Netlify, nunca no código) ──
 //   EFI_CLIENT_ID            -> Client_Id da aplicação Efí
 //   EFI_CLIENT_SECRET        -> Client_Secret da aplicação Efí
-//   EFI_CERTIFICADO_BASE64   -> o arquivo .p12 de produção, convertido para base64
 //   EFI_CERT_PASSPHRASE      -> senha do .p12 (deixe vazio se o certificado não tiver senha)
 //   EFI_AMBIENTE             -> 'producao' (padrão) ou 'homologacao'
 //   EFI_PIX_KEY              -> a chave Pix cadastrada na Efí que RECEBE os pagamentos
@@ -16,6 +20,8 @@
 //   NUBANK_PIX_KEY           -> chave Pix da conta Nubank para onde o valor é repassado
 
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 function env(name, fallback) {
   const v = process.env[name];
@@ -31,13 +37,13 @@ let cachedAgentOptions = null;
 function getAgentOptions() {
   if (cachedAgentOptions) return cachedAgentOptions;
 
-  const certB64 = process.env.EFI_CERTIFICADO_BASE64;
-  if (!certB64) {
-    throw new Error('EFI_CERTIFICADO_BASE64 não configurado nas variáveis de ambiente do Netlify.');
+  const certPath = path.join(__dirname, 'efi-cert.p12');
+  if (!fs.existsSync(certPath)) {
+    throw new Error('Certificado efi-cert.p12 não encontrado junto da function. Confira o included_files no netlify.toml.');
   }
 
   cachedAgentOptions = {
-    pfx: Buffer.from(certB64, 'base64'),
+    pfx: fs.readFileSync(certPath),
     passphrase: env('EFI_CERT_PASSPHRASE', ''),
   };
   return cachedAgentOptions;
