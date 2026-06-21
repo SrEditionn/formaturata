@@ -1,17 +1,13 @@
 // Netlify Function: registra a URL de webhook na Efí
 // Arquivo: netlify/functions/efi-register-webhook.js
 //
-// ⚠️ NÃO CHAME ESTE ENDPOINT — a Efí exige mTLS (certificado de cliente) em qualquer
-// URL de webhook, e o Netlify Functions não tem como atender essa exigência de graça.
-// Chamar esta URL vai sempre retornar o erro "webhook_invalido" / TLS mútuo não
-// configurado — isso é esperado, não é um bug a corrigir.
+// Agora o webhook é atendido pela VM Oracle (que faz o mTLS exigido pela Efí), não mais
+// pelo Netlify. A URL registrada vem da variável de ambiente EFI_WEBHOOK_URL — configure
+// ela no painel do Netlify (Site settings → Environment variables) com o endereço da VM,
+// por exemplo: https://taterceiro.duckdns.org/
 //
-// O site hoje usa POLLING (efi-proxy.js, chamado a cada 12s pelo front-end) como
-// mecanismo de atualização em vez de webhook. Veja efi-process-pix.js para a lógica
-// de processamento. Este arquivo fica aqui apenas como referência / para o caso de
-// você um dia hospedar um servidor próprio com mTLS configurado.
-//
-// Como usar, SE algum dia voltar a fazer sentido (servidor próprio com mTLS):
+// Como usar (uma única vez, depois que o servidor da VM já estiver rodando — Passo 8 do
+// README do pacote webhook-vm):
 //   https://SEU-SITE.netlify.app/.netlify/functions/efi-register-webhook?secret=SUA_SETUP_SECRET
 
 const { registrarWebhook } = require('./efi-lib.js');
@@ -28,15 +24,17 @@ exports.handler = async function (event) {
   }
 
   const chave = process.env.EFI_PIX_KEY;
-  const siteUrl = process.env.URL || process.env.DEPLOY_PRIME_URL; // variáveis automáticas do Netlify
   if (!chave) {
     return { statusCode: 500, body: 'EFI_PIX_KEY não configurada nas variáveis de ambiente.' };
   }
-  if (!siteUrl) {
-    return { statusCode: 500, body: 'Não consegui detectar a URL do site automaticamente. Configure manualmente via API da Efí.' };
-  }
 
-  const webhookUrl = `${siteUrl}/.netlify/functions/efi-webhook`;
+  const webhookUrl = process.env.EFI_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return {
+      statusCode: 500,
+      body: 'EFI_WEBHOOK_URL não configurada nas variáveis de ambiente do Netlify. Configure com o endereço da VM, ex: https://taterceiro.duckdns.org/',
+    };
+  }
 
   try {
     const resultado = await registrarWebhook(chave, webhookUrl);
