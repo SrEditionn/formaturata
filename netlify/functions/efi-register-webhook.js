@@ -1,11 +1,17 @@
-// Netlify Function: registra a URL de webhook na Efí (rodar UMA VEZ depois do deploy)
+// Netlify Function: registra a URL de webhook na Efí
 // Arquivo: netlify/functions/efi-register-webhook.js
 //
-// Protegido por SETUP_SECRET para que ninguém além de você consiga apontar seu webhook
-// Pix para outra URL. Depois de rodar com sucesso uma vez, não precisa rodar de novo
-// (só se você trocar de domínio).
+// ⚠️ NÃO CHAME ESTE ENDPOINT — a Efí exige mTLS (certificado de cliente) em qualquer
+// URL de webhook, e o Netlify Functions não tem como atender essa exigência de graça.
+// Chamar esta URL vai sempre retornar o erro "webhook_invalido" / TLS mútuo não
+// configurado — isso é esperado, não é um bug a corrigir.
 //
-// Como usar, depois de configurar as variáveis de ambiente no Netlify e fazer o deploy:
+// O site hoje usa POLLING (efi-proxy.js, chamado a cada 12s pelo front-end) como
+// mecanismo de atualização em vez de webhook. Veja efi-process-pix.js para a lógica
+// de processamento. Este arquivo fica aqui apenas como referência / para o caso de
+// você um dia hospedar um servidor próprio com mTLS configurado.
+//
+// Como usar, SE algum dia voltar a fazer sentido (servidor próprio com mTLS):
 //   https://SEU-SITE.netlify.app/.netlify/functions/efi-register-webhook?secret=SUA_SETUP_SECRET
 
 const { registrarWebhook } = require('./efi-lib.js');
