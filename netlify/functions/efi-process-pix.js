@@ -124,14 +124,31 @@ async function processarPixRecebidos(pixArrayBruto) {
     const valor = Number(detalhe?.valor ?? item.valor ?? 0);
     const banco = bancoFromEndToEndId(e2eid) || 'Banco não identificado';
     const horarioBruto = detalhe?.horario || item.horario;
-    const horario = horarioBruto ? new Date(horarioBruto).getTime() : Date.now();
+    const dt = horarioBruto ? new Date(horarioBruto) : new Date();
 
     console.log('[efi-process-pix] PIX RECEBIDO — nome:', nome, '| banco:', banco, '| valor:', valor);
 
     if (!alreadyLogged) {
-      logs.unshift({ pixId: String(e2eid), txid: detalhe?.txid || item.txid || null, name: nome, bank: banco, value: valor, date: horario });
+      // IMPORTANTE: o front-end (index.html) espera os campos "data" e "hora" já formatados
+      // em pt-BR (strings), e "id" no formato "pix_<e2eid>" — é o mesmo formato que
+      // fetchEfiPayments() monta no client. Os dois caminhos gravam no mesmo documento
+      // Firestore (formatura/pix), então o formato precisa ser idêntico nos dois lados,
+      // senão o front-end mostra "undefined" ao receber a versão gravada pelo backend.
+      const entry = {
+        id: 'pix_' + e2eid,
+        pixId: String(e2eid),
+        txid: detalhe?.txid || item.txid || null,
+        name: nome,
+        bank: banco,
+        value: valor,
+        data: dt.toLocaleDateString('pt-BR'),
+        hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        ts: dt.getTime(),
+        assignedTo: null,
+      };
+      logs.unshift(entry);
       if (logs.length > 200) logs.length = 200;
-      novos.push({ id: 'pix_' + e2eid, pixId: String(e2eid), name: nome, bank: banco, value: valor, date: horario });
+      novos.push(entry);
       mudou = true;
     }
     if (!alreadySeen) {
@@ -141,8 +158,13 @@ async function processarPixRecebidos(pixArrayBruto) {
     }
 
     // ── Repasse automático para a conta Nubank ──
+    // Só tenta na primeira vez que este Pix é registrado (alreadyLogged == false). Se você
+    // já tinha visto este Pix numa execução anterior (ex: antes de uma correção de bug),
+    // ele não vai tentar de novo automaticamente — veja o aviso abaixo.
     if (!alreadyLogged) {
       await tentarRepasse(e2eid, valor);
+    } else {
+      console.log('[efi-process-pix] repasse NÃO tentado (Pix já estava registrado antes):', e2eid);
     }
   }
 

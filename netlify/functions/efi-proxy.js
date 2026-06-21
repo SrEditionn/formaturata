@@ -33,12 +33,14 @@ exports.handler = async function (event) {
     const logs = await processarPixRecebidos(recebidos);
 
     const results = logs.map((l) => ({
-      id: l.pixId,
+      id: l.id,
       pixId: l.pixId,
       name: l.name,
       bank: l.bank,
       value: l.value,
-      date: l.date,
+      data: l.data,
+      hora: l.hora,
+      ts: l.ts,
     }));
 
     return {
