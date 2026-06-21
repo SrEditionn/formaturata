@@ -210,6 +210,16 @@ async function ativarNotificacaoPagador(chave) {
                 ...notificacaoAtual,
                 pagador: true,
               },
+              notificar: {
+                ...(webhookAtual.notificar || {}),
+                // Sem isso, a Efí NÃO dispara o webhook pra Pix recebidos via chave direta
+                // (sem txid/cobrança) — só pra Pix gerados com cobrança. Como o site recebe
+                // pagamentos via chave direta (qualquer app: PicPay, Inter, etc, mandando
+                // pra taterceiro@gmail.com sem passar por uma cobrança gerada pelo site),
+                // sem essa flag o webhook nunca chega pra esses casos e o nome nunca vem —
+                // só o polling antigo preenche a tela, e o polling não traz nome nenhum.
+                pixSemTxid: true,
+              },
             },
           },
         },
