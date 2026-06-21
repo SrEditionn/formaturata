@@ -112,7 +112,7 @@ async function getAccessToken() {
     headers: { Authorization: `Basic ${basic}` },
     body: {
       grant_type: 'client_credentials',
-      scope: 'cob.write cob.read pix.write pix.read webhook.write webhook.read gn.pix.send.write gn.pix.send.read gn.balance.read',
+      scope: 'cob.write cob.read pix.write pix.read webhook.write webhook.read gn.pix.send.write gn.pix.send.read gn.balance.read gn.settings.write gn.settings.read',
     },
   });
 
@@ -160,6 +160,29 @@ function registrarWebhook(chave, webhookUrl) {
   return efiRequest('PUT', `/v2/webhook/${encodeURIComponent(chave)}`, { webhookUrl });
 }
 
+// Ativa o envio do nome completo (e CPF/CNPJ mascarado + banco) do pagador nas notificações
+// de webhook para uma chave específica. Por padrão a Efí NÃO manda esse dado (proteção de
+// dados) — precisa desse PUT /v2/gn/config uma única vez por chave para ligar.
+// Depois de ativado, o campo "gnExtras.pagador.nome" passa a vir nas próximas notificações
+// (não retroage para Pix já recebidos antes da ativação).
+function ativarNotificacaoPagador(chave) {
+  return efiRequest('PUT', '/v2/gn/config', {
+    pix: {
+      chaves: {
+        [chave]: {
+          recebimento: {
+            webhook: {
+              notificacao: {
+                pagador: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 // Envia um Pix automaticamente (produto "Conta Digital Efí" / Envio de Pix).
 // Requer que a aplicação tenha o escopo de envio liberado pela Efí — nem toda conta tem
 // isso habilitado por padrão. idEnvio precisa ser único (usamos o txid/e2eid recebido).
@@ -181,5 +204,6 @@ module.exports = {
   getPixPorE2eId,
   listarPixRecebidos,
   registrarWebhook,
+  ativarNotificacaoPagador,
   enviarPix,
 };
