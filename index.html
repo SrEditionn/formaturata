@@ -282,7 +282,8 @@
   }
   .pix-card-body { flex: 1; }
   .pix-card-status { font-size: 10px; font-weight: 700; color: #22c55e; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1px; }
-  .pix-card-bank { font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 1px; }
+  .pix-card-name { font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 1px; }
+  .pix-card-bank { font-size: 11px; font-weight: 600; color: #94a3b8; margin-top: 1px; }
   .pix-card-value { font-size: 18px; font-weight: 800; color: #0070ba; margin-top: 2px; }
   .pix-card-assigned { font-size: 11px; color: #22c55e; font-weight: 600; margin-top: 2px; }
   .pix-card-meta { text-align: right; flex-shrink: 0; }
@@ -1412,7 +1413,7 @@
       <div class="pix-empty">
         <div class="pix-empty-icon">💸</div>
         <div class="pix-empty-title">Aguardando Pix...</div>
-        <div class="pix-empty-sub">Quando um Pix for recebido no Mercado Pago, ele aparecerá aqui em tempo real.</div>
+        <div class="pix-empty-sub">Quando um Pix for recebido, ele aparecerá aqui em tempo real.</div>
       </div>
     </div>
   </div>
@@ -2374,10 +2375,10 @@ const EXPORTED_DATA = ${dataJson};
   });
 
   // ═══════════════════════════════════════════════════════
-  // SISTEMA DE PIX (Mercado Pago)
+  // SISTEMA DE PIX (Efí)
   // ═══════════════════════════════════════════════════════
 
-  // Token removido do front-end — agora a chamada passa pelo proxy seguro (netlify/functions/mp-proxy.js)
+  // Token removido do front-end — agora a chamada passa pelo proxy seguro (netlify/functions/efi-proxy.js)
   const PIX_MAX = 50;
   const PIX_SEEN_MAX = 300;
   let pixLogs = [];
@@ -2410,13 +2411,13 @@ const EXPORTED_DATA = ${dataJson};
     }
   }
 
-  // ── Polling Mercado Pago (via proxy seguro Netlify) ──
-  async function fetchMPPayments() {
+  // ── Polling Efí (via proxy seguro Netlify) ──
+  async function fetchEfiPayments() {
     setPixStatus('buscando');
 
-    // Chama o proxy serverless em vez da API do MP diretamente.
-    // O token fica no servidor (netlify/functions/mp-proxy.js) — não aparece aqui.
-    const proxyUrl = '/.netlify/functions/mp-proxy?limit=20&begin_date=NOW-7DAYS';
+    // Chama o proxy serverless em vez da API da Efí diretamente.
+    // O token e o certificado ficam no servidor (netlify/functions/efi-proxy.js) — não aparecem aqui.
+    const proxyUrl = '/.netlify/functions/efi-proxy?dias=7';
 
     try {
       const r = await fetch(proxyUrl, { cache: 'no-store' });
@@ -2431,43 +2432,32 @@ const EXPORTED_DATA = ${dataJson};
       const results = data.results;
       if (!Array.isArray(results)) {
         const msg = data.message || data.error || JSON.stringify(data).slice(0,80);
-        setPixStatus('erro', `MP: ${msg}`);
+        setPixStatus('erro', `Efí: ${msg}`);
         return;
       }
 
       let newOnes = [];
       for (const p of results) {
-        const sid = String(p.id);
+        const sid = String(p.pixId || p.id);
         // Pula se já está na lista visível (pixLogs) — evita duplicata na tela
-        if (pixLogs.some(l => l.mpId === sid)) continue;
+        if (pixLogs.some(l => l.pixId === sid)) continue;
         // Pula se foi processado antes E limpo intencionalmente (seenIds persistido)
         if (pixSeenIds.has(sid)) continue;
-        // O campo bank_info.payer.long_name traz a INSTITUIÇÃO/banco de origem do Pix (ex: "Banco Inter S.A."),
-        // não o nome da pessoa. O nome da pessoa vem de additional_info.payer ou payer.first_name/last_name.
-        const bankName = p.point_of_interaction?.transaction_data?.bank_info?.payer?.long_name || '';
-        // _resolvedName é injetado pelo proxy quando ele consegue buscar o nome via payer.id
-        const resolvedName = (p._resolvedName && p._resolvedName !== 'XXXXXXXXXXXX') ? p._resolvedName : '';
-        const additionalPayerName = p.additional_info?.payer?.first_name && p.additional_info.payer.first_name !== 'XXXXXXXXXXXX'
-          ? ((p.additional_info.payer.first_name || '') + ' ' + (p.additional_info.payer.last_name || '')).trim()
-          : '';
-        const firstName = (p.payer?.first_name && p.payer.first_name !== 'XXXXXXXXXXXX') ? p.payer.first_name : '';
-        const lastName  = (p.payer?.last_name  && p.payer.last_name  !== 'XXXXXXXXXXXX') ? p.payer.last_name  : '';
-        const directName = firstName ? (firstName + (lastName ? ' ' + lastName : '')).trim() : '';
-        const personName = resolvedName || additionalPayerName || directName || p.description || '';
-        const payer = personName || 'Pagador';
-        const dt = new Date(p.date_approved || p.date_created);
+
+        const payer = p.name || 'Pagador';
+        const dt = new Date(p.date || Date.now());
         newOnes.push({
-          id: 'pix_' + p.id,
-          mpId: String(p.id),
+          id: 'pix_' + sid,
+          pixId: sid,
           name: payer,
-          bank: bankName,
-          value: p.transaction_amount,
+          bank: p.bank || 'Banco não identificado',
+          value: p.value,
           data: dt.toLocaleDateString('pt-BR'),
           hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
           ts: dt.getTime(),
           assignedTo: null
         });
-        pixSeenIds.add(String(p.id));
+        pixSeenIds.add(sid);
       }
       if (newOnes.length > 0) savePixSeenIds();
 
@@ -2478,7 +2468,7 @@ const EXPORTED_DATA = ${dataJson};
         renderPixList();
         updatePixBadge();
         for (const n of newOnes) {
-          logAction('add', `💸 Pix recebido — ${n.bank || 'Banco não identificado'} (${fmtPix(n.value)})`);
+          logAction('add', `💸 Pix recebido — ${n.name || 'Pagador não identificado'} (${fmtPix(n.value)})`);
           if (pixNotifEnabled) sendPixNotification(n);
         }
       }
@@ -2603,7 +2593,7 @@ const EXPORTED_DATA = ${dataJson};
       list.innerHTML = `<div class="pix-empty">
         <div class="pix-empty-icon">💸</div>
         <div class="pix-empty-title">Aguardando Pix...</div>
-        <div class="pix-empty-sub">Quando um Pix for recebido no Mercado Pago, ele aparecerá aqui automaticamente.</div>
+        <div class="pix-empty-sub">Quando um Pix for recebido, ele aparecerá aqui automaticamente.</div>
       </div>`;
       return;
     }
@@ -2613,6 +2603,7 @@ const EXPORTED_DATA = ${dataJson};
         <div class="pix-card-icon">💸</div>
         <div class="pix-card-body">
           <div class="pix-card-status">✓ Pix recebido</div>
+          <div class="pix-card-name">${p.name || 'Pagador não identificado'}</div>
           <div class="pix-card-bank">${p.bank || 'Banco não identificado'}</div>
           <div class="pix-card-value">${fmtPix(p.value)}</div>
           ${p.assignedTo ? `<div class="pix-card-assigned">↳ ${p.assignedTo}</div>` : ''}
@@ -2632,9 +2623,9 @@ const EXPORTED_DATA = ${dataJson};
     updateNotifBtn();
     document.getElementById('pixPanel').classList.add('open');
     document.body.style.overflow = 'hidden';
-    fetchMPPayments();
+    fetchEfiPayments();
     if (!pixPollingInterval) {
-      pixPollingInterval = setInterval(fetchMPPayments, 12000);
+      pixPollingInterval = setInterval(fetchEfiPayments, 12000);
     }
   };
 
@@ -2685,7 +2676,7 @@ const EXPORTED_DATA = ${dataJson};
   }
 
   // Registra o Service Worker e inscreve este navegador para receber push
-  // mesmo com o site fechado (a notificação chega via mp-webhook.js no servidor).
+  // mesmo com o site fechado (a notificação chega via efi-webhook.js no servidor).
   async function enablePushNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       console.warn('[Push] Navegador não suporta push notifications (apenas notificação local com o site aberto será usada).');
@@ -2698,7 +2689,7 @@ const EXPORTED_DATA = ${dataJson};
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
-      await fetch('/.netlify/functions/mp-save-subscription', {
+      await fetch('/.netlify/functions/efi-save-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subscription: sub, action: 'add' }),
@@ -2715,7 +2706,7 @@ const EXPORTED_DATA = ${dataJson};
       if (!reg) return;
       const sub = await reg.pushManager.getSubscription();
       if (sub) {
-        await fetch('/.netlify/functions/mp-save-subscription', {
+        await fetch('/.netlify/functions/efi-save-subscription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscription: sub, action: 'remove' }),
@@ -2749,9 +2740,9 @@ const EXPORTED_DATA = ${dataJson};
       await enablePushNotifications();
       showLocalNotification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas mesmo com o site fechado.' });
       // Garante que o polling está rodando para as notificações funcionarem com o site aberto
-      fetchMPPayments();
+      fetchEfiPayments();
       if (!pixPollingInterval) {
-        pixPollingInterval = setInterval(fetchMPPayments, 12000);
+        pixPollingInterval = setInterval(fetchEfiPayments, 12000);
       }
     } else {
       alert('Permissão de notificação negada.\nAbra as configurações do navegador e permita notificações para este site.');
@@ -2761,8 +2752,9 @@ const EXPORTED_DATA = ${dataJson};
 
   function sendPixNotification(p) {
     if (!pixNotifEnabled || Notification.permission !== 'granted') return;
+    const nome = p.name || 'Pagador não identificado';
     const banco = p.bank || 'Banco não identificado';
-    const body = 'Pix recebido do banco ' + banco + '\nValor: ' + fmtPix(p.value) + '\nHorário: ' + p.hora;
+    const body = nome + ' (' + banco + ')\nValor: ' + fmtPix(p.value) + '\nHorário: ' + p.hora;
     showLocalNotification('Formatura: Pix recebido', { body: body, tag: p.id, requireInteraction: false });
   }
 
@@ -2771,7 +2763,7 @@ const EXPORTED_DATA = ${dataJson};
     const p = pixLogs.find(l => l.id === pixId);
     if (!p) return;
     pixAssignTarget = p;
-    document.getElementById('pixAssignName').textContent = p.bank || 'Banco não identificado';
+    document.getElementById('pixAssignName').textContent = p.name || 'Pagador não identificado';
     document.getElementById('pixAssignVal').textContent = fmtPix(p.value);
 
     // Se já foi atribuído, mostra modo de remoção
@@ -2906,14 +2898,14 @@ const EXPORTED_DATA = ${dataJson};
   loadPixLogs();
   loadPixSeenIds();
   // Garante que qualquer Pix já presente na lista visível também conste como "visto"
-  pixLogs.forEach(p => pixSeenIds.add(p.mpId));
+  pixLogs.forEach(p => pixSeenIds.add(p.pixId));
   updatePixBadge();
   updateNotifBtn();
   // Se notificações já estavam ativas (salvas no localStorage), retoma o polling automaticamente
   if (pixNotifEnabled && Notification.permission === 'granted') {
-    fetchMPPayments();
+    fetchEfiPayments();
     if (!pixPollingInterval) {
-      pixPollingInterval = setInterval(fetchMPPayments, 12000);
+      pixPollingInterval = setInterval(fetchEfiPayments, 12000);
     }
     // Garante que a inscrição de push continua válida (ex: após reabrir o site)
     enablePushNotifications();
