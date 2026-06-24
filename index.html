@@ -769,8 +769,136 @@
     margin-top: 6px;
   }
   .btn-rifas-toggle:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+  .btn-mensal-toggle:hover { border-color: #059669; color: #059669; background: #ecfdf5; }
 
-  /* ── PAINEL LATERAL DE RIFAS ── */
+  /* ── ARRECADAÇÕES EXTRAS ── */
+  .arrecadacoes-wrap {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    padding: 0 16px 4px;
+  }
+  .arrecadacao-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1.5px solid #86efac; border-radius: 14px;
+    padding: 13px 16px; min-width: 140px; flex: 1;
+    cursor: pointer; position: relative; transition: all .15s; max-width: 220px;
+  }
+  .arrecadacao-card:hover { border-color: #22c55e; box-shadow: 0 3px 12px rgba(34,197,94,.18); transform: translateY(-1px); }
+  .arrecadacao-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #16a34a; margin-bottom: 2px; }
+  .arrecadacao-card-name { font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+  .arrecadacao-card-value { font-size: 20px; font-weight: 800; color: #16a34a; letter-spacing: -.5px; }
+  .arrecadacao-card-del {
+    position: absolute; top: 7px; right: 8px;
+    background: none; border: none; font-size: 12px; color: #86efac;
+    cursor: pointer; padding: 2px 5px; border-radius: 5px; transition: all .15s;
+  }
+  .arrecadacao-card-del:hover { background: #fee2e2; color: #ef4444; }
+  .btn-add-arrecadacao {
+    background: none; border: 1.5px dashed #86efac; border-radius: 14px;
+    padding: 13px 18px; color: #16a34a; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s; display: flex; align-items: center;
+    gap: 6px; white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-add-arrecadacao:hover { border-color: #22c55e; background: #f0fdf4; }
+
+  /* ── PAINEL MENSAL ── */
+  #mensalPanel { position: fixed; inset: 0; z-index: 300; display: none; }
+  #mensalPanel.open { display: flex; }
+  #mensalPanelBg { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+  #mensalPanelContent {
+    position: relative; margin-left: auto; width: min(520px, 100%);
+    height: 100%; background: #f0fdf4; overflow-y: auto;
+    display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,.12);
+  }
+  #mensalPanelHeader {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    padding: 18px 18px 14px; position: sticky; top: 0; z-index: 1000;
+  }
+  .mensal-panel-title {
+    font-size: 17px; font-weight: 800; color: white;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .mensal-panel-close {
+    background: rgba(255,255,255,.2); border: none; border-radius: 8px;
+    width: 30px; height: 30px; color: white; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mensal-panel-stats { display: flex; gap: 8px; }
+  .mensal-stat {
+    background: rgba(255,255,255,.2); border-radius: 10px;
+    padding: 8px 14px; color: white; font-size: 12px; font-weight: 600;
+    flex: 1; text-align: center;
+  }
+  .mensal-stat-value { font-size: 16px; font-weight: 800; display: block; margin-bottom: 2px; }
+  .mensal-config-row {
+    display: flex; gap: 8px; padding: 12px 16px 0; align-items: center; flex-wrap: wrap;
+  }
+  .mensal-config-btn {
+    background: white; border: 1.5px solid #a7f3d0; border-radius: 10px;
+    padding: 8px 14px; font-size: 12px; font-weight: 600; color: #059669;
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: all .15s; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .mensal-config-btn:hover { background: #dcfce7; border-color: #059669; }
+  .mensal-body { padding: 14px 16px 30px; }
+  .mensal-mes-card {
+    background: white; border: 1px solid #d1fae5; border-radius: 14px;
+    margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(5,150,105,.07);
+  }
+  .mensal-mes-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px; cursor: pointer; background: white;
+    border-bottom: 1px solid #d1fae5; transition: background .12s;
+  }
+  .mensal-mes-header:hover { background: #f0fdf4; }
+  .mensal-mes-header.open { border-bottom-color: #a7f3d0; }
+  .mensal-mes-title { font-size: 14px; font-weight: 800; color: #0f172a; }
+  .mensal-mes-meta { font-size: 11px; color: #6b7280; margin-top: 1px; }
+  .mensal-mes-right { display: flex; align-items: center; gap: 8px; }
+  .mensal-mes-total { font-size: 15px; font-weight: 800; color: #059669; }
+  .mensal-mes-chevron { font-size: 12px; color: #9ca3af; transition: transform .2s; }
+  .mensal-mes-header.open .mensal-mes-chevron { transform: rotate(90deg); }
+  .mensal-mes-body { display: none; }
+  .mensal-mes-body.open { display: block; }
+  .mensal-aluno-row {
+    display: flex; align-items: center; padding: 9px 16px;
+    border-bottom: 1px solid #f0fdf4; gap: 10px;
+    transition: background .1s; cursor: pointer;
+  }
+  .mensal-aluno-row:last-child { border-bottom: none; }
+  .mensal-aluno-row:hover { background: #f0fdf4; }
+  .mensal-aluno-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    background: #d1fae5; border: 2px solid #a7f3d0; transition: all .15s;
+  }
+  .mensal-aluno-dot.pago { background: #22c55e; border-color: #16a34a; }
+  .mensal-aluno-nome { flex: 1; font-size: 13px; font-weight: 600; color: #374151; }
+  .mensal-aluno-turma { font-size: 10px; color: #9ca3af; font-weight: 600; margin-right: 2px; }
+  .mensal-aluno-valor {
+    font-size: 12px; font-weight: 700; color: #16a34a;
+    background: #dcfce7; border-radius: 8px; padding: 3px 9px; display: none;
+  }
+  .mensal-aluno-row.pago .mensal-aluno-valor { display: block; }
+  .mensal-aluno-row.pago .mensal-aluno-nome { color: #16a34a; }
+  .mensal-total-btn {
+    margin: 8px 16px 12px;
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white; border: none; border-radius: 12px;
+    padding: 12px 18px; font-size: 13px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: opacity .15s; font-family: 'Plus Jakarta Sans', sans-serif;
+    width: calc(100% - 32px);
+  }
+  .mensal-total-btn:hover { opacity: .88; }
+  .mensal-total-badge {
+    background: rgba(255,255,255,.25); border-radius: 8px;
+    padding: 2px 10px; font-size: 13px; font-weight: 800; margin-left: auto;
+  }
+  .mensal-pag-info {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+  }
+  .mensal-pag-nome { font-size: 15px; font-weight: 800; color: #0f172a; }
+  .mensal-pag-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
   #rifasPanel {
     position: fixed;
     inset: 0;
@@ -1111,8 +1239,10 @@
     <button class="btn-action secondary" onclick="exportPDF()">📄 Salvar PDF</button>
     <button class="btn-action secondary" onclick="openLogsPanel()">📜 Logs</button>
     <button class="btn-rifas-toggle" onclick="openRifasPanel()">🎟️ rifas arrecadadas</button>
+    <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()">📅 arrecadação mensal</button>
   </div>
   <div class="totals-row" id="totalsRow"></div>
+  <div id="arrecadacoesRow" style="margin:10px 0 0"></div>
 </div>
 
 <div id="categoriesContainer"></div>
@@ -1465,6 +1595,121 @@
   </div>
 </div><!-- fim #logsPanel -->
 
+<!-- ══ PAINEL MENSAL ══ -->
+<div id="mensalPanel">
+  <div id="mensalPanelBg" onclick="closeMensalPanel()"></div>
+  <div id="mensalPanelContent">
+    <div id="mensalPanelHeader">
+      <div class="mensal-panel-title">
+        📅 Arrecadação Mensal
+        <button class="mensal-panel-close" onclick="closeMensalPanel()">✕</button>
+      </div>
+      <div class="mensal-panel-stats">
+        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalGeral">R$ 0,00</span>total arrecadado</div>
+        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalPessoas">0</span>pagamentos</div>
+      </div>
+    </div>
+    <div class="mensal-config-row">
+      <button class="mensal-config-btn" onclick="openMensalInicioModal()">➕ Definir mês inicial</button>
+      <button class="mensal-config-btn" style="color:#ef4444;border-color:#fecaca;" onclick="resetMensalData()">🗑 Limpar tudo</button>
+    </div>
+    <div class="mensal-body" id="mensalBody">
+      <div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
+        <div style="font-size:30px;margin-bottom:10px">📅</div>
+        <div style="font-weight:600;">Nenhum mês cadastrado</div>
+        <div style="margin-top:6px;font-size:12px;">Clique em "Definir mês inicial" para começar</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: PAGAMENTO DE ALUNO ══ -->
+<div id="mensalPagOverlay" onclick="closeMensalPagModal(event)" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;">
+  <div id="mensalPagModal" style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Registrar pagamento</div>
+    <div class="mensal-pag-info">
+      <div class="mensal-pag-nome" id="mensalPagNome">—</div>
+      <div class="mensal-pag-sub" id="mensalPagSub">—</div>
+    </div>
+    <div class="field">
+      <label>Valor pago (R$)</label>
+      <input type="number" id="mensalPagValor" placeholder="Ex: 10.00" step="0.01" min="0"
+        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
+    </div>
+    <button class="btn-confirm" onclick="confirmarPagamentoMensal()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Confirmar pagamento</button>
+    <button onclick="closeMensalPagModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: ATRIBUIR TOTAL MENSAL A CATEGORIA ══ -->
+<div id="mensalAtribuirOverlay" onclick="closeMensalAtribuirModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
+  <div id="mensalAtribuirModal" style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Adicionar total à categoria</div>
+    <div class="mensal-pag-info">
+      <div class="mensal-pag-nome" id="mensalAtribuirMes">—</div>
+      <div class="mensal-pag-sub" id="mensalAtribuirValor">—</div>
+    </div>
+    <div class="field">
+      <label>Categoria</label>
+      <select id="mensalAtribuirCat" onchange="onMensalAtribuirCatChange()" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
+        <option value="">Selecione uma categoria...</option>
+      </select>
+      <label>Entrada</label>
+      <select id="mensalAtribuirEntry" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none">
+        <option value="">Selecione uma entrada...</option>
+      </select>
+    </div>
+    <button class="btn-confirm" onclick="confirmarAtribuirMensal()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Adicionar à entrada</button>
+    <button onclick="closeMensalAtribuirModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: MÊS INICIAL ══ -->
+<div id="mensalInicioOverlay" onclick="closeMensalInicioModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 Mês inicial da arrecadação</div>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Escolha o mês de início. Os meses até dezembro serão criados automaticamente.</p>
+    <div class="field">
+      <label>Mês inicial</label>
+      <select id="mensalInicioMes" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
+        <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+        <option value="3">Março</option><option value="4">Abril</option>
+        <option value="5">Maio</option><option value="6">Junho</option>
+        <option value="7">Julho</option><option value="8">Agosto</option>
+        <option value="9">Setembro</option><option value="10">Outubro</option>
+        <option value="11">Novembro</option><option value="12">Dezembro</option>
+      </select>
+      <label>Valor mensal padrão (R$)</label>
+      <input type="number" id="mensalValorPadrao" value="10" step="0.01" min="0"
+        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
+    </div>
+    <button class="btn-confirm" onclick="confirmarMesInicial()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Criar meses</button>
+    <button onclick="closeMensalInicioModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: NOVA ARRECADAÇÃO EXTRA ══ -->
+<div id="arrecadacaoOverlay" onclick="closeArrecadacaoModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="arrecadacaoModalTitle">➕ Nova arrecadação</div>
+    <div class="field">
+      <label>Nome da arrecadação</label>
+      <input type="text" id="arrecadacaoNome" placeholder="Ex: Festa Junina"
+        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;margin-bottom:10px;">
+      <label>Valor arrecadado (R$)</label>
+      <input type="number" id="arrecadacaoValor" placeholder="0.00" step="0.01" min="0"
+        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
+    </div>
+    <input type="hidden" id="arrecadacaoEditId">
+    <button class="btn-confirm" onclick="confirmarArrecadacao()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Salvar</button>
+    <button onclick="closeArrecadacaoModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
@@ -1532,6 +1777,8 @@
       startRealtimeSync();
       startLogsRealtimeSync();
       if (window._startPixRealtimeSync) window._startPixRealtimeSync();
+      if (window._startArrecadacoesSync) window._startArrecadacoesSync();
+      if (window._startMensalSync) window._startMensalSync();
     } catch(e) {
       alert('Erro ao conectar: verifique o Project ID.\n' + e.message);
     }
@@ -1692,6 +1939,7 @@
   // ---- RENDER ----
   window.render = function() {
     renderTotals();
+    renderArrecadacoes();
     renderCategories();
   };
 
@@ -2645,9 +2893,11 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.clearPixLogs = function() {
-    if (!confirm('Limpar todos os Pix registrados?')) return;
+    if (!confirm('Limpar todos os Pix registrados?\n\nIsso vai limpar para todos os dispositivos.')) return;
     pixLogs = [];
-    savePixLogs();
+    // Salva localmente E no Firestore (para limpar em todos os dispositivos)
+    try { localStorage.setItem('formatura_pix_logs', JSON.stringify(pixLogs)); } catch(e) {}
+    savePixToFirestore();
     renderPixList();
     updatePixBadge();
   };
@@ -2920,7 +3170,401 @@ const EXPORTED_DATA = ${dataJson};
   }
 
   // ═══════════════════════════════════════════════════════
-  // FIM DO SISTEMA DE PIX
+  // ARRECADAÇÕES EXTRAS (Festa Junina, etc.)
+  // ═══════════════════════════════════════════════════════
+  let arrecadacoes = []; // [{id, nome, valor}]
+  let ignoreNextArrecadacoesSnap = false;
+
+  function saveArrecadacoes() {
+    try { localStorage.setItem('formatura_arrecadacoes', JSON.stringify(arrecadacoes)); } catch(e) {}
+    if (!db) return;
+    ignoreNextArrecadacoesSnap = true;
+    const docRef = doc(db, 'formatura', 'arrecadacoes');
+    setDoc(docRef, { items: arrecadacoes, updatedAt: Date.now() }).catch(() => { ignoreNextArrecadacoesSnap = false; });
+  }
+
+  function startArrecadacoesSync() {
+    if (!db) return;
+    const saved = localStorage.getItem('formatura_arrecadacoes');
+    if (saved) { try { arrecadacoes = JSON.parse(saved); } catch(e) {} }
+    const docRef = doc(db, 'formatura', 'arrecadacoes');
+    onSnapshot(docRef, (snap) => {
+      if (ignoreNextArrecadacoesSnap) { ignoreNextArrecadacoesSnap = false; return; }
+      if (snap.exists()) {
+        arrecadacoes = snap.data().items || [];
+        try { localStorage.setItem('formatura_arrecadacoes', JSON.stringify(arrecadacoes)); } catch(e) {}
+      }
+      renderArrecadacoes();
+    }, () => {});
+  }
+  window._startArrecadacoesSync = startArrecadacoesSync;
+
+  function renderArrecadacoes() {
+    const row = document.getElementById('arrecadacoesRow');
+    if (!row) return;
+    if (arrecadacoes.length === 0) { row.innerHTML = ''; return; }
+    const cards = arrecadacoes.map(a => `
+      <div class="arrecadacao-card" ondblclick="openArrecadacaoModal('${a.id}')">
+        <button class="arrecadacao-card-del" onclick="event.stopPropagation();deleteArrecadacao('${a.id}')" title="Remover">✕</button>
+        <div class="arrecadacao-card-label">arrecadação extra</div>
+        <div class="arrecadacao-card-name">${a.nome}</div>
+        <div class="arrecadacao-card-value">${fmt(a.valor)}</div>
+      </div>
+    `).join('');
+    row.innerHTML = `<div class="arrecadacoes-wrap">
+      ${cards}
+      <button class="btn-add-arrecadacao" onclick="openArrecadacaoModal()">➕ Nova arrecadação</button>
+    </div>`;
+  }
+
+  window.openArrecadacaoModal = function(editId) {
+    const overlay = document.getElementById('arrecadacaoOverlay');
+    const titleEl = document.getElementById('arrecadacaoModalTitle');
+    document.getElementById('arrecadacaoEditId').value = editId || '';
+    if (editId) {
+      const a = arrecadacoes.find(x => x.id === editId);
+      titleEl.textContent = '✎ Editar arrecadação';
+      document.getElementById('arrecadacaoNome').value = a ? a.nome : '';
+      document.getElementById('arrecadacaoValor').value = a ? a.valor : '';
+    } else {
+      titleEl.textContent = '➕ Nova arrecadação';
+      document.getElementById('arrecadacaoNome').value = '';
+      document.getElementById('arrecadacaoValor').value = '';
+    }
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('arrecadacaoNome').focus(), 100);
+  };
+
+  window.closeArrecadacaoModal = function(e, force) {
+    if (!force && e && e.target !== document.getElementById('arrecadacaoOverlay')) return;
+    document.getElementById('arrecadacaoOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  window.confirmarArrecadacao = function() {
+    const nome = document.getElementById('arrecadacaoNome').value.trim();
+    const valor = parseFloat(document.getElementById('arrecadacaoValor').value) || 0;
+    const editId = document.getElementById('arrecadacaoEditId').value;
+    if (!nome) { document.getElementById('arrecadacaoNome').focus(); return; }
+    if (editId) {
+      const idx = arrecadacoes.findIndex(x => x.id === editId);
+      if (idx >= 0) { arrecadacoes[idx].nome = nome; arrecadacoes[idx].valor = valor; }
+    } else {
+      arrecadacoes.push({ id: uid(), nome, valor });
+    }
+    saveArrecadacoes();
+    renderArrecadacoes();
+    closeArrecadacaoModal(null, true);
+  };
+
+  window.deleteArrecadacao = function(id) {
+    if (!confirm('Remover esta arrecadação?')) return;
+    arrecadacoes = arrecadacoes.filter(a => a.id !== id);
+    saveArrecadacoes();
+    renderArrecadacoes();
+  };
+
+  // Botão "+" sempre visível na linha de arrecadações (caso esteja vazia)
+  (function ensureAddBtn() {
+    const row = document.getElementById('arrecadacoesRow');
+    if (row && arrecadacoes.length === 0) {
+      row.innerHTML = `<div class="arrecadacoes-wrap">
+        <button class="btn-add-arrecadacao" onclick="openArrecadacaoModal()">➕ Nova arrecadação</button>
+      </div>`;
+    }
+  })();
+
+  // ═══════════════════════════════════════════════════════
+  // ARRECADAÇÃO MENSAL
+  // ═══════════════════════════════════════════════════════
+  const ALUNOS_301 = [
+    'Ana Clara Moraes','Bianca Leticia Sousa','Carla Beatriz da Silva',
+    'Enzo Lucas Lira','Eveni Patricia Barroso','Gabrielly Roberta Silva',
+    'Jamilly Yarim de Oliveira','Joel da Silva de Assis','Karen Marcelle de Almeida',
+    'Kassiane Beatriz Conceicao','Keily Belen Torres','Kimberlly Vitoria Lopes',
+    'Lara Gabrielle Lisboa','Leonardo Lenin Jose','Lucas Davi Amaral',
+    'Neuliane Moraes Rodrigues','Renan Jordan de Albuquerque','Sandy Fabiola Almeida',
+    'Sarah de Araujo Rodrigues','Victor Rafael Goncalves'
+  ];
+  const ALUNOS_302 = [
+    'Alesson Ruan Nunes','Andre Eduardo Pascoal','Anne Caroline Correa',
+    'Cristhian Cleber Pinto','Cristian Yago da Costa','Daniel da Rocha Costa',
+    'Enzo dos Santos Dias','Flavia Fabiane Chaves','Gabriel Ferreira Barroso',
+    'Joan Brasil dos Santos','Kamylle Rafaelly Duarte','Marcos Jose de Souza',
+    'Marcus Yan da Silva','Moises dos Santos Pereira','Pamela Costa Miranda',
+    'Pedro Gustavo do Rosario','Rayssa Victoria Areias','Rodrigo Otavio Costa',
+    'Samuel Robertt da Costa','Thayssa Oliveira Nascimento','Wesley Eduardo Carvalho'
+  ];
+
+  const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                        'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  // mensalData = { valorPadrao: 10, meses: [{ id, mesIdx(0-11), pagamentos: {nomeAluno: valor} }] }
+  let mensalData = { valorPadrao: 10, meses: [] };
+  let ignoreNextMensalSnap = false;
+  let mensalPagTarget = null; // { mesId, nome, turma }
+  let mensalAtribuirTarget = null; // { mesId }
+
+  function saveMensalData() {
+    try { localStorage.setItem('formatura_mensal', JSON.stringify(mensalData)); } catch(e) {}
+    if (!db) return;
+    ignoreNextMensalSnap = true;
+    const docRef = doc(db, 'formatura', 'mensal');
+    setDoc(docRef, { data: mensalData, updatedAt: Date.now() }).catch(() => { ignoreNextMensalSnap = false; });
+  }
+
+  function startMensalSync() {
+    if (!db) return;
+    const saved = localStorage.getItem('formatura_mensal');
+    if (saved) { try { mensalData = JSON.parse(saved); } catch(e) {} }
+    const docRef = doc(db, 'formatura', 'mensal');
+    onSnapshot(docRef, (snap) => {
+      if (ignoreNextMensalSnap) { ignoreNextMensalSnap = false; return; }
+      if (snap.exists()) {
+        mensalData = snap.data().data || { valorPadrao: 10, meses: [] };
+        try { localStorage.setItem('formatura_mensal', JSON.stringify(mensalData)); } catch(e) {}
+      }
+      if (document.getElementById('mensalPanel').classList.contains('open')) renderMensalBody();
+      updateMensalStats();
+    }, () => {});
+  }
+  window._startMensalSync = startMensalSync;
+
+  function updateMensalStats() {
+    let totalGeral = 0, totalPessoas = 0;
+    (mensalData.meses || []).forEach(m => {
+      Object.values(m.pagamentos || {}).forEach(v => { totalGeral += v; totalPessoas++; });
+    });
+    const tg = document.getElementById('mensalTotalGeral');
+    const tp = document.getElementById('mensalTotalPessoas');
+    if (tg) tg.textContent = fmt(totalGeral);
+    if (tp) tp.textContent = totalPessoas;
+  }
+
+  function renderMensalBody() {
+    const body = document.getElementById('mensalBody');
+    if (!body) return;
+    updateMensalStats();
+    if (!mensalData.meses || mensalData.meses.length === 0) {
+      body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
+        <div style="font-size:30px;margin-bottom:10px">📅</div>
+        <div style="font-weight:600;">Nenhum mês cadastrado</div>
+        <div style="margin-top:6px;font-size:12px;">Clique em "Definir mês inicial" para começar</div>
+      </div>`;
+      return;
+    }
+    body.innerHTML = mensalData.meses.map(mes => renderMesMensal(mes)).join('');
+  }
+
+  function renderMesMensal(mes) {
+    const pags = mes.pagamentos || {};
+    const totalMes = Object.values(pags).reduce((s,v) => s+v, 0);
+    const qtdPagos = Object.keys(pags).length;
+    const totalAlunos = ALUNOS_301.length + ALUNOS_302.length;
+    const nomeMes = MESES_NOMES[mes.mesIdx];
+
+    const linhas301 = ALUNOS_301.map(n => renderAlunoMensal(mes.id, n, '301', pags[n])).join('');
+    const linhas302 = ALUNOS_302.map(n => renderAlunoMensal(mes.id, n, '302', pags[n])).join('');
+
+    return `
+      <div class="mensal-mes-card">
+        <div class="mensal-mes-header" onclick="toggleMesMensal('${mes.id}',this)">
+          <div>
+            <div class="mensal-mes-title">${nomeMes}</div>
+            <div class="mensal-mes-meta">${qtdPagos} de ${totalAlunos} pagaram</div>
+          </div>
+          <div class="mensal-mes-right">
+            <div class="mensal-mes-total">${fmt(totalMes)}</div>
+            <div class="mensal-mes-chevron">▶</div>
+          </div>
+        </div>
+        <div class="mensal-mes-body" id="mesBody-${mes.id}">
+          <button class="mensal-total-btn" onclick="openMensalAtribuirModal('${mes.id}')">
+            📊 Adicionar total à categoria
+            <span class="mensal-total-badge">${fmt(totalMes)}</span>
+          </button>
+          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;">Turma 301</div>
+          ${linhas301}
+          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;border-top:1px solid #f0fdf4;">Turma 302</div>
+          ${linhas302}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAlunoMensal(mesId, nome, turma, valorPago) {
+    const pago = valorPago !== undefined && valorPago !== null;
+    return `
+      <div class="mensal-aluno-row${pago?' pago':''}" onclick="openMensalPagModal('${mesId}','${nome.replace(/'/g,"\\'")}','${turma}')">
+        <div class="mensal-aluno-dot${pago?' pago':''}"></div>
+        <span class="mensal-aluno-turma">${turma}</span>
+        <span class="mensal-aluno-nome">${nome}</span>
+        ${pago ? `<span class="mensal-aluno-valor">${fmt(valorPago)}</span>` : ''}
+      </div>
+    `;
+  }
+
+  window.toggleMesMensal = function(mesId, headerEl) {
+    const body = document.getElementById('mesBody-' + mesId);
+    if (!body) return;
+    const open = body.classList.toggle('open');
+    headerEl.classList.toggle('open', open);
+  };
+
+  window.openMensalPanel = function() {
+    document.getElementById('mensalPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderMensalBody();
+  };
+  window.closeMensalPanel = function() {
+    document.getElementById('mensalPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.openMensalInicioModal = function() {
+    document.getElementById('mensalInicioOverlay').style.display = 'flex';
+  };
+  window.closeMensalInicioModal = function(e, force) {
+    if (!force && e && e.target !== document.getElementById('mensalInicioOverlay')) return;
+    document.getElementById('mensalInicioOverlay').style.display = 'none';
+  };
+
+  window.confirmarMesInicial = function() {
+    const mesInicio = parseInt(document.getElementById('mensalInicioMes').value);
+    const valor = parseFloat(document.getElementById('mensalValorPadrao').value) || 10;
+    // Cria meses do mês escolhido até dezembro (mesIdx 0-11)
+    const mesesExistentes = new Set((mensalData.meses || []).map(m => m.mesIdx));
+    for (let i = mesInicio - 1; i <= 11; i++) {
+      if (!mesesExistentes.has(i)) {
+        mensalData.meses = mensalData.meses || [];
+        mensalData.meses.push({ id: uid(), mesIdx: i, pagamentos: {} });
+      }
+    }
+    mensalData.meses.sort((a, b) => a.mesIdx - b.mesIdx);
+    mensalData.valorPadrao = valor;
+    saveMensalData();
+    closeMensalInicioModal(null, true);
+    renderMensalBody();
+  };
+
+  window.resetMensalData = function() {
+    if (!confirm('Apagar todos os dados mensais? Isso vai limpar para todos os dispositivos.')) return;
+    mensalData = { valorPadrao: 10, meses: [] };
+    saveMensalData();
+    renderMensalBody();
+  };
+
+  // Abrir modal de pagamento de aluno
+  window.openMensalPagModal = function(mesId, nome, turma) {
+    const mes = (mensalData.meses || []).find(m => m.id === mesId);
+    if (!mes) return;
+    mensalPagTarget = { mesId, nome, turma };
+    const pago = mes.pagamentos && mes.pagamentos[nome];
+    document.getElementById('mensalPagNome').textContent = nome;
+    document.getElementById('mensalPagSub').textContent = `Turma ${turma} · ${MESES_NOMES[mes.mesIdx]}`;
+    document.getElementById('mensalPagValor').value = pago !== undefined ? pago : (mensalData.valorPadrao || 10);
+
+    const overlay = document.getElementById('mensalPagOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => document.getElementById('mensalPagValor').select(), 80);
+  };
+
+  window.closeMensalPagModal = function(e, force) {
+    if (!force && e && e.target !== document.getElementById('mensalPagOverlay')) return;
+    document.getElementById('mensalPagOverlay').style.display = 'none';
+    mensalPagTarget = null;
+  };
+
+  window.confirmarPagamentoMensal = function() {
+    if (!mensalPagTarget) return;
+    const { mesId, nome } = mensalPagTarget;
+    const valor = parseFloat(document.getElementById('mensalPagValor').value);
+    const mes = (mensalData.meses || []).find(m => m.id === mesId);
+    if (!mes) return;
+    mes.pagamentos = mes.pagamentos || {};
+    if (isNaN(valor) || valor < 0) {
+      // Remover pagamento se valor inválido
+      delete mes.pagamentos[nome];
+    } else {
+      mes.pagamentos[nome] = valor;
+    }
+    saveMensalData();
+    closeMensalPagModal(null, true);
+    renderMensalBody();
+  };
+
+  // Abrir modal de atribuir total mensal a uma categoria
+  window.openMensalAtribuirModal = function(mesId) {
+    const mes = (mensalData.meses || []).find(m => m.id === mesId);
+    if (!mes) return;
+    const totalMes = Object.values(mes.pagamentos || {}).reduce((s,v) => s+v, 0);
+    mensalAtribuirTarget = { mesId };
+
+    document.getElementById('mensalAtribuirMes').textContent = MESES_NOMES[mes.mesIdx];
+    document.getElementById('mensalAtribuirValor').textContent = `Total: ${fmt(totalMes)} · ${Object.keys(mes.pagamentos||{}).length} pagamentos`;
+
+    // Popular select de categorias
+    const catSel = document.getElementById('mensalAtribuirCat');
+    catSel.innerHTML = '<option value="">Selecione uma categoria...</option>' +
+      categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    document.getElementById('mensalAtribuirEntry').innerHTML = '<option value="">Selecione uma entrada...</option>';
+
+    const overlay = document.getElementById('mensalAtribuirOverlay');
+    overlay.style.display = 'flex';
+  };
+
+  window.closeMensalAtribuirModal = function(e, force) {
+    if (!force && e && e.target !== document.getElementById('mensalAtribuirOverlay')) return;
+    document.getElementById('mensalAtribuirOverlay').style.display = 'none';
+    mensalAtribuirTarget = null;
+  };
+
+  window.onMensalAtribuirCatChange = function() {
+    const catId = document.getElementById('mensalAtribuirCat').value;
+    const entrySel = document.getElementById('mensalAtribuirEntry');
+    if (!catId) { entrySel.innerHTML = '<option value="">Selecione uma entrada...</option>'; return; }
+    const cat = categories.find(c => c.id === catId);
+    if (!cat) return;
+    entrySel.innerHTML = '<option value="">Selecione uma entrada...</option>' +
+      cat.entries.map(e => `<option value="${e.id}">${e.desc || 'Entrada'} — ${fmt(e.type==='fixed'?e.value*e.count:e.type==='locked'?e.value:(e.freeValues||[]).reduce((a,b)=>a+b,0))}</option>`).join('');
+  };
+
+  window.confirmarAtribuirMensal = function() {
+    const catId = document.getElementById('mensalAtribuirCat').value;
+    const entryId = document.getElementById('mensalAtribuirEntry').value;
+    if (!catId || !entryId || !mensalAtribuirTarget) return;
+    const mes = (mensalData.meses || []).find(m => m.id === mensalAtribuirTarget.mesId);
+    if (!mes) return;
+    const totalMes = Object.values(mes.pagamentos || {}).reduce((s,v) => s+v, 0);
+    const cat = categories.find(c => c.id === catId);
+    if (!cat) return;
+    const entry = cat.entries.find(e => e.id === entryId);
+    if (!entry) return;
+    if (entry.type === 'free') {
+      entry.freeValues = entry.freeValues || [];
+      entry.freeValues.push(totalMes);
+    } else if (entry.type === 'fixed') {
+      entry.count = (entry.count || 0) + 1;
+    } else if (entry.type === 'locked') {
+      entry.value = (entry.value || 0) + totalMes;
+    }
+    logAction('value', `Total mensal de ${MESES_NOMES[mes.mesIdx]} (${fmt(totalMes)}) adicionado em "${cat.name} › ${entry.desc||'Entrada'}"`);
+    saveToFirebase();
+    render();
+    closeMensalAtribuirModal(null, true);
+  };
+
+  window._startMensalSync = startMensalSync;
+
+  // ═══════════════════════════════════════════════════════
+  // HOOK: garante que o botão "+" de arrecadações aparece
+  // mesmo sem Firebase (dados locais carregados acima)
+  // ═══════════════════════════════════════════════════════
+  renderArrecadacoes();
+
+  // ═══════════════════════════════════════════════════════
+  // FIM NOVAS FUNCIONALIDADES
   // ═══════════════════════════════════════════════════════
 
   // Project ID fixo — pula a tela de setup automaticamente
