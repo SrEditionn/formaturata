@@ -9,7 +9,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Disparado quando o servidor envia um push (via efi-webhook.js)
+// Disparado quando o servidor envia um push (via mp-webhook.js)
 self.addEventListener('push', (event) => {
   let data = { title: 'Formatura', body: 'Você tem uma nova notificação.' };
   try {
