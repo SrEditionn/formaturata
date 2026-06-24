@@ -1614,7 +1614,7 @@
       <select id="pixAssignCat" onchange="onPixCatChange()" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
         <option value="">Selecione uma categoria...</option>
       </select>
-      <label>Entrada</label>
+      <label id="pixAssignEntryLabel">Entrada</label>
       <select id="pixAssignEntry" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none">
         <option value="">Selecione uma entrada...</option>
       </select>
@@ -1735,7 +1735,33 @@
 </div>
 
 <!-- ══ MODAL: NOVA ARRECADAÇÃO EXTRA ══ -->
-<div id="arrecadacaoOverlay" onclick="closeArrecadacaoModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
+<div id="arrecadacaoActionOverlay" onclick="closeArrecadacaoAction(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+    <div class="modal-handle"></div>
+    <div id="arrecadacaoActionTitle" style="font-size:16px;font-weight:800;color:#0f172a;margin-bottom:4px;"></div>
+    <div id="arrecadacaoActionValAtual" style="font-size:22px;font-weight:800;color:#16a34a;margin-bottom:18px;letter-spacing:-.5px;"></div>
+
+    <!-- Botões de ação -->
+    <div id="arrecadacaoActionBtns">
+      <button onclick="openArrecadacaoAddVal()" style="width:100%;background:linear-gradient(135deg,#059669,#047857);border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">➕ Adicionar valor</button>
+      <button onclick="openArrecadacaoModal(document.getElementById('arrecadacaoActionId').value)" style="width:100%;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;font-size:14px;font-weight:600;color:#374151;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">✏️ Editar nome / valor</button>
+      <button onclick="deleteArrecadacao(document.getElementById('arrecadacaoActionId').value)" style="width:100%;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px;font-size:14px;font-weight:700;color:#dc2626;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">🗑 Remover</button>
+      <button onclick="closeArrecadacaoAction(null,true)" style="width:100%;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+    </div>
+
+    <!-- Sub-form: adicionar valor -->
+    <div id="arrecadacaoAddValForm" style="display:none;">
+      <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;">Valor a adicionar (R$)</label>
+      <input type="number" id="arrecadacaoAddValInput" placeholder="0.00" step="0.01" min="0"
+        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;margin-bottom:12px;">
+      <button onclick="confirmarAddVal()" style="width:100%;background:linear-gradient(135deg,#059669,#047857);border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">✓ Somar ao valor</button>
+      <button onclick="backToArrecadacaoActionBtns()" style="width:100%;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">← Voltar</button>
+    </div>
+    <input type="hidden" id="arrecadacaoActionId">
+  </div>
+</div>
+
+
   <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
     <div class="modal-handle"></div>
     <div class="modal-title" id="arrecadacaoModalTitle">➕ Nova arrecadação</div>
@@ -3100,9 +3126,18 @@ const EXPORTED_DATA = ${dataJson};
       formBlock.style.display = 'block';
       confirmBtn.style.display = 'block';
       const selCat = document.getElementById('pixAssignCat');
+      const extraOpts = arrecadacoes.length > 0
+        ? '<optgroup label="── Arrecadações extras ──">' +
+          arrecadacoes.map(a => `<option value="arrecadacao:${a.id}">${a.nome}</option>`).join('') +
+          '</optgroup>'
+        : '';
       selCat.innerHTML = '<option value="">Selecione uma categoria...</option>' +
-        categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('') +
+        extraOpts;
       document.getElementById('pixAssignEntry').innerHTML = '<option value="">Selecione uma entrada...</option>';
+      document.getElementById('pixAssignEntryLabel').style.display = 'block';
+      document.getElementById('pixAssignEntry').style.display = 'block';
+      document.getElementById('pixAssignConfirmBtn').textContent = 'Adicionar a esta entrada';
     }
     document.getElementById('pixAssignOverlay').classList.add('open');
   };
@@ -3110,10 +3145,27 @@ const EXPORTED_DATA = ${dataJson};
   window.onPixCatChange = function() {
     const catId = document.getElementById('pixAssignCat').value;
     const selEntry = document.getElementById('pixAssignEntry');
+    const entryLabel = document.getElementById('pixAssignEntryLabel');
+    const confirmBtn = document.getElementById('pixAssignConfirmBtn');
     if (!catId) {
+      entryLabel.style.display = 'block';
+      selEntry.style.display = 'block';
       selEntry.innerHTML = '<option value="">Selecione uma entrada...</option>';
+      confirmBtn.textContent = 'Adicionar a esta entrada';
       return;
     }
+    // Arrecadação extra — não precisa de entrada
+    if (catId.startsWith('arrecadacao:')) {
+      entryLabel.style.display = 'none';
+      selEntry.style.display = 'none';
+      selEntry.innerHTML = '';
+      confirmBtn.textContent = 'Somar à arrecadação';
+      return;
+    }
+    // Categoria normal
+    entryLabel.style.display = 'block';
+    selEntry.style.display = 'block';
+    confirmBtn.textContent = 'Adicionar a esta entrada';
     const cat = categories.find(c => c.id === catId);
     if (!cat || cat.entries.length === 0) {
       selEntry.innerHTML = '<option value="">Nenhuma entrada nesta categoria</option>';
@@ -3133,6 +3185,34 @@ const EXPORTED_DATA = ${dataJson};
     if (!pixAssignTarget) return;
     const catId = document.getElementById('pixAssignCat').value;
     if (!catId) { alert('Selecione uma categoria.'); return; }
+
+    const val = Number(pixAssignTarget.value);
+
+    // ── Arrecadação extra ──
+    if (catId.startsWith('arrecadacao:')) {
+      const arrId = catId.replace('arrecadacao:', '');
+      const arrIdx = arrecadacoes.findIndex(a => a.id === arrId);
+      if (arrIdx < 0) return;
+      arrecadacoes[arrIdx].valor = (arrecadacoes[arrIdx].valor || 0) + val;
+      saveArrecadacoes();
+      renderArrecadacoes();
+
+      pixAssignTarget.assignedTo = arrecadacoes[arrIdx].nome + ' (arrecadação extra)';
+      pixAssignTarget.assignedCatId = catId;
+      pixAssignTarget.assignedEntryId = null;
+      const idx = pixLogs.findIndex(l => l.id === pixAssignTarget.id);
+      if (idx >= 0) pixLogs[idx] = { ...pixAssignTarget };
+      savePixLogs();
+      logAction('add', `Pix de ${pixAssignTarget.name} (${fmtPix(val)}) somado à arrecadação "${arrecadacoes[arrIdx].nome}"`);
+      render();
+      saveToFirebase();
+      renderPixList();
+      document.getElementById('pixAssignOverlay').classList.remove('open');
+      pixAssignTarget = null;
+      return;
+    }
+
+    // ── Categoria normal ──
     const entryId = document.getElementById('pixAssignEntry').value;
     if (!entryId) { alert('Selecione uma entrada.'); return; }
     const cat = categories.find(c => c.id === catId);
@@ -3141,7 +3221,6 @@ const EXPORTED_DATA = ${dataJson};
     if (!entry) return;
 
     // Adiciona o valor à entrada conforme o tipo dela
-    const val = Number(pixAssignTarget.value);
     if (entry.type === 'free') {
       entry.freeValues = entry.freeValues || [];
       entry.freeValues.push(val);
@@ -3176,7 +3255,16 @@ const EXPORTED_DATA = ${dataJson};
     const entryId = p.assignedEntryId;
     const val = Number(p.value);
 
-    if (catId && entryId) {
+    if (catId && catId.startsWith('arrecadacao:')) {
+      // Reverter valor da arrecadação extra
+      const arrId = catId.replace('arrecadacao:', '');
+      const arrIdx = arrecadacoes.findIndex(a => a.id === arrId);
+      if (arrIdx >= 0) {
+        arrecadacoes[arrIdx].valor = Math.max(0, (arrecadacoes[arrIdx].valor || 0) - val);
+        saveArrecadacoes();
+        renderArrecadacoes();
+      }
+    } else if (catId && entryId) {
       const cat = categories.find(c => c.id === catId);
       if (cat) {
         const entry = cat.entries.find(e => e.id === entryId);
@@ -3266,15 +3354,57 @@ const EXPORTED_DATA = ${dataJson};
     if (!row) return;
     if (arrecadacoes.length === 0) { row.innerHTML = ''; return; }
     const cards = arrecadacoes.map(a => `
-      <div class="arrecadacao-card" ondblclick="openArrecadacaoModal('${a.id}')">
-        <button class="arrecadacao-card-del" onclick="event.stopPropagation();deleteArrecadacao('${a.id}')" title="Remover">✕</button>
-        <div class="arrecadacao-card-label">arrecadação extra</div>
+      <div class="arrecadacao-card" onclick="openArrecadacaoAction('${a.id}')">
         <div class="arrecadacao-card-name">${a.nome}</div>
         <div class="arrecadacao-card-value">${fmt(a.valor)}</div>
       </div>
     `).join('');
     row.innerHTML = `<div class="arrecadacoes-wrap">${cards}</div>`;
   }
+
+  window.openArrecadacaoAction = function(id) {
+    const a = arrecadacoes.find(x => x.id === id);
+    if (!a) return;
+    document.getElementById('arrecadacaoActionId').value = id;
+    document.getElementById('arrecadacaoActionTitle').textContent = a.nome;
+    document.getElementById('arrecadacaoActionValAtual').textContent = fmt(a.valor);
+    document.getElementById('arrecadacaoActionBtns').style.display = 'block';
+    document.getElementById('arrecadacaoAddValForm').style.display = 'none';
+    document.getElementById('arrecadacaoAddValInput').value = '';
+    const overlay = document.getElementById('arrecadacaoActionOverlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeArrecadacaoAction = function(ev, force) {
+    if (!force && ev && ev.target !== document.getElementById('arrecadacaoActionOverlay')) return;
+    document.getElementById('arrecadacaoActionOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  window.openArrecadacaoAddVal = function() {
+    document.getElementById('arrecadacaoActionBtns').style.display = 'none';
+    document.getElementById('arrecadacaoAddValForm').style.display = 'block';
+    setTimeout(() => document.getElementById('arrecadacaoAddValInput').focus(), 100);
+  };
+
+  window.backToArrecadacaoActionBtns = function() {
+    document.getElementById('arrecadacaoAddValForm').style.display = 'none';
+    document.getElementById('arrecadacaoActionBtns').style.display = 'block';
+  };
+
+  window.confirmarAddVal = function() {
+    const id = document.getElementById('arrecadacaoActionId').value;
+    const extra = parseFloat(document.getElementById('arrecadacaoAddValInput').value) || 0;
+    if (extra <= 0) { document.getElementById('arrecadacaoAddValInput').focus(); return; }
+    const idx = arrecadacoes.findIndex(x => x.id === id);
+    if (idx >= 0) {
+      arrecadacoes[idx].valor = (arrecadacoes[idx].valor || 0) + extra;
+      saveArrecadacoes();
+      renderArrecadacoes();
+    }
+    closeArrecadacaoAction(null, true);
+  };
 
   window.openArrecadacaoModal = function(editId) {
     // Edição via duplo clique nos cards — abre o overlay separado (mantido para edição)
@@ -3320,6 +3450,7 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.deleteArrecadacao = function(id) {
+    closeArrecadacaoAction(null, true);
     if (!confirm('Remover esta arrecadação?')) return;
     arrecadacoes = arrecadacoes.filter(a => a.id !== id);
     saveArrecadacoes();
