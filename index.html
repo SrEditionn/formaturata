@@ -3202,7 +3202,6 @@ const EXPORTED_DATA = ${dataJson};
   function renderArrecadacoes() {
     const row = document.getElementById('arrecadacoesRow');
     if (!row) return;
-    if (arrecadacoes.length === 0) { row.innerHTML = ''; return; }
     const cards = arrecadacoes.map(a => `
       <div class="arrecadacao-card" ondblclick="openArrecadacaoModal('${a.id}')">
         <button class="arrecadacao-card-del" onclick="event.stopPropagation();deleteArrecadacao('${a.id}')" title="Remover">✕</button>
@@ -3266,14 +3265,8 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   // Botão "+" sempre visível na linha de arrecadações (caso esteja vazia)
-  (function ensureAddBtn() {
-    const row = document.getElementById('arrecadacoesRow');
-    if (row && arrecadacoes.length === 0) {
-      row.innerHTML = `<div class="arrecadacoes-wrap">
-        <button class="btn-add-arrecadacao" onclick="openArrecadacaoModal()">➕ Nova arrecadação</button>
-      </div>`;
-    }
-  })();
+  // Renderiza arrecadações ao iniciar (Firebase ainda não conectou)
+  renderArrecadacoes();
 
   // ═══════════════════════════════════════════════════════
   // ARRECADAÇÃO MENSAL
