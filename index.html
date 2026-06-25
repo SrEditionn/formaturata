@@ -165,7 +165,7 @@
   }
   .btn-action:hover { opacity: .82; }
   .btn-action.primary { background: var(--accent); color: white; }
-  .btn-action.secondary { background: #1C1C1E; color: white; }
+  .btn-action.secondary { background: #1C1C1E; color: white; border: 1.5px solid #3a3a45; box-shadow: 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06); }
   .btn-action.success { background: #30D158; color: white; }
 
   /* TOTALS */
@@ -1633,7 +1633,7 @@
   <div id="pixPanelContent">
     <div id="pixPanelHeader">
       <div class="pix-panel-title">
-        💸 Pix em Tempo Real
+        💸 Pix Recebido
         <button class="pix-panel-close" onclick="closePixPanel()">✕</button>
       </div>
       <div class="pix-panel-stats">
@@ -2089,6 +2089,7 @@
     renderTotals();
     renderArrecadacoes();
     renderCategories();
+    updatePixBadge(); // restaura o badge após renderArrecadacoes recriar o botão
   };
 
   function renderTotals() {
@@ -3520,12 +3521,12 @@ const EXPORTED_DATA = ${dataJson};
       html += `<div class="arrecadacoes-wrap">${cards}</div>`;
     }
     // Pix button always at the bottom
-    html += `<button class="btn-pix" onclick="openPixPanel()" style="margin:10px 16px 0">
+    html += `<div style="padding:10px 0 0"><button class="btn-pix" onclick="openPixPanel()">
       <span class="pix-dot"></span>
       <span class="pix-icon">💸</span>
-      <span class="pix-label">Pix em Tempo Real</span>
+      <span class="pix-label">Pix Recebido</span>
       <span class="pix-count-badge" id="pixCountBadge" style="display:none">0</span>
-    </button>`;
+    </button></div>`;
     row.innerHTML = html;
   }
 
