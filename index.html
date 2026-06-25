@@ -780,7 +780,7 @@
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border: 1.5px solid #86efac; border-radius: 14px;
     padding: 13px 16px; min-width: 140px; flex: 1;
-    cursor: pointer; position: relative; transition: all .15s; max-width: 220px;
+    cursor: pointer; position: relative; transition: all .15s; max-width: 100%;
   }
   .arrecadacao-card:hover { border-color: #22c55e; box-shadow: 0 3px 12px rgba(34,197,94,.18); transform: translateY(-1px); }
   .arrecadacao-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #16a34a; margin-bottom: 2px; }
@@ -1767,14 +1767,14 @@
     <div class="modal-title" id="arrecadacaoModalTitle">➕ Nova arrecadação</div>
     <div class="field">
       <label>Nome da arrecadação</label>
-      <input type="text" id="arrecadacaoNome" placeholder="Ex: Festa Junina"
+      <input type="text" id="arrecadacaoEditNome" placeholder="Ex: Festa Junina"
         style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;margin-bottom:10px;">
       <label>Valor arrecadado (R$)</label>
-      <input type="number" id="arrecadacaoValor" placeholder="0.00" step="0.01" min="0"
+      <input type="number" id="arrecadacaoEditValor" placeholder="0.00" step="0.01" min="0"
         style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
     </div>
-    <input type="hidden" id="arrecadacaoEditId">
-    <button class="btn-confirm" onclick="confirmarArrecadacao()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Salvar</button>
+    <input type="hidden" id="arrecadacaoEditIdField">
+    <button class="btn-confirm" onclick="salvarArrecadacaoEditada()" style="background:linear-gradient(135deg,#059669,#047857);margin-top:8px;">✓ Salvar</button>
     <button onclick="closeArrecadacaoModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
   </div>
 </div>
@@ -3407,13 +3407,15 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.openArrecadacaoModal = function(editId) {
-    // Edição via duplo clique nos cards — abre o overlay separado (mantido para edição)
+    // Fecha o action overlay se estiver aberto
+    closeArrecadacaoAction(null, true);
     const overlay = document.getElementById('arrecadacaoOverlay');
-    document.getElementById('arrecadacaoEditId').value = editId || '';
+    document.getElementById('arrecadacaoEditIdField').value = editId || '';
     if (editId) {
       const a = arrecadacoes.find(x => x.id === editId);
-      document.getElementById('arrecadacaoNome').value = a ? a.nome : '';
-      document.getElementById('arrecadacaoValor').value = a ? a.valor : '';
+      document.getElementById('arrecadacaoEditNome').value = a ? a.nome : '';
+      document.getElementById('arrecadacaoEditValor').value = a ? a.valor : '';
+      document.getElementById('arrecadacaoModalTitle').textContent = '✏️ Editar arrecadação';
     } else {
       // Criação: usa o modal dentro de modalCat
       openNewCategory();
@@ -3422,7 +3424,7 @@ const EXPORTED_DATA = ${dataJson};
     }
     overlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('arrecadacaoNome').focus(), 100);
+    setTimeout(() => document.getElementById('arrecadacaoEditNome').focus(), 100);
   };
 
   window.closeArrecadacaoModal = function(e, force) {
@@ -3432,19 +3434,27 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.confirmarArrecadacao = function() {
+    // Criação via modalCat — lê os IDs do formulário de criação
     const nome = document.getElementById('arrecadacaoNome').value.trim();
     const valor = parseFloat(document.getElementById('arrecadacaoValor').value) || 0;
-    const editId = document.getElementById('arrecadacaoEditId').value;
     if (!nome) { document.getElementById('arrecadacaoNome').focus(); return; }
+    arrecadacoes.push({ id: uid(), nome, valor });
+    document.getElementById('modalCat').classList.remove('open');
+    saveArrecadacoes();
+    renderArrecadacoes();
+  };
+
+  window.salvarArrecadacaoEditada = function() {
+    // Edição via overlay — lê os IDs do formulário de edição
+    const nome = document.getElementById('arrecadacaoEditNome').value.trim();
+    const valor = parseFloat(document.getElementById('arrecadacaoEditValor').value) || 0;
+    const editId = document.getElementById('arrecadacaoEditIdField').value;
+    if (!nome) { document.getElementById('arrecadacaoEditNome').focus(); return; }
     if (editId) {
       const idx = arrecadacoes.findIndex(x => x.id === editId);
       if (idx >= 0) { arrecadacoes[idx].nome = nome; arrecadacoes[idx].valor = valor; }
-      closeArrecadacaoModal(null, true);
-    } else {
-      arrecadacoes.push({ id: uid(), nome, valor });
-      // Fecha o modalCat
-      document.getElementById('modalCat').classList.remove('open');
     }
+    closeArrecadacaoModal(null, true);
     saveArrecadacoes();
     renderArrecadacoes();
   };
