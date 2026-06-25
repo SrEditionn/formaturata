@@ -1295,12 +1295,16 @@
       <div class="header-sub">Site by @eijordanofc</div>
     </div>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-    <button class="btn-action primary" onclick="openNewCategory()">+ Nova lista</button>
-    <button class="btn-action secondary" onclick="exportPDF()">📄 Salvar PDF</button>
-    <button class="btn-action secondary" onclick="openLogsPanel()">📜 Logs</button>
-    <button class="btn-rifas-toggle" onclick="openRifasPanel()">🎟️ rifas arrecadadas</button>
-    <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()">📅 arrecadação mensal</button>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-action primary" onclick="openNewCategory()">+ Mais opções</button>
+      <button class="btn-action secondary" onclick="exportPDF()">📄 Salvar PDF</button>
+      <button class="btn-action secondary" onclick="openLogsPanel()">📜 Logs</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-rifas-toggle" onclick="openRifasPanel()">🎟️ rifas arrecadadas</button>
+      <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()">📅 arrecadação mensal</button>
+    </div>
   </div>
   <div class="totals-row" id="totalsRow"></div>
   <div id="arrecadacoesRow" style="margin:10px 0 0"></div>
@@ -1629,7 +1633,7 @@
   <div id="pixPanelContent">
     <div id="pixPanelHeader">
       <div class="pix-panel-title">
-        💸 Pix Recebido
+        💸 Pix em Tempo Real
         <button class="pix-panel-close" onclick="closePixPanel()">✕</button>
       </div>
       <div class="pix-panel-stats">
@@ -1639,7 +1643,6 @@
     </div>
     <div class="pix-panel-actions">
       <button class="pix-action-btn" id="btnPixNotif" onclick="togglePixNotifications()">🔔 Ativar Notificações</button>
-      <button class="pix-action-btn" onclick="clearPixLogs()" style="color:#F87171;border-color:rgba(248,113,113,.15);">🗑 Limpar</button>
       <span id="pixStatusMsg" style="font-size:11px;font-weight:600;color:#94a3b8;align-self:center;margin-left:auto;"></span>
     </div>
     <div class="pix-list" id="pixList">
@@ -1681,6 +1684,21 @@
       </select>
     </div>
     <button id="pixAssignConfirmBtn" class="btn-confirm" onclick="confirmPixAssign()">Adicionar a esta entrada</button>
+    <!-- Botão de apagar Pix individual -->
+    <button onclick="initiatePixDelete()" style="width:100%;margin-top:10px;background:rgba(248,113,113,.08);border:1.5px solid rgba(248,113,113,.25);border-radius:12px;padding:12px;font-size:13px;font-weight:700;color:#F87171;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;" onmouseover="this.style.background='rgba(248,113,113,.15)'" onmouseout="this.style.background='rgba(248,113,113,.08)'">🗑 Apagar este Pix</button>
+  </div>
+</div>
+
+<!-- ══ MODAL SENHA APAGAR PIX ══ -->
+<div id="pixDeleteOverlay" onclick="closePixDeleteModal(event)" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);display:none;align-items:flex-end;justify-content:center;">
+  <div id="pixDeleteModal" style="background:#1A1A22;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;font-family:'Plus Jakarta Sans',sans-serif;">
+    <div style="width:36px;height:4px;background:#3D2F6E;border-radius:4px;margin:0 auto 20px;"></div>
+    <div id="pixDeleteTitle" style="font-size:17px;font-weight:800;color:#EDEDF0;margin-bottom:6px;">🔐 Confirmar exclusão</div>
+    <div id="pixDeleteSub" style="font-size:13px;color:#8E8EA8;margin-bottom:18px;">Digite a senha para apagar este Pix permanentemente.</div>
+    <input id="pixDeletePasswordInput" type="password" placeholder="Senha" style="width:100%;padding:13px 14px;border:1.5px solid #272732;border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#EDEDF0;background:#111116;outline:none;margin-bottom:12px;" />
+    <div id="pixDeleteError" style="display:none;color:#F87171;font-size:12px;font-weight:600;margin-bottom:10px;"></div>
+    <button onclick="confirmPixDeleteWithPassword()" style="width:100%;padding:14px;background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));border:none;border-radius:12px;font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">Apagar Pix</button>
+    <button onclick="closePixDeleteModal(null,true)" style="width:100%;padding:12px;background:none;border:1.5px solid #272732;border-radius:12px;font-size:14px;font-weight:600;color:#8E8EA8;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
   </div>
 </div>
 
@@ -1714,14 +1732,14 @@
       </div>
     </div>
     <div class="mensal-config-row">
-      <button class="mensal-config-btn" onclick="openMensalInicioModal()">➕ Definir mês inicial</button>
+      <button class="mensal-config-btn" onclick="openMensalInicioModal()">➕ Adicionar mês</button>
       <button class="mensal-config-btn" style="color:#F87171;border-color:rgba(248,113,113,.15);" onclick="resetMensalData()">🗑 Limpar tudo</button>
     </div>
     <div class="mensal-body" id="mensalBody">
       <div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
         <div style="font-size:30px;margin-bottom:10px">📅</div>
         <div style="font-weight:600;">Nenhum mês cadastrado</div>
-        <div style="margin-top:6px;font-size:12px;">Clique em "Definir mês inicial" para começar</div>
+        <div style="margin-top:6px;font-size:12px;">Clique em "Adicionar mês" para começar</div>
       </div>
     </div>
   </div>
@@ -2086,12 +2104,6 @@
         </div>
         <div class="total-icon">🎓</div>
       </div>
-      <button class="btn-pix" onclick="openPixPanel()">
-        <span class="pix-dot"></span>
-        <span class="pix-icon">💸</span>
-        <span class="pix-label">Pix Recebido</span>
-        <span class="pix-count-badge" id="pixCountBadge" style="display:none">0</span>
-      </button>
     `;
   }
 
@@ -2471,6 +2483,7 @@
     saveToFirebase();
   };
   window.deleteEntry = function(catId, entryId) {
+    if (!confirm('Apagar esta entrada? Esta ação não pode ser desfeita.')) return;
     const cat = categories.find(c => c.id === catId);
     const e = cat.entries.find(e => e.id === entryId);
     cat.entries = cat.entries.filter(e => e.id !== entryId);
@@ -2775,7 +2788,7 @@ const EXPORTED_DATA = ${dataJson};
   // ═══════════════════════════════════════════════════════
 
   // Token removido do front-end — agora a chamada passa pelo proxy seguro (netlify/functions/mp-proxy.js)
-  const PIX_MAX = 50;
+  const PIX_MAX = 500;
   const PIX_SEEN_MAX = 300;
   let pixLogs = [];
   let pixSeenIds = new Set(); // todos os IDs de Pix já processados, mesmo após "Limpar" — evita reaparecer
@@ -3360,6 +3373,91 @@ const EXPORTED_DATA = ${dataJson};
     pixAssignTarget = null;
   };
 
+  // ── Apagar Pix individual com senha ──
+  let pixDeleteTarget = null;
+
+  async function getPixDeletePassword() {
+    if (!db) return localStorage.getItem('formatura_pix_delete_pwd') || null;
+    try {
+      const { getDoc } = await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js');
+      const snap = await getDoc(doc(db, 'formatura', 'config'));
+      if (snap.exists() && snap.data().pixDeletePassword) return snap.data().pixDeletePassword;
+    } catch(e) {}
+    return localStorage.getItem('formatura_pix_delete_pwd') || null;
+  }
+
+  async function savePixDeletePassword(pwd) {
+    try { localStorage.setItem('formatura_pix_delete_pwd', pwd); } catch(e) {}
+    if (!db) return;
+    try {
+      const { getDoc } = await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js');
+      const docRef = doc(db, 'formatura', 'config');
+      const snap = await getDoc(docRef);
+      const existing = snap.exists() ? snap.data() : {};
+      await setDoc(docRef, { ...existing, pixDeletePassword: pwd });
+    } catch(e) { console.warn('[PixDelete] Erro ao salvar senha:', e); }
+  }
+
+  window.initiatePixDelete = async function() {
+    pixDeleteTarget = pixAssignTarget;
+    if (!pixDeleteTarget) return;
+    const existingPwd = await getPixDeletePassword();
+    const modal = document.getElementById('pixDeleteOverlay');
+    const input = document.getElementById('pixDeletePasswordInput');
+    const errEl = document.getElementById('pixDeleteError');
+    const titleEl = document.getElementById('pixDeleteTitle');
+    const subEl = document.getElementById('pixDeleteSub');
+    if (!existingPwd) {
+      titleEl.textContent = '🔐 Definir senha de exclusão';
+      subEl.textContent = 'Esta é a primeira vez. Defina uma senha para proteger exclusões de Pix.';
+    } else {
+      titleEl.textContent = '🔐 Confirmar exclusão';
+      subEl.textContent = 'Digite a senha para apagar este Pix permanentemente.';
+    }
+    input.value = '';
+    errEl.style.display = 'none';
+    modal.style.display = 'flex';
+    setTimeout(() => input.focus(), 100);
+  };
+
+  window.closePixDeleteModal = function(ev, force) {
+    if (!force && ev && ev.target !== document.getElementById('pixDeleteOverlay')) return;
+    document.getElementById('pixDeleteOverlay').style.display = 'none';
+    pixDeleteTarget = null;
+  };
+
+  window.confirmPixDeleteWithPassword = async function() {
+    const input = document.getElementById('pixDeletePasswordInput');
+    const errEl = document.getElementById('pixDeleteError');
+    const pwd = input.value.trim();
+    if (!pwd) { errEl.textContent = 'Digite uma senha.'; errEl.style.display = 'block'; return; }
+
+    const existingPwd = await getPixDeletePassword();
+    if (!existingPwd) {
+      // First time: set password
+      if (pwd.length < 4) { errEl.textContent = 'Senha muito curta. Use pelo menos 4 caracteres.'; errEl.style.display = 'block'; return; }
+      await savePixDeletePassword(pwd);
+      performPixDelete();
+    } else {
+      if (pwd !== existingPwd) { errEl.textContent = '❌ Senha incorreta.'; errEl.style.display = 'block'; input.value = ''; input.focus(); return; }
+      performPixDelete();
+    }
+  };
+
+  function performPixDelete() {
+    const p = pixDeleteTarget;
+    if (!p) return;
+    // Remove da lista sem registrar no log
+    pixLogs = pixLogs.filter(l => l.id !== p.id);
+    savePixLogs();
+    renderPixList();
+    updatePixBadge();
+    document.getElementById('pixDeleteOverlay').style.display = 'none';
+    document.getElementById('pixAssignOverlay').classList.remove('open');
+    pixDeleteTarget = null;
+    pixAssignTarget = null;
+  }
+
   // ── Inicialização ──
   loadPixNotifState();
   loadPixLogs();
@@ -3411,14 +3509,24 @@ const EXPORTED_DATA = ${dataJson};
   function renderArrecadacoes() {
     const row = document.getElementById('arrecadacoesRow');
     if (!row) return;
-    if (arrecadacoes.length === 0) { row.innerHTML = ''; return; }
-    const cards = arrecadacoes.map(a => `
+    let html = '';
+    if (arrecadacoes.length > 0) {
+      const cards = arrecadacoes.map(a => `
       <div class="arrecadacao-card" onclick="openArrecadacaoAction('${a.id}')">
         <div class="arrecadacao-card-name">${a.nome}</div>
         <div class="arrecadacao-card-value">${fmt(a.valor)}</div>
       </div>
     `).join('');
-    row.innerHTML = `<div class="arrecadacoes-wrap">${cards}</div>`;
+      html += `<div class="arrecadacoes-wrap">${cards}</div>`;
+    }
+    // Pix button always at the bottom
+    html += `<button class="btn-pix" onclick="openPixPanel()" style="margin:10px 16px 0">
+      <span class="pix-dot"></span>
+      <span class="pix-icon">💸</span>
+      <span class="pix-label">Pix em Tempo Real</span>
+      <span class="pix-count-badge" id="pixCountBadge" style="display:none">0</span>
+    </button>`;
+    row.innerHTML = html;
   }
 
   window.openArrecadacaoAction = function(id) {
@@ -3605,7 +3713,7 @@ const EXPORTED_DATA = ${dataJson};
       body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
         <div style="font-size:30px;margin-bottom:10px">📅</div>
         <div style="font-weight:600;">Nenhum mês cadastrado</div>
-        <div style="margin-top:6px;font-size:12px;">Clique em "Definir mês inicial" para começar</div>
+        <div style="margin-top:6px;font-size:12px;">Clique em "Adicionar mês" para começar</div>
       </div>`;
       return;
     }
@@ -3704,7 +3812,10 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.resetMensalData = function() {
-    if (!confirm('Apagar todos os dados mensais? Isso vai limpar para todos os dispositivos.')) return;
+    if (!confirm('⚠️ Limpar todos os dados mensais?\n\nIsso vai apagar tudo para todos os dispositivos.')) return;
+    if (!confirm('Tem certeza mesmo?\n\nTodos os pagamentos e meses cadastrados serão perdidos.')) return;
+    if (!confirm('Última confirmação!\n\nEsta ação é irreversível. Continuar mesmo assim?')) return;
+    if (!confirm('🔴 APAGAR TUDO agora?\n\nIsso vai limpar toda a arrecadação mensal permanentemente.')) return;
     mensalData = { valorPadrao: 10, meses: [] };
     saveMensalData();
     renderMensalBody();
@@ -3827,10 +3938,60 @@ const EXPORTED_DATA = ${dataJson};
 
 <style>
 @media print {
-  #syncBadge, .header-actions, .btn-add-entry, .section-actions, .count-btn, .entry-delete { display: none !important; }
-  .header { position: static; }
-  body { background: var(--bg); }
-  #logsPanel, .entry-link-btn, .btn-rifas-toggle { display: none !important; }
+  /* ── Modo claro para PDF/impressão ── */
+  :root {
+    --bg: #ffffff !important;
+    --white: #f8f8f8 !important;
+    --surface: #f0f0f0 !important;
+    --text: #111111 !important;
+    --muted: #555555 !important;
+    --border: #dddddd !important;
+    --green: #059669 !important;
+    --accent: #7c3aed !important;
+    --shadow: 0 2px 8px rgba(0,0,0,.1) !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  .header {
+    position: static !important;
+    background: #ffffff !important;
+    border-bottom: 2px solid #e5e7eb !important;
+    padding-bottom: 12px !important;
+  }
+  .header-title { color: #111111 !important; }
+  .header-sub { color: #6b7280 !important; }
+  .total-card.main {
+    background: #f3f0ff !important;
+    border: 1.5px solid #c4b5fd !important;
+    color: #111111 !important;
+  }
+  .total-label { color: #6b7280 !important; }
+  .total-value { color: #1e1040 !important; }
+  .total-sub { color: #6b7280 !important; }
+  .section {
+    background: #ffffff !important;
+    border: 1.5px solid #e5e7eb !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .section-title { color: #111111 !important; }
+  .section-total { color: #059669 !important; }
+  .entry-row { border-bottom: 1px solid #f3f4f6 !important; }
+  .entry-desc { color: #111111 !important; }
+  .entry-val { color: #059669 !important; }
+  .arrecadacao-card {
+    background: #f0fdf4 !important;
+    border: 1.5px solid #86efac !important;
+    color: #111111 !important;
+  }
+  .arrecadacao-card-name { color: #374151 !important; }
+  .arrecadacao-card-value { color: #059669 !important; }
+  /* Ocultar elementos desnecessários no PDF */
+  #syncBadge, .header-actions, .btn-add-entry, .section-actions,
+  .count-btn, .entry-delete, #logsPanel, .entry-link-btn,
+  .btn-rifas-toggle, .btn-pix, .btn-action { display: none !important; }
 }
 </style>
 
