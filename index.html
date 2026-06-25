@@ -14,12 +14,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #000000;
-    --white: #0E0E11;
-    --surface: #141418;
+    --bg: #111116;
+    --white: #1A1A22;
+    --surface: #1E1E28;
     --text: #EDEDF0;
-    --muted: #78788C;
-    --border: #1E1E26;
+    --muted: #8E8EA8;
+    --border: #272732;
     --green: #34D399;
     --green-light: rgba(52,211,153,.12);
     --accent: #A78BFA;
@@ -75,7 +75,7 @@
   /* Rifas Panel */
 
   /* Overlays/Modals */
-  .modal { background: #0E0E11; border: 1px solid #1E1E26; }
+  .modal { background: var(--white); border: 1px solid var(--border); }
 
   #arrecadacaoActionOverlay > div, #arrecadacaoOverlay > div { background: var(--white); }
 
@@ -235,15 +235,15 @@
     margin-left: auto;
     width: min(520px, 100%);
     height: 100%;
-    background: #000000;
+    background: var(--bg);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     box-shadow: -4px 0 24px rgba(0,0,0,.12);
   }
   #pixPanelHeader {
-    background: linear-gradient(180deg, #0A0A10 0%, #000000 100%);
-    border-bottom: 1px solid #1E1E26;
+    background: linear-gradient(180deg, #14141C 0%, #111116 100%);
+    border-bottom: 1px solid var(--border);
     padding: 18px 18px 14px;
     position: sticky;
     top: 0;
@@ -260,7 +260,7 @@
   }
   .pix-panel-close {
     background: rgba(255,255,255,.08);
-    border: 1px solid #1E1E26;
+    border: 1px solid var(--border);
     border-radius: 8px;
     width: 30px; height: 30px;
     color: var(--text);
@@ -276,7 +276,7 @@
   }
   .pix-stat {
     background: rgba(255,255,255,.06);
-    border: 1px solid #1E1E26;
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 8px 14px;
     color: var(--text);
@@ -292,7 +292,7 @@
     padding: 12px 16px 0;
   }
   .pix-action-btn {
-    background: #0E0E11;
+    background: var(--white);
     border: 1.5px solid #1E1E26;
     border-radius: 10px;
     padding: 8px 14px;
@@ -315,7 +315,7 @@
     gap: 10px;
   }
   .pix-card {
-    background: #0E0E11;
+    background: var(--white);
     border-radius: 14px;
     padding: 14px 16px;
     box-shadow: none;
@@ -324,7 +324,7 @@
     gap: 12px;
     cursor: pointer;
     transition: all .15s;
-    border: 1px solid #1E1E26;
+    border: 1px solid var(--border);
   }
   .pix-card:hover { border-color: #38BDF8; transform: translateY(-1px); }
   .pix-card-icon {
@@ -369,7 +369,7 @@
   }
   #pixAssignOverlay.open { opacity: 1; pointer-events: all; }
   #pixAssignModal {
-    background: #0E0E11;
+    background: var(--white);
     border-radius: 20px 20px 0 0;
     padding: 24px 20px 40px;
     width: 100%;
@@ -379,7 +379,7 @@
   }
   #pixAssignOverlay.open #pixAssignModal { transform: translateY(0); }
   .pix-assign-info {
-    background: linear-gradient(135deg, #e5f5ff, #dbeeff);
+    background: linear-gradient(135deg, #141428, #0E1428);
     border-radius: 12px;
     padding: 12px 16px;
     margin-bottom: 16px;
@@ -528,7 +528,7 @@
     transition: background .1s;
   }
   .entry-row:last-child { border-bottom: none; }
-  .entry-row:hover { background: #FAFAFA; }
+  .entry-row:hover { background: #1C1C24; }
 
   .entry-dot {
     width: 8px; height: 8px;
@@ -766,12 +766,12 @@
     padding: 24px;
   }
   .setup-card {
-    background: #0E0E11;
+    background: var(--white);
     border-radius: 20px;
     padding: 32px 28px;
     max-width: 400px;
     width: 100%;
-    border: 1px solid #1E1E26;
+    border: 1px solid var(--border);
     box-shadow: 0 8px 32px rgba(0,0,0,.7);
   }
   .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
@@ -836,7 +836,7 @@
     padding: 0 16px 4px;
   }
   .arrecadacao-card {
-    background: #000000;
+    background: var(--bg);
     border: 1px solid rgba(134,239,172,0.65); border-radius: 14px;
     padding: 13px 16px; min-width: 140px; flex: 1;
     cursor: pointer; position: relative; transition: all .15s; max-width: 100%;
@@ -865,7 +865,7 @@
   #mensalPanelBg { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
   #mensalPanelContent {
     position: relative; margin-left: auto; width: min(520px, 100%);
-    height: 100%; background: #000000; overflow-y: auto;
+    height: 100%; background: var(--bg); overflow-y: auto;
     display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,.12);
   }
   #mensalPanelHeader {
@@ -877,13 +877,13 @@
     display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
   }
   .mensal-panel-close {
-    background: rgba(255,255,255,.08); border: 1px solid #1E1E26; border-radius: 8px;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border); border-radius: 8px;
     width: 30px; height: 30px; color: white; font-size: 14px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
   .mensal-panel-stats { display: flex; gap: 8px; }
   .mensal-stat {
-    background: rgba(255,255,255,.06); border: 1px solid #1E1E26; border-radius: 10px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 10px;
     padding: 8px 14px; color: white; font-size: 12px; font-weight: 600;
     flex: 1; text-align: center;
   }
@@ -900,13 +900,13 @@
   .mensal-config-btn:hover { background: rgba(52,211,153,.1); border-color: #34D399; }
   .mensal-body { padding: 14px 16px 30px; }
   .mensal-mes-card {
-    background: #0E0E11; border: 1px solid #1E1E26; border-radius: 14px;
+    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
     margin-bottom: 12px; overflow: hidden; box-shadow: none;
   }
   .mensal-mes-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 13px 16px; cursor: pointer; background: #0E0E11;
-    border-bottom: 1px solid #1E1E26; transition: background .12s;
+    padding: 13px 16px; cursor: pointer; background: var(--white);
+    border-bottom: 1px solid var(--border); transition: background .12s;
   }
   .mensal-mes-header:hover { background: rgba(255,255,255,.04); }
   .mensal-mes-header.open { border-bottom-color: #1E1E26; }
@@ -920,7 +920,7 @@
   .mensal-mes-body.open { display: block; }
   .mensal-aluno-row {
     display: flex; align-items: center; padding: 9px 16px;
-    border-bottom: 1px solid #1E1E26; gap: 10px;
+    border-bottom: 1px solid var(--border); gap: 10px;
     transition: background .1s; cursor: pointer;
   }
   .mensal-aluno-row:last-child { border-bottom: none; }
@@ -949,7 +949,7 @@
   }
   .mensal-total-btn:hover { opacity: .88; }
   .mensal-total-badge {
-    background: rgba(255,255,255,.08); border: 1px solid #1E1E26; border-radius: 8px;
+    background: rgba(255,255,255,.08); border: 1px solid var(--border); border-radius: 8px;
     padding: 2px 10px; font-size: 13px; font-weight: 800; margin-left: auto;
   }
   .mensal-pag-info {
@@ -977,7 +977,7 @@
     margin-left: auto;
     width: min(520px, 100%);
     height: 100%;
-    background: #000000;
+    background: var(--bg);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -986,8 +986,8 @@
 
   /* Header do painel */
   #rifasPanelHeader {
-    background: #0E0E11;
-    border-bottom: 1px solid #1E1E26;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
     padding: 16px 18px 12px;
     position: sticky;
     top: 0;
@@ -1004,8 +1004,8 @@
   }
   .rifas-panel-close {
     margin-left: auto;
-    background: #1A1A22;
-    border: 1px solid #1E1E26;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 8px;
     width: 30px;
     height: 30px;
@@ -1022,8 +1022,8 @@
   .rifas-tabs {
     display: flex;
     gap: 4px;
-    background: #0E0E11;
-    border: 1px solid #1E1E26;
+    background: var(--white);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 3px;
   }
@@ -1041,7 +1041,7 @@
     white-space: nowrap;
   }
   .rifas-tab.active {
-    background: #1A1A22;
+    background: var(--surface);
     color: var(--text);
     box-shadow: 0 1px 4px rgba(0,0,0,.5);
   }
@@ -1058,15 +1058,15 @@
     margin-bottom: 16px;
   }
   .rifa-card {
-    background: #0E0E11;
-    border: 1px solid #1E1E26;
+    background: var(--white);
+    border: 1px solid var(--border);
     border-radius: 11px;
     padding: 11px 12px;
   }
   .rifa-card-label { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
   .rifa-card-value { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
   .rifa-card-sub { font-size: .68rem; color: var(--muted); }
-  .rifa-progress-bar { height: 4px; background: #1E1E26; border-radius: 99px; overflow: hidden; margin-top: 8px; }
+  .rifa-progress-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 8px; }
   .rifa-progress-fill { height: 100%; background: linear-gradient(90deg, #34D399, #34D399); border-radius: 99px; }
   .rifa-progress-pct { font-size: .62rem; color: var(--muted); margin-top: 2px; text-align: right; }
 
@@ -1085,10 +1085,10 @@
   }
   .badge-purple { background: rgba(167,139,250,.15); color: #A78BFA; border-radius: 99px; padding: 1px 7px; font-size: .62rem; font-weight: 700; }
   .badge-green  { background: rgba(52,211,153,.15); color: #34D399; border-radius: 99px; padding: 1px 7px; font-size: .62rem; font-weight: 700; }
-  .rifa-table-wrap { background: #0E0E11; border: 1px solid #1E1E26; border-radius: 11px; padding: 4px 10px; margin-bottom: 14px; }
+  .rifa-table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 11px; padding: 4px 10px; margin-bottom: 14px; }
   .rifa-table-wrap table { width: 100%; border-collapse: collapse; }
   .rifa-table-wrap th { text-align: left; font-size: .62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 5px 6px; border-bottom: 2px solid #1E1E26; }
-  .rifa-table-wrap td { padding: 7px 6px; border-bottom: 1px solid #1E1E26; font-size: .82rem; }
+  .rifa-table-wrap td { padding: 7px 6px; border-bottom: 1px solid var(--border); font-size: .82rem; }
 
   .badge-finalizado {
     background: rgba(52,211,153,.1);
@@ -1134,7 +1134,7 @@
     margin-left: auto;
     width: min(520px, 100%);
     height: 100%;
-    background: #000000;
+    background: var(--bg);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -1142,8 +1142,8 @@
   }
 
   #vendasPanelHeader {
-    background: #0E0E11;
-    border-bottom: 1px solid #1E1E26;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
     padding: 16px 18px 12px;
     position: sticky;
     top: 0;
@@ -1181,7 +1181,7 @@
     width: min(560px, 96%);
     height: 94%;
     margin-top: 3%;
-    background: #000000;
+    background: var(--bg);
     border-radius: 16px;
     overflow-y: auto;
     display: flex;
@@ -1189,8 +1189,8 @@
     box-shadow: 0 8px 40px rgba(0,0,0,.25);
   }
   #logsPanelHeader {
-    background: #0E0E11;
-    border-bottom: 1px solid #1E1E26;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
     padding: 16px 18px 12px;
     position: sticky;
     top: 0;
@@ -1217,8 +1217,8 @@
     gap: 8px;
   }
   .log-entry {
-    background: #0E0E11;
-    border: 1px solid #1E1E26;
+    background: var(--white);
+    border: 1px solid var(--border);
     border-radius: 11px;
     padding: 10px 12px;
   }
@@ -1317,17 +1317,17 @@
     <div id="modalCatStep1">
       <div class="modal-title">O que deseja criar?</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
-        <button onclick="modalCatGoStep2('lista')" style="display:flex;align-items:center;gap:14px;background:#f8faff;border:1.5px solid #c7d2fe;border-radius:14px;padding:16px 18px;cursor:pointer;text-align:left;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;" onmouseover="this.style.borderColor='#A78BFA';this.style.background='#eef2ff'" onmouseout="this.style.borderColor='#c7d2fe';this.style.background='#f8faff'">
+        <button onclick="modalCatGoStep2('lista')" style="display:flex;align-items:center;gap:14px;background:#1A1A28;border:1.5px solid #3D2F6E;border-radius:14px;padding:16px 18px;cursor:pointer;text-align:left;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;" onmouseover="this.style.borderColor='#A78BFA';this.style.background='#221A3A'" onmouseout="this.style.borderColor='#3D2F6E';this.style.background='#1A1A28'">
           <span style="font-size:26px;">📋</span>
           <div>
-            <div style="font-size:14px;font-weight:700;color:#0f172a;">Nova lista</div>
+            <div style="font-size:14px;font-weight:700;color:#EDEDF0;">Nova lista</div>
             <div style="font-size:12px;color:var(--muted);margin-top:2px;">Rifas, camisetas, ingressos…</div>
           </div>
         </button>
         <button onclick="modalCatGoStep2('arrecadacao')" style="display:flex;align-items:center;gap:14px;background:rgba(52,211,153,.08);border:1.5px solid rgba(52,211,153,.25);border-radius:14px;padding:16px 18px;cursor:pointer;text-align:left;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;" onmouseover="this.style.borderColor='#34D399';this.style.background='rgba(52,211,153,.14)'" onmouseout="this.style.borderColor='rgba(52,211,153,.25)';this.style.background='rgba(52,211,153,.08)'">
           <span style="font-size:26px;">💰</span>
           <div>
-            <div style="font-size:14px;font-weight:700;color:#0f172a;">Nova arrecadação</div>
+            <div style="font-size:14px;font-weight:700;color:#EDEDF0;">Nova arrecadação</div>
             <div style="font-size:12px;color:var(--muted);margin-top:2px;">Festa Junina, viagem, evento…</div>
           </div>
         </button>
@@ -1347,7 +1347,7 @@
 
     <!-- Tela 2b: criar arrecadação -->
     <div id="modalCatStep2Arrecadacao" style="display:none;">
-      <button onclick="modalCatGoStep1()" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#059669;padding:0;margin-bottom:14px;font-family:'Plus Jakarta Sans',sans-serif;">← Voltar</button>
+      <button onclick="modalCatGoStep1()" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#A78BFA;padding:0;margin-bottom:14px;font-family:'Plus Jakarta Sans',sans-serif;">← Voltar</button>
       <div class="modal-title" style="margin-top:0;">Nova arrecadação</div>
       <div class="field">
         <label>Nome da arrecadação</label>
@@ -1457,7 +1457,7 @@
     <!-- ── ABA 1: RIFA NAMORADOS (só visualização) ── -->
     <div class="rifas-tab-content active" id="rtab-1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:13px;font-weight:700;color:#0f172a">Dias dos Namorados</span>
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">Dias dos Namorados</span>
         <span class="badge-finalizado">✓ Finalizada</span>
       </div>
       <p style="font-size:.72rem;color:#94a3b8;margin-bottom:12px">Valor unit.: R$ 5,00 · Somente visualização.</p>
@@ -1483,7 +1483,7 @@
         </div>
         <div class="rifa-card">
           <div class="rifa-card-label">Já pagaram</div>
-          <div class="rifa-card-value" style="color:#0f172a">29</div>
+          <div class="rifa-card-value" style="color:#EDEDF0">29</div>
           <div class="rifa-card-sub">de 29 participantes</div>
         </div>
       </div>
@@ -1570,7 +1570,7 @@
     <!-- ── ABA 1: VENDA 1 ── -->
     <div class="rifas-tab-content active" id="vtab-1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:13px;font-weight:700;color:#0f172a">🛍️ Venda 1</span>
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">🛍️ Venda 1</span>
         <span class="badge-aguardando">⏳ Lista em breve</span>
       </div>
       <p style="font-size:.72rem;color:#94a3b8;margin-bottom:16px">Os dados desta venda serão adicionados em breve. A lista de participantes e valores aparecerá aqui assim que disponível.</p>
@@ -1589,7 +1589,7 @@
     <!-- ── ABA 2: VENDA 2 ── -->
     <div class="rifas-tab-content" id="vtab-2">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:13px;font-weight:700;color:#0f172a">🛍️ Venda 2</span>
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">🛍️ Venda 2</span>
         <span class="badge-aguardando">⏳ Lista em breve</span>
       </div>
       <p style="font-size:.72rem;color:#94a3b8;margin-bottom:16px">Os dados desta venda serão adicionados em breve.</p>
@@ -1666,7 +1666,7 @@
     <!-- Bloco: já atribuído -->
     <div id="pixAssignAlready" style="display:none;margin-bottom:14px;background:rgba(52,211,153,.08);border:1.5px solid rgba(52,211,153,.25);border-radius:12px;padding:14px 16px;">
       <div style="font-size:11px;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">✓ Já atribuído a</div>
-      <div id="pixAssignedLabel" style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:12px;">—</div>
+      <div id="pixAssignedLabel" style="font-size:15px;font-weight:700;color:#EDEDF0;margin-bottom:12px;">—</div>
       <button onclick="removePixAssign()" style="width:100%;background:rgba(248,113,113,.1);border:1.5px solid #fca5a5;border-radius:10px;padding:11px;font-size:14px;font-weight:700;color:#dc2626;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🗑 Remover esta atribuição</button>
     </div>
     <!-- Bloco: formulário de nova atribuição -->
@@ -1729,7 +1729,7 @@
 
 <!-- ══ MODAL: PAGAMENTO DE ALUNO ══ -->
 <div id="mensalPagOverlay" onclick="closeMensalPagModal(event)" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;">
-  <div id="mensalPagModal" style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+  <div id="mensalPagModal" style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
     <div class="modal-handle"></div>
     <div class="modal-title">💰 Registrar pagamento</div>
     <div class="mensal-pag-info">
@@ -1748,7 +1748,7 @@
 
 <!-- ══ MODAL: ATRIBUIR TOTAL MENSAL A CATEGORIA ══ -->
 <div id="mensalAtribuirOverlay" onclick="closeMensalAtribuirModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div id="mensalAtribuirModal" style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+  <div id="mensalAtribuirModal" style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
     <div class="modal-handle"></div>
     <div class="modal-title">📊 Adicionar total à categoria</div>
     <div class="mensal-pag-info">
@@ -1772,7 +1772,7 @@
 
 <!-- ══ MODAL: MÊS INICIAL ══ -->
 <div id="mensalInicioOverlay" onclick="closeMensalInicioModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+  <div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
     <div class="modal-handle"></div>
     <div class="modal-title">📅 Mês inicial da arrecadação</div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Escolha o mês de início. Os meses até dezembro serão criados automaticamente.</p>
@@ -1797,9 +1797,9 @@
 
 <!-- ══ MODAL: NOVA ARRECADAÇÃO EXTRA ══ -->
 <div id="arrecadacaoActionOverlay" onclick="closeArrecadacaoAction(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+  <div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
     <div class="modal-handle"></div>
-    <div id="arrecadacaoActionTitle" style="font-size:16px;font-weight:800;color:#0f172a;margin-bottom:4px;"></div>
+    <div id="arrecadacaoActionTitle" style="font-size:16px;font-weight:800;color:#EDEDF0;margin-bottom:4px;"></div>
     <div id="arrecadacaoActionValAtual" style="font-size:22px;font-weight:800;color:#34D399;margin-bottom:18px;letter-spacing:-.5px;"></div>
 
     <!-- Botões de ação -->
@@ -1823,7 +1823,7 @@
 </div>
 
 <div id="arrecadacaoOverlay" onclick="closeArrecadacaoModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
+  <div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
     <div class="modal-handle"></div>
     <div class="modal-title" id="arrecadacaoModalTitle">✏️ Editar arrecadação</div>
     <div class="field">
@@ -2583,11 +2583,11 @@ const EXPORTED_DATA = ${dataJson};
 <\/script>
 </head>
 <body>
-<p style="font-family:sans-serif;padding:20px;background:#f5f5f7;border-radius:12px;margin:20px">
+<p style="font-family:sans-serif;padding:20px;background:#111116;border-radius:12px;margin:20px">
   📄 <strong>HTML exportado em ${new Date().toLocaleString('pt-BR')}</strong><br>
   Este arquivo contém um snapshot dos dados. Para sincronização em tempo real, use o arquivo principal com Firebase.
 </p>
-<pre style="font-family:monospace;padding:20px;font-size:13px;background:white;border-radius:12px;margin:20px;overflow:auto">${JSON.stringify(JSON.parse(dataJson), null, 2)}</pre>
+<pre style="font-family:monospace;padding:20px;font-size:13px;background:var(--surface);border-radius:12px;margin:20px;overflow:auto">${JSON.stringify(JSON.parse(dataJson), null, 2)}</pre>
 </body>
 </html>`;
   }
@@ -2706,8 +2706,8 @@ const EXPORTED_DATA = ${dataJson};
     const pct = totalMeta > 0 ? Math.min(100, (totalArrecadado / totalMeta) * 100).toFixed(1) : '0.0';
     el.innerHTML = `
       <div style="margin-bottom:12px">
-        <span style="font-size:13px;font-weight:700;color:#0f172a">🎟️ ${data.titulo || 'Nova Rifa'}</span>
-        <span style="background:#fef3c7;color:#b45309;border-radius:99px;padding:2px 8px;font-size:.6rem;font-weight:700;text-transform:uppercase;margin-left:6px">🔴 Ativa</span>
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">🎟️ ${data.titulo || 'Nova Rifa'}</span>
+        <span style="background:rgba(252,211,77,.15);color:#FCD34D;border-radius:99px;padding:2px 8px;font-size:.6rem;font-weight:700;text-transform:uppercase;margin-left:6px">🔴 Ativa</span>
       </div>
       <div class="rifa-cards">
         <div class="rifa-card">
@@ -3829,7 +3829,7 @@ const EXPORTED_DATA = ${dataJson};
 @media print {
   #syncBadge, .header-actions, .btn-add-entry, .section-actions, .count-btn, .entry-delete { display: none !important; }
   .header { position: static; }
-  body { background: #000000; }
+  body { background: var(--bg); }
   #logsPanel, .entry-link-btn, .btn-rifas-toggle { display: none !important; }
 }
 </style>
