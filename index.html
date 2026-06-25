@@ -777,15 +777,15 @@
     padding: 0 16px 4px;
   }
   .arrecadacao-card {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 1.5px solid #86efac; border-radius: 14px;
+    background: rgba(240,253,244,0.45);
+    border: 1px solid rgba(134,239,172,0.45); border-radius: 14px;
     padding: 13px 16px; min-width: 140px; flex: 1;
     cursor: pointer; position: relative; transition: all .15s; max-width: 100%;
   }
-  .arrecadacao-card:hover { border-color: #22c55e; box-shadow: 0 3px 12px rgba(34,197,94,.18); transform: translateY(-1px); }
+  .arrecadacao-card:hover { border-color: rgba(34,197,94,0.5); box-shadow: 0 2px 8px rgba(34,197,94,.1); transform: translateY(-1px); }
   .arrecadacao-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #16a34a; margin-bottom: 2px; }
-  .arrecadacao-card-name { font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
-  .arrecadacao-card-value { font-size: 20px; font-weight: 800; color: #16a34a; letter-spacing: -.5px; }
+  .arrecadacao-card-name { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+  .arrecadacao-card-value { font-size: 20px; font-weight: 800; color: #16a34a; letter-spacing: -.5px; opacity: .85; }
   .arrecadacao-card-del {
     position: absolute; top: 7px; right: 8px;
     background: none; border: none; font-size: 12px; color: #86efac;
@@ -1761,10 +1761,10 @@
   </div>
 </div>
 
-
+<div id="arrecadacaoOverlay" onclick="closeArrecadacaoModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
   <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.2);">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="arrecadacaoModalTitle">➕ Nova arrecadação</div>
+    <div class="modal-title" id="arrecadacaoModalTitle">✏️ Editar arrecadação</div>
     <div class="field">
       <label>Nome da arrecadação</label>
       <input type="text" id="arrecadacaoEditNome" placeholder="Ex: Festa Junina"
