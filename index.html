@@ -2239,6 +2239,7 @@
     if (fromIdx === -1 || toIdx === -1) return;
     const [moved] = categories.splice(fromIdx, 1);
     categories.splice(toIdx, 0, moved);
+    logAction('edit', `🔀 Lista reordenada: "${moved.name}" movida para posição ${toIdx + 1}`);
     render();
     saveToFirebase();
   }
@@ -2570,6 +2571,7 @@
 
   // ---- EXPORT PDF ----
   window.exportPDF = function() {
+    logAction('edit', '📄 PDF salvo');
     window.print();
   };
 
@@ -2889,7 +2891,6 @@ const EXPORTED_DATA = ${dataJson};
         renderPixList();
         updatePixBadge();
         for (const n of newOnes) {
-          logAction('add', `💸 Pix recebido — ${n.bank || 'Banco não identificado'} (${fmtPix(n.value)})`);
           if (pixNotifEnabled) sendPixNotification(n);
         }
       }
@@ -3144,7 +3145,7 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = false;
       savePixNotifState();
       updateNotifBtn();
-      // Para o polling quando notificações são desativadas
+      logAction('edit', '🔕 Notificações de Pix desativadas');
       if (pixPollingInterval) { clearInterval(pixPollingInterval); pixPollingInterval = null; }
       disablePushNotifications();
       return;
@@ -3155,6 +3156,7 @@ const EXPORTED_DATA = ${dataJson};
       pixNotifEnabled = true;
       savePixNotifState();
       updateNotifBtn();
+      logAction('edit', '🔔 Notificações de Pix ativadas');
       // Inscreve este navegador para push real (funciona com o site fechado/minimizado)
       // ANTES de mostrar a notificação de teste, pois é o registro do Service Worker
       // feito aqui que permite mostrar notificações no Android/Chrome mobile.
@@ -3568,6 +3570,7 @@ const EXPORTED_DATA = ${dataJson};
     const idx = arrecadacoes.findIndex(x => x.id === id);
     if (idx >= 0) {
       arrecadacoes[idx].valor = (arrecadacoes[idx].valor || 0) + extra;
+      logAction('value', `💰 Valor manual adicionado à arrecadação "${arrecadacoes[idx].nome}": +${fmt(extra)}`);
       saveArrecadacoes();
       renderArrecadacoes();
     }
@@ -3602,25 +3605,32 @@ const EXPORTED_DATA = ${dataJson};
   };
 
   window.confirmarArrecadacao = function() {
-    // Criação via modalCat — lê os IDs do formulário de criação
     const nome = document.getElementById('arrecadacaoNome').value.trim();
     const valor = parseFloat(document.getElementById('arrecadacaoValor').value) || 0;
     if (!nome) { document.getElementById('arrecadacaoNome').focus(); return; }
     arrecadacoes.push({ id: uid(), nome, valor });
+    logAction('add', `✨ Arrecadação extra criada: "${nome}"${valor > 0 ? ` (inicial: ${fmt(valor)})` : ''}`);
     document.getElementById('modalCat').classList.remove('open');
     saveArrecadacoes();
     renderArrecadacoes();
   };
 
   window.salvarArrecadacaoEditada = function() {
-    // Edição via overlay — lê os IDs do formulário de edição
     const nome = document.getElementById('arrecadacaoEditNome').value.trim();
     const valor = parseFloat(document.getElementById('arrecadacaoEditValor').value) || 0;
     const editId = document.getElementById('arrecadacaoEditIdField').value;
     if (!nome) { document.getElementById('arrecadacaoEditNome').focus(); return; }
     if (editId) {
       const idx = arrecadacoes.findIndex(x => x.id === editId);
-      if (idx >= 0) { arrecadacoes[idx].nome = nome; arrecadacoes[idx].valor = valor; }
+      if (idx >= 0) {
+        const old = arrecadacoes[idx];
+        const changes = [];
+        if (old.nome !== nome) changes.push(`nome: "${old.nome}" → "${nome}"`);
+        if (old.valor !== valor) changes.push(`valor: ${fmt(old.valor)} → ${fmt(valor)}`);
+        if (changes.length > 0) logAction('edit', `✏️ Arrecadação editada — ${changes.join(', ')}`);
+        arrecadacoes[idx].nome = nome;
+        arrecadacoes[idx].valor = valor;
+      }
     }
     closeArrecadacaoModal(null, true);
     saveArrecadacoes();
@@ -3630,6 +3640,8 @@ const EXPORTED_DATA = ${dataJson};
   window.deleteArrecadacao = function(id) {
     closeArrecadacaoAction(null, true);
     if (!confirm('Remover esta arrecadação?')) return;
+    const a = arrecadacoes.find(x => x.id === id);
+    if (a) logAction('remove', `🗑 Arrecadação excluída: "${a.nome}" (${fmt(a.valor || 0)})`);
     arrecadacoes = arrecadacoes.filter(a => a.id !== id);
     saveArrecadacoes();
     renderArrecadacoes();
@@ -3797,16 +3809,18 @@ const EXPORTED_DATA = ${dataJson};
   window.confirmarMesInicial = function() {
     const mesInicio = parseInt(document.getElementById('mensalInicioMes').value);
     const valor = parseFloat(document.getElementById('mensalValorPadrao').value) || 10;
-    // Cria meses do mês escolhido até dezembro (mesIdx 0-11)
     const mesesExistentes = new Set((mensalData.meses || []).map(m => m.mesIdx));
+    const novos = [];
     for (let i = mesInicio - 1; i <= 11; i++) {
       if (!mesesExistentes.has(i)) {
         mensalData.meses = mensalData.meses || [];
         mensalData.meses.push({ id: uid(), mesIdx: i, pagamentos: {} });
+        novos.push(MESES_NOMES[i]);
       }
     }
     mensalData.meses.sort((a, b) => a.mesIdx - b.mesIdx);
     mensalData.valorPadrao = valor;
+    if (novos.length > 0) logAction('add', `📅 Meses adicionados à arrecadação mensal: ${novos.join(', ')} (valor padrão: ${fmt(valor)})`);
     saveMensalData();
     closeMensalInicioModal(null, true);
     renderMensalBody();
@@ -3817,6 +3831,7 @@ const EXPORTED_DATA = ${dataJson};
     if (!confirm('Tem certeza mesmo?\n\nTodos os pagamentos e meses cadastrados serão perdidos.')) return;
     if (!confirm('Última confirmação!\n\nEsta ação é irreversível. Continuar mesmo assim?')) return;
     if (!confirm('🔴 APAGAR TUDO agora?\n\nIsso vai limpar toda a arrecadação mensal permanentemente.')) return;
+    logAction('remove', '🗑 Arrecadação mensal inteira apagada (todos os meses e pagamentos)');
     mensalData = { valorPadrao: 10, meses: [] };
     saveMensalData();
     renderMensalBody();
@@ -3850,10 +3865,16 @@ const EXPORTED_DATA = ${dataJson};
     const mes = (mensalData.meses || []).find(m => m.id === mesId);
     if (!mes) return;
     mes.pagamentos = mes.pagamentos || {};
+    const jaExistia = mes.pagamentos[nome] !== undefined;
     if (isNaN(valor) || valor < 0) {
-      // Remover pagamento se valor inválido
+      logAction('remove', `📅 Pagamento removido — ${nome} (${MESES_NOMES[mes.mesIdx]})`);
       delete mes.pagamentos[nome];
     } else {
+      if (jaExistia) {
+        logAction('edit', `📅 Pagamento atualizado — ${nome} (${MESES_NOMES[mes.mesIdx]}): ${fmt(mes.pagamentos[nome])} → ${fmt(valor)}`);
+      } else {
+        logAction('add', `📅 Pagamento registrado — ${nome} (${MESES_NOMES[mes.mesIdx]}): ${fmt(valor)}`);
+      }
       mes.pagamentos[nome] = valor;
     }
     saveMensalData();
