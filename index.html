@@ -1419,6 +1419,30 @@
   </div>
 </div>
 
+<!-- MODAL: editar categoria (adicionar entrada / tirar valor) -->
+<div class="overlay" id="modalCatOptions" onclick="closeModalCatOptions(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar categoria</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-add-entry" onclick="catOptionsAddEntry()">+ Adicionar entrada</button>
+      <button class="btn-add-entry" onclick="catOptionsWithdraw()">− Tirar valor</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: opções da entrada (dinheiro pendente / apagar) -->
+<div class="overlay" id="modalEntryOptions" onclick="closeModalEntryOptions(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="entryOptionsTitle">Opções da entrada</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-add-entry" id="entryOptionsCashBtn" onclick="onEntryOptionsCashClick()">💵 Ainda em dinheiro — falta repassar ao Pix</button>
+      <button class="btn-add-entry" style="background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:#F87171" onclick="onEntryOptionsDeleteClick()">🗑 Apagar entrada</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: vincular entrada a uma página -->
 <div class="overlay" id="modalLink" onclick="closeModalLink(event)">
   <div class="modal">
@@ -2151,7 +2175,6 @@
 
   function renderCategory(cat) {
     const total = catTotal(cat);
-    const entryCount = cat.entries.reduce((s,e) => s + ((e.type === 'locked' || e.type === 'withdraw') ? 1 : (e.count || 0)), 0);
     const rows = cat.entries.length === 0
       ? `<div class="empty-state"><div class="empty-state-icon">➕</div>Nenhuma entrada ainda</div>`
       : cat.entries.map(e => renderEntry(e, cat.id)).join('');
@@ -2169,7 +2192,6 @@
               ontouchstart="onCatTouchStart(event,'${cat.id}')"
               onmousedown="event.stopPropagation()">⠿</button>
             <span class="section-name" id="label-${cat.id}" ondblclick="startRename('${cat.id}')">${cat.name}</span>
-            <span class="section-badge">${entryCount} entrada${entryCount !== 1 ? 's' : ''}</span>
           </div>
           <div style="display:flex;align-items:center;gap:12px">
             <span class="section-total">${fmt(total)}</span>
@@ -2179,13 +2201,27 @@
           </div>
         </div>
         <div class="cards-grid">${rows}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-add-entry" style="flex:1" onclick="openNewEntry('${cat.id}')">+ Adicionar entrada</button>
-          <button class="btn-add-entry" style="flex:1;background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:#F87171" onclick="openWithdraw('${cat.id}')">− Tirar valor</button>
-        </div>
+        <button class="btn-add-entry" onclick="openCategoryOptions('${cat.id}')">✏️ Editar categoria</button>
       </div>
     `;
   }
+
+  window.openCategoryOptions = function(catId) {
+    activeCatId = catId;
+    document.getElementById('modalCatOptions').classList.add('open');
+  };
+  window.closeModalCatOptions = function(ev, force) {
+    if (!force && ev && ev.target !== document.getElementById('modalCatOptions')) return;
+    document.getElementById('modalCatOptions').classList.remove('open');
+  };
+  window.catOptionsAddEntry = function() {
+    closeModalCatOptions(null, true);
+    openNewEntry(activeCatId);
+  };
+  window.catOptionsWithdraw = function() {
+    closeModalCatOptions(null, true);
+    openWithdraw(activeCatId);
+  };
 
   function renderEntry(e, catId) {
     const hasLink = !!(e.link && e.link.trim());
@@ -2194,7 +2230,7 @@
     const linkBadge = hasLink ? `<div class="entry-redirect-badge">↗ abre página vinculada</div>` : '';
 
     const cashBadge = e.pendingCash ? `<div class="entry-cash-badge" style="font-size:11px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:2px 8px;display:inline-block;margin-top:4px;">💵 Em dinheiro — falta repassar ao Pix</div>` : '';
-    const cashToggleBtn = `<button class="btn-icon" title="${e.pendingCash ? 'Marcar como já repassado ao Pix' : 'Marcar como recebido em dinheiro (ainda não repassado)'}" onclick="event.stopPropagation();toggleCashPending('${catId}','${e.id}')" style="opacity:${e.pendingCash ? '1' : '.45'}">${e.pendingCash ? '💵' : '💰'}</button>`;
+    const optionsBtn = `<button class="btn-icon" title="Opções" onclick="event.stopPropagation();openEntryOptions('${catId}','${e.id}')">⋮</button>`;
 
     if (e.type === 'locked') {
       return `
@@ -2202,13 +2238,11 @@
           <div class="entry-dot" style="background:#f59e0b"></div>
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Valor registrado'}</div>
-            <div class="entry-type">🔐 Registrado · duplo clique no valor para editar (senha)</div>
             ${cashBadge}
             ${linkBadge}
           </div>
-          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer" title="Duplo clique para editar (pede senha)">${fmt(e.value)}</div>
-          ${cashToggleBtn}
-          <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
+          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer">${fmt(e.value)}</div>
+          ${optionsBtn}
         </div>
       `;
     }
@@ -2218,11 +2252,10 @@
           <div class="entry-dot" style="background:#F87171"></div>
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Valor retirado'}</div>
-            <div class="entry-type">💸 Retirada · duplo clique no valor para editar (senha)</div>
             ${linkBadge}
           </div>
-          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer;color:#F87171" title="Duplo clique para editar (pede senha)">− ${fmt(e.value)}</div>
-          <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
+          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer;color:#F87171">− ${fmt(e.value)}</div>
+          ${optionsBtn}
         </div>
       `;
     }
@@ -2233,6 +2266,7 @@
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Entrada'}</div>
             <div class="entry-type">${fmt(e.value)} por unidade</div>
+            ${cashBadge}
             ${linkBadge}
           </div>
           <div class="entry-count">
@@ -2241,7 +2275,7 @@
             <button class="count-btn plus" onclick="event.stopPropagation();changeCount('${catId}','${e.id}',1)">+</button>
           </div>
           <div class="entry-value">${fmt(e.value * e.count)}</div>
-          <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
+          ${optionsBtn}
         </div>
       `;
     } else {
@@ -2267,12 +2301,46 @@
           </div>
           <div class="entry-value" style="margin-left:auto">${fmt(total)}</div>
           <button class="btn-icon" title="Registrar este valor (vira somente leitura, protegido por senha)" onclick="event.stopPropagation();registerFreeEntry('${catId}','${e.id}')">🔒</button>
-          ${cashToggleBtn}
-          <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
+          ${optionsBtn}
         </div>
       `;
     }
   }
+
+  // ── Menu de opções da entrada (dinheiro pendente / apagar) ──
+  let entryOptionsTarget = null;
+  window.openEntryOptions = function(catId, entryId) {
+    const cat = categories.find(c => c.id === catId);
+    const e = cat && cat.entries.find(e => e.id === entryId);
+    if (!e) return;
+    entryOptionsTarget = { catId, entryId };
+    document.getElementById('entryOptionsTitle').textContent = e.desc || 'Opções da entrada';
+    const cashBtn = document.getElementById('entryOptionsCashBtn');
+    if (e.type === 'withdraw') {
+      cashBtn.style.display = 'none';
+    } else {
+      cashBtn.style.display = '';
+      cashBtn.textContent = e.pendingCash ? '✓ Marcar como já repassado ao Pix' : '💵 Ainda em dinheiro — falta repassar ao Pix';
+    }
+    document.getElementById('modalEntryOptions').classList.add('open');
+  };
+  window.closeModalEntryOptions = function(ev, force) {
+    if (!force && ev && ev.target !== document.getElementById('modalEntryOptions')) return;
+    document.getElementById('modalEntryOptions').classList.remove('open');
+    entryOptionsTarget = null;
+  };
+  window.onEntryOptionsCashClick = function() {
+    if (!entryOptionsTarget) return;
+    const { catId, entryId } = entryOptionsTarget;
+    closeModalEntryOptions(null, true);
+    toggleCashPending(catId, entryId);
+  };
+  window.onEntryOptionsDeleteClick = function() {
+    if (!entryOptionsTarget) return;
+    const { catId, entryId } = entryOptionsTarget;
+    closeModalEntryOptions(null, true);
+    deleteEntry(catId, entryId);
+  };
 
   // ---- REORDENAR CATEGORIAS (drag & drop) ----
   let dragCatId = null;
