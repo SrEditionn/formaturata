@@ -425,6 +425,19 @@
   }
   .total-card.main .total-sub { color: rgba(255,255,255,.7); }
   .total-icon { font-size: 30px; }
+  .total-card.pending {
+    grid-column: 1 / -1;
+    background: rgba(245,158,11,.06);
+    border: 1px solid rgba(245,158,11,.25);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+  .total-card.pending .total-label { color: #f59e0b; margin-bottom: 1px; }
+  .total-card.pending .total-value { font-size: 18px; color: #f59e0b; letter-spacing: -.3px; }
+  .total-card.pending .total-icon { font-size: 20px; opacity: .75; }
 
   /* SECTION */
   .section {
@@ -1256,6 +1269,32 @@
   .log-tag-edit { background: rgba(56,189,248,.12); color: #38BDF8; }
   .log-tag-remove { background: rgba(248,113,113,.12); color: #F87171; }
   .log-tag-value { background: rgba(167,139,250,.12); color: #A78BFA; }
+
+  /* ── Ajuste fino de tamanho pra celular (deixa tudo um pouco mais compacto) ── */
+  @media (max-width: 600px) {
+    .total-card.main { padding: 14px; }
+    .total-card.main .total-value { font-size: 25px; }
+    .total-card.main .total-label { font-size: 10px; }
+    .total-icon { font-size: 25px; }
+    .total-card.pending { padding: 8px 12px; }
+    .total-card.pending .total-value { font-size: 15px; }
+    .total-card.pending .total-icon { font-size: 16px; }
+    .section-header { padding: 12px 14px; }
+    .section-name { font-size: 12px; }
+    .section-total { font-size: 13px; }
+    .entry-row { padding: 11px 14px; gap: 10px; }
+    .entry-desc { font-size: 13.5px; }
+    .entry-type { font-size: 10px; }
+    .entry-value { font-size: 13.5px; min-width: 66px; }
+    .entry-cash-badge { font-size: 10px !important; padding: 1px 6px !important; }
+    .modal-title { font-size: 16px; margin-bottom: 16px; }
+    .btn-confirm { font-size: 14px; padding: 12px; }
+    .btn-add-entry { font-size: 12.5px; padding: 10px; }
+    .btn-icon { width: 27px; height: 27px; font-size: 13px; }
+    .count-num { font-size: 13px; }
+    .field label { font-size: 11px; }
+    .field input, .field select { font-size: 14px; padding: 10px 12px; }
+  }
 </style>
 </head>
 <body>
@@ -1377,9 +1416,28 @@
       <label>Descrição <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label>
       <input type="text" id="entryDesc" placeholder="Ex: Ingresso, Bolo, Contribuição…" maxlength="40">
     </div>
+    <div class="field">
+      <label>Tipo de entrada</label>
+      <div class="type-picker" style="grid-template-columns:1fr 1fr">
+        <div class="type-option selected" id="typeFree" onclick="selectType('free')">
+          <div class="type-option-icon">✏️</div>
+          <div class="type-option-name">Valor a adicionar</div>
+          <div class="type-option-desc">Vai somando aos poucos</div>
+        </div>
+        <div class="type-option" id="typeLocked" onclick="selectType('locked')">
+          <div class="type-option-icon">🔐</div>
+          <div class="type-option-name">Valor registrado</div>
+          <div class="type-option-desc">Já sei o valor total</div>
+        </div>
+      </div>
+    </div>
     <div class="field fixed-value-field show" id="freeValField">
       <label>Valor a adicionar (R$) <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional, dá pra ir somando depois)</span></label>
       <input type="number" id="entryFreeVal" placeholder="0,00" min="0.01" step="0.01">
+    </div>
+    <div class="field fixed-value-field" id="lockedValField">
+      <label>Valor total registrado (R$)</label>
+      <input type="number" id="entryLockedVal" placeholder="815,00" min="0.01" step="0.01">
     </div>
     <div class="field">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;font-weight:600;color:var(--text)">
@@ -1403,7 +1461,7 @@
 <div class="overlay" id="modalWithdraw" onclick="closeModalWithdraw(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">💸 Tirar valor</div>
+    <div class="modal-title">💸 Retirar valor</div>
     <p style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.5">
       Use para registrar um valor retirado do total já arrecadado (ex: compra de ingredientes para vender).
     </p>
@@ -1415,7 +1473,7 @@
       <label>Valor retirado (R$)</label>
       <input type="number" id="withdrawVal" placeholder="0,00" min="0.01" step="0.01">
     </div>
-    <button class="btn-confirm" onclick="createWithdraw()" style="background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));">− Tirar valor</button>
+    <button class="btn-confirm" onclick="createWithdraw()" style="background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));">− Retirar valor</button>
   </div>
 </div>
 
@@ -1426,7 +1484,7 @@
     <div class="modal-title">Editar categoria</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button class="btn-add-entry" onclick="catOptionsAddEntry()">+ Adicionar entrada</button>
-      <button class="btn-add-entry" onclick="catOptionsWithdraw()">− Tirar valor</button>
+      <button class="btn-add-entry" onclick="catOptionsWithdraw()">− Retirar valor</button>
     </div>
   </div>
 </div>
@@ -1893,7 +1951,7 @@
   // ---- STATE ----
   let categories = [];
   let activeCatId = null;
-  let selectedType = 'fixed';
+  let selectedType = 'free';
   let db = null;
   let saveTimeout = null;
   let ignoreNextSnapshot = false;
@@ -2130,11 +2188,10 @@
         <div class="total-icon">🎓</div>
       </div>
       ${pending > 0 ? `
-      <div class="total-card" style="border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.06)">
+      <div class="total-card pending">
         <div>
-          <div class="total-label" style="color:#f59e0b">💵 Ainda em dinheiro</div>
-          <div class="total-value" style="color:#f59e0b">${fmt(pending)}</div>
-          <div class="total-sub">ainda não repassado ao Pix</div>
+          <div class="total-label">Ainda em dinheiro</div>
+          <div class="total-value">${fmt(pending)}</div>
         </div>
         <div class="total-icon">⏳</div>
       </div>` : ''}
@@ -2229,13 +2286,13 @@
     const rowClick = hasLink ? ` onclick="handleEntryRowClick(event,'${catId}','${e.id}')"` : '';
     const linkBadge = hasLink ? `<div class="entry-redirect-badge">↗ abre página vinculada</div>` : '';
 
-    const cashBadge = e.pendingCash ? `<div class="entry-cash-badge" style="font-size:11px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:2px 8px;display:inline-block;margin-top:4px;">💵 Em dinheiro — falta repassar ao Pix</div>` : '';
+    const cashBadge = e.pendingCash ? `<div class="entry-cash-badge" style="font-size:10px;font-weight:600;color:#f59e0b;margin-top:3px;">Falta repassar ao Pix</div>` : '';
     const optionsBtn = `<button class="btn-icon" title="Opções" onclick="event.stopPropagation();openEntryOptions('${catId}','${e.id}')">⋮</button>`;
 
     if (e.type === 'locked') {
       return `
         <div class="entry-row${rowClass}"${rowClick}>
-          <div class="entry-dot" style="background:#f59e0b"></div>
+          <div class="entry-dot" style="background:#34D399"></div>
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Valor registrado'}</div>
             ${cashBadge}
@@ -2283,7 +2340,7 @@
       const total = vals.reduce((a,b)=>a+b,0);
       return `
         <div class="entry-row${rowClass}" style="flex-wrap:wrap;gap:8px"${rowClick}>
-          <div class="entry-dot" style="margin-top:4px"></div>
+          <div class="entry-dot" style="margin-top:4px;background:#f59e0b"></div>
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Entrada livre'}</div>
             <div class="entry-type">${vals.length} adição${vals.length !== 1 ? 'ões' : ''}</div>
@@ -2530,8 +2587,9 @@
     activeCatId = catId;
     document.getElementById('entryDesc').value = '';
     document.getElementById('entryFreeVal').value = '';
+    document.getElementById('entryLockedVal').value = '';
     document.getElementById('entryCashPending').checked = false;
-    selectedType = 'free';
+    selectType('free');
     document.getElementById('entryLinkCreate').value = '';
     document.getElementById('modalEntry').classList.add('open');
     setTimeout(() => document.getElementById('entryDesc').focus(), 200);
@@ -2540,6 +2598,13 @@
     if (e.target === document.getElementById('modalEntry'))
       document.getElementById('modalEntry').classList.remove('open');
   };
+  window.selectType = function(t) {
+    selectedType = t;
+    document.getElementById('typeFree').classList.toggle('selected', t==='free');
+    document.getElementById('typeLocked').classList.toggle('selected', t==='locked');
+    document.getElementById('freeValField').classList.toggle('show', t==='free');
+    document.getElementById('lockedValField').classList.toggle('show', t==='locked');
+  };
   window.createEntry = function() {
     const cat = categories.find(c => c.id === activeCatId);
     if (!cat) return;
@@ -2547,8 +2612,15 @@
     const entryLabel = desc || 'Entrada sem nome';
     const linkVal = document.getElementById('entryLinkCreate').value || null;
     const cashPending = document.getElementById('entryCashPending').checked;
-    const val = parseFloat(document.getElementById('entryFreeVal').value) || 0;
-    const newEntry = { id: uid(), type: 'free', desc, freeValues: val > 0 ? [val] : [], count: 0 };
+    let newEntry;
+    if (selectedType === 'locked') {
+      const val = parseFloat(document.getElementById('entryLockedVal').value);
+      if (!val || val <= 0) { document.getElementById('entryLockedVal').focus(); return; }
+      newEntry = { id: uid(), type: 'locked', desc, value: val };
+    } else {
+      const val = parseFloat(document.getElementById('entryFreeVal').value) || 0;
+      newEntry = { id: uid(), type: 'free', desc, freeValues: val > 0 ? [val] : [], count: 0 };
+    }
     if (linkVal) newEntry.link = linkVal;
     if (cashPending) newEntry.pendingCash = true;
     cat.entries.push(newEntry);
