@@ -1377,37 +1377,15 @@
       <label>Descrição <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label>
       <input type="text" id="entryDesc" placeholder="Ex: Ingresso, Bolo, Contribuição…" maxlength="40">
     </div>
-    <div class="field">
-      <label>Tipo de entrada</label>
-      <div class="type-picker" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="type-option selected" id="typeFixed" onclick="selectType('fixed')">
-          <div class="type-option-icon">🔒</div>
-          <div class="type-option-name">Valor fixo</div>
-          <div class="type-option-desc">Clique + para somar</div>
-        </div>
-        <div class="type-option" id="typeFree" onclick="selectType('free')">
-          <div class="type-option-icon">✏️</div>
-          <div class="type-option-name">Valor livre</div>
-          <div class="type-option-desc">Digita o valor</div>
-        </div>
-        <div class="type-option" id="typeLocked" onclick="selectType('locked')">
-          <div class="type-option-icon">🔐</div>
-          <div class="type-option-name">Registrado</div>
-          <div class="type-option-desc">Valor fixo, sem editar</div>
-        </div>
-      </div>
-    </div>
-    <div class="field fixed-value-field show" id="fixedValField">
-      <label>Valor por clique (R$)</label>
-      <input type="number" id="entryFixedVal" placeholder="5,00" min="0.01" step="0.01">
-    </div>
-    <div class="field fixed-value-field" id="freeValField">
-      <label>Valor a adicionar (R$)</label>
+    <div class="field fixed-value-field show" id="freeValField">
+      <label>Valor a adicionar (R$) <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional, dá pra ir somando depois)</span></label>
       <input type="number" id="entryFreeVal" placeholder="0,00" min="0.01" step="0.01">
     </div>
-    <div class="field fixed-value-field" id="lockedValField">
-      <label>Valor total registrado (R$)</label>
-      <input type="number" id="entryLockedVal" placeholder="815,00" min="0.01" step="0.01">
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;font-weight:600;color:var(--text)">
+        <input type="checkbox" id="entryCashPending" style="width:16px;height:16px;accent-color:#f59e0b">
+        💵 Recebido em dinheiro (ainda não repassado ao Pix)
+      </label>
     </div>
     <div class="field">
       <label>Vincular a uma página <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label>
@@ -1418,6 +1396,26 @@
       </select>
     </div>
     <button class="btn-confirm" onclick="createEntry()">Adicionar</button>
+  </div>
+</div>
+
+<!-- MODAL: tirar valor (retirada) -->
+<div class="overlay" id="modalWithdraw" onclick="closeModalWithdraw(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💸 Tirar valor</div>
+    <p style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.5">
+      Use para registrar um valor retirado do total já arrecadado (ex: compra de ingredientes para vender).
+    </p>
+    <div class="field">
+      <label>Descrição</label>
+      <input type="text" id="withdrawDesc" placeholder="Ex: Compra de ingredientes" maxlength="40">
+    </div>
+    <div class="field">
+      <label>Valor retirado (R$)</label>
+      <input type="number" id="withdrawVal" placeholder="0,00" min="0.01" step="0.01">
+    </div>
+    <button class="btn-confirm" onclick="createWithdraw()" style="background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));">− Tirar valor</button>
   </div>
 </div>
 
@@ -1643,6 +1641,7 @@
     </div>
     <div class="pix-panel-actions">
       <button class="pix-action-btn" id="btnPixNotif" onclick="togglePixNotifications()">🔔 Ativar Notificações</button>
+      <button class="pix-action-btn" id="btnPixClearAll" onclick="initiateClearAllPix()" style="background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:#F87171">🧹 Apagar todos</button>
       <span id="pixStatusMsg" style="font-size:11px;font-weight:600;color:#94a3b8;align-self:center;margin-left:auto;"></span>
     </div>
     <div class="pix-list" id="pixList">
@@ -1697,7 +1696,7 @@
     <div id="pixDeleteSub" style="font-size:13px;color:#8E8EA8;margin-bottom:18px;">Digite a senha para apagar este Pix permanentemente.</div>
     <input id="pixDeletePasswordInput" type="password" placeholder="Senha" style="width:100%;padding:13px 14px;border:1.5px solid #272732;border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#EDEDF0;background:#111116;outline:none;margin-bottom:12px;" />
     <div id="pixDeleteError" style="display:none;color:#F87171;font-size:12px;font-weight:600;margin-bottom:10px;"></div>
-    <button onclick="confirmPixDeleteWithPassword()" style="width:100%;padding:14px;background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));border:none;border-radius:12px;font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">Apagar Pix</button>
+    <button id="pixDeleteConfirmBtn" onclick="confirmPasswordAction()" style="width:100%;padding:14px;background:linear-gradient(135deg,#dc2626,rgba(248,113,113,.3));border:none;border-radius:12px;font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:8px;">Confirmar</button>
     <button onclick="closePixDeleteModal(null,true)" style="width:100%;padding:12px;background:none;border:1.5px solid #272732;border-radius:12px;font-size:14px;font-weight:600;color:#8E8EA8;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
   </div>
 </div>
@@ -2094,7 +2093,8 @@
 
   function renderTotals() {
     const total = categories.reduce((s, c) => s + catTotal(c), 0);
-    const count = categories.reduce((s, c) => s + c.entries.reduce((ss, e) => ss + (e.type === 'locked' ? 1 : (e.count || 0)), 0), 0);
+    const count = categories.reduce((s, c) => s + c.entries.reduce((ss, e) => ss + ((e.type === 'locked' || e.type === 'withdraw') ? 1 : (e.count || 0)), 0), 0);
+    const pending = pendingCashTotal();
 
     document.getElementById('totalsRow').innerHTML = `
       <div class="total-card main">
@@ -2105,6 +2105,15 @@
         </div>
         <div class="total-icon">🎓</div>
       </div>
+      ${pending > 0 ? `
+      <div class="total-card" style="border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.06)">
+        <div>
+          <div class="total-label" style="color:#f59e0b">💵 Ainda em dinheiro</div>
+          <div class="total-value" style="color:#f59e0b">${fmt(pending)}</div>
+          <div class="total-sub">ainda não repassado ao Pix</div>
+        </div>
+        <div class="total-icon">⏳</div>
+      </div>` : ''}
     `;
   }
 
@@ -2112,8 +2121,19 @@
     return cat.entries.reduce((s, e) => {
       if (e.type === 'fixed') return s + e.value * e.count;
       if (e.type === 'locked') return s + e.value;
+      if (e.type === 'withdraw') return s - e.value;
       return s + (e.freeValues||[]).reduce((a,b)=>a+b,0);
     }, 0);
+  }
+
+  function pendingCashTotal() {
+    return categories.reduce((s, c) => s + c.entries.reduce((ss, e) => {
+      if (!e.pendingCash) return ss;
+      if (e.type === 'fixed') return ss + e.value * e.count;
+      if (e.type === 'locked') return ss + e.value;
+      if (e.type === 'withdraw') return ss;
+      return ss + (e.freeValues||[]).reduce((a,b)=>a+b,0);
+    }, 0), 0);
   }
 
   function renderCategories() {
@@ -2131,7 +2151,7 @@
 
   function renderCategory(cat) {
     const total = catTotal(cat);
-    const entryCount = cat.entries.reduce((s,e) => s + (e.type === 'locked' ? 1 : (e.count || 0)), 0);
+    const entryCount = cat.entries.reduce((s,e) => s + ((e.type === 'locked' || e.type === 'withdraw') ? 1 : (e.count || 0)), 0);
     const rows = cat.entries.length === 0
       ? `<div class="empty-state"><div class="empty-state-icon">➕</div>Nenhuma entrada ainda</div>`
       : cat.entries.map(e => renderEntry(e, cat.id)).join('');
@@ -2159,7 +2179,10 @@
           </div>
         </div>
         <div class="cards-grid">${rows}</div>
-        <button class="btn-add-entry" onclick="openNewEntry('${cat.id}')">+ Adicionar entrada</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-add-entry" style="flex:1" onclick="openNewEntry('${cat.id}')">+ Adicionar entrada</button>
+          <button class="btn-add-entry" style="flex:1;background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);color:#F87171" onclick="openWithdraw('${cat.id}')">− Tirar valor</button>
+        </div>
       </div>
     `;
   }
@@ -2170,16 +2193,35 @@
     const rowClick = hasLink ? ` onclick="handleEntryRowClick(event,'${catId}','${e.id}')"` : '';
     const linkBadge = hasLink ? `<div class="entry-redirect-badge">↗ abre página vinculada</div>` : '';
 
+    const cashBadge = e.pendingCash ? `<div class="entry-cash-badge" style="font-size:11px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:2px 8px;display:inline-block;margin-top:4px;">💵 Em dinheiro — falta repassar ao Pix</div>` : '';
+    const cashToggleBtn = `<button class="btn-icon" title="${e.pendingCash ? 'Marcar como já repassado ao Pix' : 'Marcar como recebido em dinheiro (ainda não repassado)'}" onclick="event.stopPropagation();toggleCashPending('${catId}','${e.id}')" style="opacity:${e.pendingCash ? '1' : '.45'}">${e.pendingCash ? '💵' : '💰'}</button>`;
+
     if (e.type === 'locked') {
       return `
         <div class="entry-row${rowClass}"${rowClick}>
           <div class="entry-dot" style="background:#f59e0b"></div>
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Valor registrado'}</div>
-            <div class="entry-type">🔐 Registrado · somente leitura</div>
+            <div class="entry-type">🔐 Registrado · duplo clique no valor para editar (senha)</div>
+            ${cashBadge}
             ${linkBadge}
           </div>
-          <div class="entry-value">${fmt(e.value)}</div>
+          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer" title="Duplo clique para editar (pede senha)">${fmt(e.value)}</div>
+          ${cashToggleBtn}
+          <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
+        </div>
+      `;
+    }
+    if (e.type === 'withdraw') {
+      return `
+        <div class="entry-row${rowClass}"${rowClick}>
+          <div class="entry-dot" style="background:#F87171"></div>
+          <div class="entry-info">
+            <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Valor retirado'}</div>
+            <div class="entry-type">💸 Retirada · duplo clique no valor para editar (senha)</div>
+            ${linkBadge}
+          </div>
+          <div class="entry-value" id="entry-value-${e.id}" ondblclick="event.stopPropagation();requestEditRegisteredValue('${catId}','${e.id}')" style="cursor:pointer;color:#F87171" title="Duplo clique para editar (pede senha)">− ${fmt(e.value)}</div>
           <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
         </div>
       `;
@@ -2211,6 +2253,7 @@
           <div class="entry-info">
             <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Entrada livre'}</div>
             <div class="entry-type">${vals.length} adição${vals.length !== 1 ? 'ões' : ''}</div>
+            ${cashBadge}
             ${linkBadge}
           </div>
           <div style="display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
@@ -2223,6 +2266,8 @@
             <button class="count-btn plus" style="width:34px;height:34px;border-radius:8px" onclick="addFreeValue('${catId}','${e.id}')">+</button>
           </div>
           <div class="entry-value" style="margin-left:auto">${fmt(total)}</div>
+          <button class="btn-icon" title="Registrar este valor (vira somente leitura, protegido por senha)" onclick="event.stopPropagation();registerFreeEntry('${catId}','${e.id}')">🔒</button>
+          ${cashToggleBtn}
           <button class="entry-delete" onclick="event.stopPropagation();deleteEntry('${catId}','${e.id}')">✕</button>
         </div>
       `;
@@ -2416,10 +2461,9 @@
   window.openNewEntry = function(catId) {
     activeCatId = catId;
     document.getElementById('entryDesc').value = '';
-    document.getElementById('entryFixedVal').value = '';
     document.getElementById('entryFreeVal').value = '';
-    document.getElementById('entryLockedVal').value = '';
-    selectType('fixed');
+    document.getElementById('entryCashPending').checked = false;
+    selectedType = 'free';
     document.getElementById('entryLinkCreate').value = '';
     document.getElementById('modalEntry').classList.add('open');
     setTimeout(() => document.getElementById('entryDesc').focus(), 200);
@@ -2428,38 +2472,110 @@
     if (e.target === document.getElementById('modalEntry'))
       document.getElementById('modalEntry').classList.remove('open');
   };
-  window.selectType = function(t) {
-    selectedType = t;
-    document.getElementById('typeFixed').classList.toggle('selected', t==='fixed');
-    document.getElementById('typeFree').classList.toggle('selected', t==='free');
-    document.getElementById('typeLocked').classList.toggle('selected', t==='locked');
-    document.getElementById('fixedValField').classList.toggle('show', t==='fixed');
-    document.getElementById('freeValField').classList.toggle('show', t==='free');
-    document.getElementById('lockedValField').classList.toggle('show', t==='locked');
-  };
   window.createEntry = function() {
     const cat = categories.find(c => c.id === activeCatId);
     if (!cat) return;
     const desc = document.getElementById('entryDesc').value.trim();
     const entryLabel = desc || 'Entrada sem nome';
     const linkVal = document.getElementById('entryLinkCreate').value || null;
-    let newEntry;
-    if (selectedType === 'fixed') {
-      const val = parseFloat(document.getElementById('entryFixedVal').value);
-      if (!val || val <= 0) { document.getElementById('entryFixedVal').focus(); return; }
-      newEntry = { id: uid(), type: 'fixed', desc, value: val, count: 1 };
-    } else if (selectedType === 'locked') {
-      const val = parseFloat(document.getElementById('entryLockedVal').value);
-      if (!val || val <= 0) { document.getElementById('entryLockedVal').focus(); return; }
-      newEntry = { id: uid(), type: 'locked', desc, value: val };
-    } else {
-      const val = parseFloat(document.getElementById('entryFreeVal').value) || 0;
-      newEntry = { id: uid(), type: 'free', desc, freeValues: val > 0 ? [val] : [], count: 0 };
-    }
+    const cashPending = document.getElementById('entryCashPending').checked;
+    const val = parseFloat(document.getElementById('entryFreeVal').value) || 0;
+    const newEntry = { id: uid(), type: 'free', desc, freeValues: val > 0 ? [val] : [], count: 0 };
     if (linkVal) newEntry.link = linkVal;
+    if (cashPending) newEntry.pendingCash = true;
     cat.entries.push(newEntry);
     document.getElementById('modalEntry').classList.remove('open');
-    logAction('add', `Entrada adicionada em "${cat.name}": "${entryLabel}"${linkVal ? ` (vinculada: ${linkVal})` : ''}`);
+    logAction('add', `Entrada adicionada em "${cat.name}": "${entryLabel}"${linkVal ? ` (vinculada: ${linkVal})` : ''}${cashPending ? ' [💵 dinheiro pendente]' : ''}`);
+    render();
+    saveToFirebase();
+  };
+
+  // ── Tirar valor (retirada de um valor do total da lista) ──
+  window.openWithdraw = function(catId) {
+    activeCatId = catId;
+    document.getElementById('withdrawDesc').value = '';
+    document.getElementById('withdrawVal').value = '';
+    document.getElementById('modalWithdraw').classList.add('open');
+    setTimeout(() => document.getElementById('withdrawDesc').focus(), 200);
+  };
+  window.closeModalWithdraw = function(e) {
+    if (e.target === document.getElementById('modalWithdraw'))
+      document.getElementById('modalWithdraw').classList.remove('open');
+  };
+  window.createWithdraw = function() {
+    const cat = categories.find(c => c.id === activeCatId);
+    if (!cat) return;
+    const desc = document.getElementById('withdrawDesc').value.trim();
+    const val = parseFloat(document.getElementById('withdrawVal').value);
+    if (!val || val <= 0) { document.getElementById('withdrawVal').focus(); return; }
+    const newEntry = { id: uid(), type: 'withdraw', desc, value: val };
+    cat.entries.push(newEntry);
+    document.getElementById('modalWithdraw').classList.remove('open');
+    logAction('remove', `💸 Valor retirado de "${cat.name}": "${desc || 'Retirada'}" (-${fmt(val)})`);
+    render();
+    saveToFirebase();
+  };
+
+  // ── Registrar um valor livre (transforma em valor registrado / somente leitura) ──
+  window.registerFreeEntry = function(catId, entryId) {
+    const cat = categories.find(c => c.id === catId);
+    const e = cat && cat.entries.find(e => e.id === entryId);
+    if (!e || e.type !== 'free') return;
+    const total = (e.freeValues || []).reduce((a,b)=>a+b,0);
+    if (!confirm(`Registrar "${e.desc || 'Entrada'}" com o valor de ${fmt(total)}?\n\nDepois disso, editar ou apagar esse valor vai pedir a senha de proteção.`)) return;
+    e.type = 'locked';
+    e.value = total;
+    delete e.freeValues;
+    delete e.count;
+    logAction('edit', `🔐 "${e.desc || 'Entrada'}" (${cat.name}) registrada com valor ${fmt(total)}`);
+    render();
+    saveToFirebase();
+  };
+
+  // ── Editar valor já registrado (locked / withdraw) — exige senha ──
+  window.requestEditRegisteredValue = function(catId, entryId) {
+    requestPasswordAction(() => startEditRegisteredValue(catId, entryId), {
+      title: '🔐 Editar valor registrado',
+      sub: 'Digite a senha para editar este valor.',
+      confirmLabel: 'Editar valor'
+    });
+  };
+
+  function startEditRegisteredValue(catId, entryId) {
+    const cat = categories.find(c => c.id === catId);
+    const e = cat && cat.entries.find(e => e.id === entryId);
+    if (!e) return;
+    const valEl = document.getElementById('entry-value-' + entryId);
+    if (!valEl) return;
+    const oldVal = e.value;
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.step = '0.01';
+    inp.min = '0';
+    inp.value = oldVal;
+    inp.style.cssText = 'width:110px;padding:6px 8px;border:1.5px solid var(--accent);border-radius:8px;font-size:14px;font-family:inherit;outline:none;text-align:right';
+    valEl.replaceWith(inp);
+    inp.focus(); inp.select();
+    const done = () => {
+      const newVal = parseFloat(inp.value);
+      if (!isNaN(newVal) && newVal >= 0 && newVal !== oldVal) {
+        e.value = newVal;
+        logAction('edit', `🔐 Valor registrado editado (${cat.name}): "${e.desc || 'Entrada'}" ${fmt(oldVal)} → ${fmt(newVal)}`);
+        saveToFirebase();
+      }
+      render();
+    };
+    inp.onblur = done;
+    inp.onkeydown = ev => { if (ev.key==='Enter') inp.blur(); if (ev.key==='Escape'){inp.value=oldVal;inp.blur();} };
+  }
+
+  // ── Alternar marcação "recebido em dinheiro / ainda não repassado ao Pix" ──
+  window.toggleCashPending = function(catId, entryId) {
+    const cat = categories.find(c => c.id === catId);
+    const e = cat && cat.entries.find(e => e.id === entryId);
+    if (!e) return;
+    e.pendingCash = !e.pendingCash;
+    logAction('edit', `${e.pendingCash ? '💵 Marcado' : '✓ Desmarcado'} como dinheiro pendente: "${e.desc || 'Entrada'}" (${cat.name})`);
     render();
     saveToFirebase();
   };
@@ -2485,14 +2601,28 @@
     saveToFirebase();
   };
   window.deleteEntry = function(catId, entryId) {
+    const cat = categories.find(c => c.id === catId);
+    const e = cat && cat.entries.find(e => e.id === entryId);
+    if (e && (e.type === 'locked' || e.type === 'withdraw')) {
+      requestPasswordAction(() => performDeleteEntry(catId, entryId), {
+        title: '🔐 Apagar valor registrado',
+        sub: 'Digite a senha para apagar este valor permanentemente.',
+        confirmLabel: 'Apagar valor'
+      });
+      return;
+    }
     if (!confirm('Apagar esta entrada? Esta ação não pode ser desfeita.')) return;
+    performDeleteEntry(catId, entryId);
+  };
+
+  function performDeleteEntry(catId, entryId) {
     const cat = categories.find(c => c.id === catId);
     const e = cat.entries.find(e => e.id === entryId);
     cat.entries = cat.entries.filter(e => e.id !== entryId);
     if (e) logAction('remove', `Entrada removida de "${cat.name}": "${e.desc || 'Entrada'}"`);
     render();
     saveToFirebase();
-  };
+  }
 
   // ---- RENOMEAR ENTRADA (duplo clique no nome) ----
   window.startRenameEntry = function(catId, entryId) {
@@ -3055,16 +3185,6 @@ const EXPORTED_DATA = ${dataJson};
     // Polling continua rodando em background para notificações funcionarem com painel fechado
   };
 
-  window.clearPixLogs = function() {
-    if (!confirm('Limpar todos os Pix registrados?\n\nIsso vai limpar para todos os dispositivos.')) return;
-    pixLogs = [];
-    // Salva localmente E no Firestore (para limpar em todos os dispositivos)
-    try { localStorage.setItem('formatura_pix_logs', JSON.stringify(pixLogs)); } catch(e) {}
-    savePixToFirestore();
-    renderPixList();
-    updatePixBadge();
-  };
-
   // ── Notificações ──
   const VAPID_PUBLIC_KEY = 'BE4MscUkWvkoRhjXPj_ixZ57h4-PBnUHlxsxKug1BW8T57EU-bkAR5zun0td8aJUxzu6_nQcru15_Z8J9XcPfNE';
 
@@ -3376,8 +3496,10 @@ const EXPORTED_DATA = ${dataJson};
     pixAssignTarget = null;
   };
 
-  // ── Apagar Pix individual com senha ──
+  // ── Senha única de proteção (usada para apagar Pix, apagar todos os Pix,
+  //     e editar/apagar valores já registrados) ──
   let pixDeleteTarget = null;
+  let passwordActionCallback = null;
 
   async function getPixDeletePassword() {
     if (!db) return localStorage.getItem('formatura_pix_delete_pwd') || null;
@@ -3398,38 +3520,61 @@ const EXPORTED_DATA = ${dataJson};
       const snap = await getDoc(docRef);
       const existing = snap.exists() ? snap.data() : {};
       await setDoc(docRef, { ...existing, pixDeletePassword: pwd });
-    } catch(e) { console.warn('[PixDelete] Erro ao salvar senha:', e); }
+    } catch(e) { console.warn('[Senha] Erro ao salvar senha:', e); }
   }
 
-  window.initiatePixDelete = async function() {
-    pixDeleteTarget = pixAssignTarget;
-    if (!pixDeleteTarget) return;
+  // Abre o modal de senha (mesma senha para toda ação sensível) e, se confirmada,
+  // executa `callback`. Use isso para qualquer ação que precise de proteção por senha.
+  window.requestPasswordAction = async function(callback, opts) {
+    opts = opts || {};
+    passwordActionCallback = callback;
     const existingPwd = await getPixDeletePassword();
     const modal = document.getElementById('pixDeleteOverlay');
     const input = document.getElementById('pixDeletePasswordInput');
     const errEl = document.getElementById('pixDeleteError');
     const titleEl = document.getElementById('pixDeleteTitle');
     const subEl = document.getElementById('pixDeleteSub');
+    const btnEl = document.getElementById('pixDeleteConfirmBtn');
     if (!existingPwd) {
-      titleEl.textContent = '🔐 Definir senha de exclusão';
-      subEl.textContent = 'Esta é a primeira vez. Defina uma senha para proteger exclusões de Pix.';
+      titleEl.textContent = '🔐 Definir senha de proteção';
+      subEl.textContent = 'Esta é a primeira vez. Defina uma senha para proteger exclusões de Pix e edições de valores registrados.';
     } else {
-      titleEl.textContent = '🔐 Confirmar exclusão';
-      subEl.textContent = 'Digite a senha para apagar este Pix permanentemente.';
+      titleEl.textContent = opts.title || '🔐 Confirmar ação';
+      subEl.textContent = opts.sub || 'Digite a senha para continuar.';
     }
+    btnEl.textContent = opts.confirmLabel || 'Confirmar';
     input.value = '';
     errEl.style.display = 'none';
     modal.style.display = 'flex';
     setTimeout(() => input.focus(), 100);
   };
 
+  window.initiatePixDelete = function() {
+    pixDeleteTarget = pixAssignTarget;
+    if (!pixDeleteTarget) return;
+    requestPasswordAction(performPixDelete, {
+      title: '🔐 Confirmar exclusão',
+      sub: 'Digite a senha para apagar este Pix permanentemente.',
+      confirmLabel: 'Apagar Pix'
+    });
+  };
+
+  window.initiateClearAllPix = function() {
+    requestPasswordAction(performClearAllPix, {
+      title: '🔐 Apagar todos os Pix',
+      sub: 'Digite a senha para apagar TODOS os Pix registrados, em todos os dispositivos.',
+      confirmLabel: 'Apagar todos'
+    });
+  };
+
   window.closePixDeleteModal = function(ev, force) {
     if (!force && ev && ev.target !== document.getElementById('pixDeleteOverlay')) return;
     document.getElementById('pixDeleteOverlay').style.display = 'none';
     pixDeleteTarget = null;
+    passwordActionCallback = null;
   };
 
-  window.confirmPixDeleteWithPassword = async function() {
+  window.confirmPasswordAction = async function() {
     const input = document.getElementById('pixDeletePasswordInput');
     const errEl = document.getElementById('pixDeleteError');
     const pwd = input.value.trim();
@@ -3437,15 +3582,22 @@ const EXPORTED_DATA = ${dataJson};
 
     const existingPwd = await getPixDeletePassword();
     if (!existingPwd) {
-      // First time: set password
+      // Primeira vez: define a senha
       if (pwd.length < 4) { errEl.textContent = 'Senha muito curta. Use pelo menos 4 caracteres.'; errEl.style.display = 'block'; return; }
       await savePixDeletePassword(pwd);
-      performPixDelete();
+      runPasswordCallback();
     } else {
       if (pwd !== existingPwd) { errEl.textContent = '❌ Senha incorreta.'; errEl.style.display = 'block'; input.value = ''; input.focus(); return; }
-      performPixDelete();
+      runPasswordCallback();
     }
   };
+
+  function runPasswordCallback() {
+    const cb = passwordActionCallback;
+    document.getElementById('pixDeleteOverlay').style.display = 'none';
+    passwordActionCallback = null;
+    if (cb) cb();
+  }
 
   function performPixDelete() {
     const p = pixDeleteTarget;
@@ -3455,11 +3607,18 @@ const EXPORTED_DATA = ${dataJson};
     savePixLogs();
     renderPixList();
     updatePixBadge();
-    document.getElementById('pixDeleteOverlay').style.display = 'none';
     document.getElementById('pixAssignOverlay').classList.remove('open');
     pixDeleteTarget = null;
-    pixAssignTarget = null;
   }
+
+  function performClearAllPix() {
+    pixLogs = [];
+    try { localStorage.setItem('formatura_pix_logs', JSON.stringify(pixLogs)); } catch(e) {}
+    savePixToFirestore();
+    renderPixList();
+    updatePixBadge();
+  }
+  window.clearPixLogs = performClearAllPix;
 
   // ── Inicialização ──
   loadPixNotifState();
@@ -3915,7 +4074,7 @@ const EXPORTED_DATA = ${dataJson};
     const cat = categories.find(c => c.id === catId);
     if (!cat) return;
     entrySel.innerHTML = '<option value="">Selecione uma entrada...</option>' +
-      cat.entries.map(e => `<option value="${e.id}">${e.desc || 'Entrada'} — ${fmt(e.type==='fixed'?e.value*e.count:e.type==='locked'?e.value:(e.freeValues||[]).reduce((a,b)=>a+b,0))}</option>`).join('');
+      cat.entries.map(e => `<option value="${e.id}">${e.desc || 'Entrada'} — ${fmt(e.type==='fixed'?e.value*e.count:(e.type==='locked'||e.type==='withdraw')?e.value:(e.freeValues||[]).reduce((a,b)=>a+b,0))}</option>`).join('');
   };
 
   window.confirmarAtribuirMensal = function() {
