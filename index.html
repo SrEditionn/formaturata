@@ -2251,7 +2251,7 @@
             <span class="section-name" id="label-${cat.id}" ondblclick="startRename('${cat.id}')">${cat.name}</span>
           </div>
           <div style="display:flex;align-items:center;gap:12px">
-            <span class="section-total">${fmt(total)}</span>
+            <span class="section-total" style="${total < 0 ? 'color:var(--red)' : ''}">${fmt(total)}</span>
             <div class="section-actions">
               <button class="btn-icon" title="Excluir lista" onclick="deleteCategory('${cat.id}')">🗑</button>
             </div>
@@ -2347,18 +2347,18 @@
             ${cashBadge}
             ${linkBadge}
           </div>
-          <div style="display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;justify-content:flex-end" onclick="event.stopPropagation()">
             <input type="number" placeholder="R$" min="0.01" step="0.01"
-              style="width:90px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none"
+              style="width:82px;padding:7px 9px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-right:auto"
               id="free-${e.id}"
               onfocus="this.style.borderColor='var(--accent)'"
               onblur="this.style.borderColor='var(--border)'"
               onkeydown="if(event.key==='Enter')addFreeValue('${catId}','${e.id}')">
-            <button class="count-btn plus" style="width:34px;height:34px;border-radius:8px" onclick="addFreeValue('${catId}','${e.id}')">+</button>
+            <button class="count-btn plus" style="width:32px;height:32px;border-radius:8px;flex-shrink:0" onclick="addFreeValue('${catId}','${e.id}')">+</button>
+            <div class="entry-value">${fmt(total)}</div>
+            <button class="btn-icon" title="Registrar este valor (vira somente leitura, protegido por senha)" onclick="registerFreeEntry('${catId}','${e.id}')">🔒</button>
+            <button class="btn-icon" title="Opções" onclick="openEntryOptions('${catId}','${e.id}')">⋮</button>
           </div>
-          <div class="entry-value" style="margin-left:auto">${fmt(total)}</div>
-          <button class="btn-icon" title="Registrar este valor (vira somente leitura, protegido por senha)" onclick="event.stopPropagation();registerFreeEntry('${catId}','${e.id}')">🔒</button>
-          ${optionsBtn}
         </div>
       `;
     }
