@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formatura 2026 — Acompanhamento ao vivo</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #111116;
+    --surface: #1E1E28;
+    --text: #EDEDF0;
+    --muted: #8E8EA8;
+    --border: #272732;
+    --green: #34D399;
+    --accent: #A78BFA;
+    --blue: #38BDF8;
+    --red: #F87171;
+    --gold: #f59e0b;
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 50px;
+  }
+
+  .header {
+    padding: 22px 16px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header h1 .accent { color: var(--accent); }
+  .header .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(52,211,153,.1);
+    border: 1px solid rgba(52,211,153,.3);
+    color: var(--green);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+  .live-badge.off { background: rgba(248,113,113,.1); border-color: rgba(248,113,113,.3); color: var(--red); }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor;
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+  .totals-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 6px 16px 0; }
+
+  .total-card {
+    border-radius: var(--radius);
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .total-card.main {
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none;
+  }
+  .total-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .total-card.main .total-label { color: rgba(255,255,255,.75); }
+  .total-value { font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+  .total-card.main .total-value { font-size: 30px; color: white; }
+  .total-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .total-card.main .total-sub { color: rgba(255,255,255,.7); }
+  .total-icon { font-size: 30px; }
+
+  .total-card.pending {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(245,158,11,.06);
+    border: 1px solid rgba(245,158,11,.25);
+    padding: 10px 14px;
+  }
+  .total-card.pending .total-label { color: var(--gold); margin-bottom: 1px; }
+  .total-card.pending .total-value { font-size: 18px; color: var(--gold); letter-spacing: -.3px; }
+  .total-card.pending .total-icon { font-size: 20px; opacity: .75; }
+
+  .pix-summary {
+    margin: 14px 16px 0;
+    border: 1px solid rgba(56,189,248,.25);
+    background: rgba(56,189,248,.06);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pix-summary .label { font-size: 13px; font-weight: 700; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+  .pix-summary .value { font-size: 15px; font-weight: 700; color: var(--blue); }
+
+  .sections { margin: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-name { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .section-total { font-size: 15px; font-weight: 700; color: var(--green); }
+
+  .entry-row {
+    display: flex; align-items: center; padding: 13px 16px;
+    border-bottom: 1px solid var(--border); gap: 12px;
+  }
+  .entry-row:last-child { border-bottom: none; }
+  .entry-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-desc { font-size: 14.5px; font-weight: 500; word-break: break-word; }
+  .entry-type { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .entry-cash-badge { font-size: 10px; font-weight: 600; color: var(--gold); margin-top: 3px; }
+  .entry-value { font-size: 14.5px; font-weight: 700; text-align: right; flex-shrink: 0; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  .empty-state-icon { font-size: 32px; margin-bottom: 10px; }
+
+  .footer-note {
+    text-align: center; font-size: 11.5px; color: var(--muted);
+    margin: 26px 16px 0; line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 20px; }
+    .total-card.main .total-value { font-size: 25px; }
+    .total-icon { font-size: 25px; }
+    .section-name { font-size: 12px; }
+    .entry-desc { font-size: 13.5px; }
+    .entry-value { font-size: 13.5px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>🎓 <span class="accent">Formatura</span> 2026</h1>
+      <div class="sub">Acompanhamento ao vivo · somente leitura</div>
+    </div>
+    <div class="live-badge" id="liveBadge"><span class="live-dot"></span>Conectando...</div>
+  </div>
+
+  <div class="totals-row" id="totalsRow"></div>
+
+  <div class="pix-summary" id="pixSummary" style="display:none">
+    <div class="label">💸 Pix recebidos</div>
+    <div class="value" id="pixSummaryValue"></div>
+  </div>
+
+  <div class="sections" id="sections"></div>
+
+  <div class="footer-note">
+    Esta página só exibe os valores — nenhuma edição é feita por aqui.<br>
+    Os dados atualizam automaticamente, sem precisar recarregar a página.
+  </div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
+  import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js';
+
+  const app = initializeApp({
+    apiKey: "AIzaSyDQ0oea2ZrAn_dtzqOWh_BBDQzWQS2Q6eU",
+    authDomain: "taterceiro-4bccc.firebaseapp.com",
+    projectId: "taterceiro-4bccc",
+    storageBucket: "taterceiro-4bccc.firebasestorage.app",
+    messagingSenderId: "547692032539",
+    appId: "1:547692032539:web:f824159bbbf064af3b3ebe",
+    measurementId: "G-C6H410HSJZ"
+  });
+  const db = getFirestore(app);
+
+  const fmt = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+
+  let categories = [];
+  let pixLogs = [];
+
+  function setLive(ok, text) {
+    const el = document.getElementById('liveBadge');
+    el.classList.toggle('off', !ok);
+    el.innerHTML = `<span class="live-dot"></span>${text}`;
+  }
+
+  function catTotal(cat) {
+    return (cat.entries || []).reduce((s, e) => {
+      if (e.type === 'fixed') return s + e.value * e.count;
+      if (e.type === 'locked') return s + e.value;
+      if (e.type === 'withdraw') return s - e.value;
+      return s + (e.freeValues || []).reduce((a, b) => a + b, 0);
+    }, 0);
+  }
+
+  function pendingCashTotal() {
+    return categories.reduce((s, c) => s + (c.entries || []).reduce((ss, e) => {
+      if (!e.pendingCash) return ss;
+      if (e.type === 'fixed') return ss + e.value * e.count;
+      if (e.type === 'locked') return ss + e.value;
+      if (e.type === 'withdraw') return ss;
+      return ss + (e.freeValues || []).reduce((a, b) => a + b, 0);
+    }, 0), 0);
+  }
+
+  function entryValueLabel(e) {
+    if (e.type === 'fixed') return fmt(e.value * e.count);
+    if (e.type === 'locked') return fmt(e.value);
+    if (e.type === 'withdraw') return '− ' + fmt(e.value);
+    return fmt((e.freeValues || []).reduce((a, b) => a + b, 0));
+  }
+
+  function entryDotColor(e) {
+    if (e.type === 'locked') return '#34D399';
+    if (e.type === 'withdraw') return '#F87171';
+    if (e.type === 'fixed') return '#A78BFA';
+    return '#f59e0b';
+  }
+
+  function entrySubLabel(e) {
+    if (e.type === 'fixed') return fmt(e.value) + ' por unidade · ' + e.count + '×';
+    if (e.type === 'free') {
+      const n = (e.freeValues || []).length;
+      return n + ' adição' + (n !== 1 ? 'ões' : '');
+    }
+    return '';
+  }
+
+  function render() {
+    const total = categories.reduce((s, c) => s + catTotal(c), 0);
+    const pending = pendingCashTotal();
+
+    document.getElementById('totalsRow').innerHTML = `
+      <div class="total-card main">
+        <div>
+          <div class="total-label">Total arrecadado</div>
+          <div class="total-value">${fmt(total)}</div>
+          <div class="total-sub">${categories.length} lista${categories.length !== 1 ? 's' : ''} ativas</div>
+        </div>
+        <div class="total-icon">🎓</div>
+      </div>
+      ${pending > 0 ? `
+      <div class="total-card pending">
+        <div>
+          <div class="total-label">Ainda em dinheiro</div>
+          <div class="total-value">${fmt(pending)}</div>
+        </div>
+        <div class="total-icon">⏳</div>
+      </div>` : ''}
+    `;
+
+    const pixTotal = pixLogs.reduce((s, p) => s + Number(p.value || 0), 0);
+    const pixSummary = document.getElementById('pixSummary');
+    if (pixLogs.length > 0) {
+      pixSummary.style.display = 'flex';
+      document.getElementById('pixSummaryValue').textContent =
+        `${pixLogs.length} · ${fmt(pixTotal)}`;
+    } else {
+      pixSummary.style.display = 'none';
+    }
+
+    const sectionsEl = document.getElementById('sections');
+    if (categories.length === 0) {
+      sectionsEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div>Nenhuma lista criada ainda</div>`;
+      return;
+    }
+
+    sectionsEl.innerHTML = categories.map(cat => {
+      const total = catTotal(cat);
+      const rows = (cat.entries || []).length === 0
+        ? `<div class="empty-state" style="padding:22px"><div class="empty-state-icon" style="font-size:22px">—</div>Nenhuma entrada</div>`
+        : cat.entries.map(e => `
+          <div class="entry-row">
+            <div class="entry-dot" style="background:${entryDotColor(e)}"></div>
+            <div class="entry-info">
+              <div class="entry-desc">${e.desc || 'Entrada'}</div>
+              ${entrySubLabel(e) ? `<div class="entry-type">${entrySubLabel(e)}</div>` : ''}
+              ${e.pendingCash ? `<div class="entry-cash-badge">Falta repassar ao Pix</div>` : ''}
+            </div>
+            <div class="entry-value" style="${e.type === 'withdraw' ? 'color:var(--red)' : ''}">${entryValueLabel(e)}</div>
+          </div>
+        `).join('');
+
+      return `
+        <div class="section">
+          <div class="section-header">
+            <span class="section-name">${cat.name}</span>
+            <span class="section-total" style="${total < 0 ? 'color:var(--red)' : ''}">${fmt(total)}</span>
+          </div>
+          ${rows}
+        </div>
+      `;
+    }).join('');
+  }
+
+  onSnapshot(doc(db, 'formatura', 'dados'), (snap) => {
+    categories = snap.exists() ? (snap.data().categories || []) : [];
+    render();
+    setLive(true, '🔴 Ao vivo');
+  }, () => setLive(false, '⚠ Sem conexão'));
+
+  onSnapshot(doc(db, 'formatura', 'pix'), (snap) => {
+    pixLogs = snap.exists() ? (snap.data().logs || []) : [];
+    render();
+  }, () => {});
+</script>
+</body>
+</html>
