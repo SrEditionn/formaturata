@@ -579,6 +579,26 @@
 
   .entry-value { font-size: 15px; font-weight: 700; color: var(--text); min-width: 80px; text-align: right; }
 
+  /* ENTRADA "valor a adicionar" (livre) — layout em duas linhas, sem quebra bugada */
+  .entry-row-free { flex-direction: column; align-items: stretch; gap: 10px; }
+  .entry-row-free-top { display: flex; align-items: center; gap: 12px; }
+  .entry-row-free-top .entry-value { min-width: unset; }
+  .entry-row-free-actions { display: flex; align-items: center; gap: 8px; }
+  .free-value-input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .free-value-input:focus { border-color: var(--accent); }
+
   /* BOTÃO LIXEIRA DA ENTRADA - clean */
   .entry-delete {
     background: none;
@@ -2077,9 +2097,17 @@
   }
 
   // tag: 'add' | 'edit' | 'remove' | 'value'
+  const LOG_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000; // logs somem sozinhos depois de 3 dias
+
+  function pruneOldLogs() {
+    const cutoff = Date.now() - LOG_MAX_AGE_MS;
+    actionLogs = actionLogs.filter(l => (l.ts || 0) >= cutoff);
+  }
+
   function logAction(tag, text) {
     const { data, hora, ts } = nowStamp();
     actionLogs.unshift({ id: uid(), tag, text, data, hora, ts });
+    pruneOldLogs();
     if (actionLogs.length > LOG_LIMIT) actionLogs = actionLogs.slice(0, LOG_LIMIT);
     persistLogs();
     if (document.getElementById('logsPanel').classList.contains('open')) renderLogs();
@@ -2102,6 +2130,7 @@
   function loadLogsLocal() {
     const saved = localStorage.getItem('formatura_logs_local');
     if (saved) { try { actionLogs = JSON.parse(saved); } catch(e) {} }
+    pruneOldLogs();
   }
 
   function startLogsRealtimeSync() {
@@ -2112,6 +2141,9 @@
       if (snap.exists()) {
         const data = snap.data();
         actionLogs = data.logs || [];
+        const before = actionLogs.length;
+        pruneOldLogs();
+        if (actionLogs.length !== before) persistLogs();
         if (document.getElementById('logsPanel').classList.contains('open')) renderLogs();
       }
     }, () => {});
@@ -2232,9 +2264,11 @@
 
   function renderCategory(cat) {
     const total = catTotal(cat);
+    // Retiradas sempre aparecem depois das entradas normais (nunca antes de uma entrada adicionada)
+    const sortedEntries = [...cat.entries].sort((a, b) => (a.type === 'withdraw' ? 1 : 0) - (b.type === 'withdraw' ? 1 : 0));
     const rows = cat.entries.length === 0
       ? `<div class="empty-state"><div class="empty-state-icon">➕</div>Nenhuma entrada ainda</div>`
-      : cat.entries.map(e => renderEntry(e, cat.id)).join('');
+      : sortedEntries.map(e => renderEntry(e, cat.id)).join('');
 
     return `
       <div class="section" data-cat="${cat.id}" draggable="true"
@@ -2339,23 +2373,22 @@
       const vals = e.freeValues || [];
       const total = vals.reduce((a,b)=>a+b,0);
       return `
-        <div class="entry-row${rowClass}" style="flex-wrap:wrap;gap:8px"${rowClick}>
-          <div class="entry-dot" style="margin-top:4px;background:#f59e0b"></div>
-          <div class="entry-info">
-            <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Entrada livre'}</div>
-            <div class="entry-type">${vals.length} adição${vals.length !== 1 ? 'ões' : ''}</div>
-            ${cashBadge}
-            ${linkBadge}
+        <div class="entry-row entry-row-free${rowClass}"${rowClick}>
+          <div class="entry-row-free-top">
+            <div class="entry-dot" style="background:#f59e0b"></div>
+            <div class="entry-info">
+              <div class="entry-desc" id="entry-desc-${e.id}" ondblclick="event.stopPropagation();startRenameEntry('${catId}','${e.id}')">${e.desc || 'Entrada livre'}</div>
+              ${vals.length > 0 ? `<div class="entry-type">${vals.length} ${vals.length === 1 ? 'adição' : 'adições'}</div>` : ''}
+              ${cashBadge}
+              ${linkBadge}
+            </div>
+            <div class="entry-value">${fmt(total)}</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;justify-content:flex-end" onclick="event.stopPropagation()">
-            <input type="number" placeholder="R$" min="0.01" step="0.01"
-              style="width:82px;padding:7px 9px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-right:auto"
+          <div class="entry-row-free-actions" onclick="event.stopPropagation()">
+            <input type="number" class="free-value-input" placeholder="R$ 0,00" min="0.01" step="0.01"
               id="free-${e.id}"
-              onfocus="this.style.borderColor='var(--accent)'"
-              onblur="this.style.borderColor='var(--border)'"
               onkeydown="if(event.key==='Enter')addFreeValue('${catId}','${e.id}')">
             <button class="count-btn plus" style="width:32px;height:32px;border-radius:8px;flex-shrink:0" onclick="addFreeValue('${catId}','${e.id}')">+</button>
-            <div class="entry-value">${fmt(total)}</div>
             <button class="btn-icon" title="Registrar este valor (vira somente leitura, protegido por senha)" onclick="registerFreeEntry('${catId}','${e.id}')">🔒</button>
             <button class="btn-icon" title="Opções" onclick="openEntryOptions('${catId}','${e.id}')">⋮</button>
           </div>

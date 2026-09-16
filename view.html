@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formatura 2026 — Acompanhamento ao vivo</title>
+<title>Formatura 2026 — Acompanhamento sincronizado</title>
 <meta name="robots" content="noindex">
 <script>
   document.documentElement.setAttribute('data-theme', 'amoled');
@@ -1310,7 +1310,7 @@
 </head>
 <body>
 
-<!-- STATUS AO VIVO (mesmo estilo do badge de sincronização do site principal) -->
+<!-- STATUS DE SINCRONIZAÇÃO (mesmo estilo do badge do site principal) -->
 <div id="syncBadge">
   <div class="sync-dot"></div>
   <span id="syncText">Conectando...</span>
@@ -1321,7 +1321,13 @@
   <div class="header-top">
     <div>
       <div class="header-title">🎓 <span>Formatura</span> 2026</div>
-      <div class="header-sub">Acompanhamento ao vivo · somente leitura</div>
+      <div class="header-sub">Site by @eijordanofc · somente leitura</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-rifas-toggle" onclick="openRifasPanel()">🎟️ rifas arrecadadas</button>
+      <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()">📅 arrecadação mensal</button>
     </div>
   </div>
   <div class="totals-row" id="totalsRow"></div>
@@ -1330,6 +1336,140 @@
 
 <div id="categoriesContainer"></div>
 
+<!-- PIX PANEL (somente leitura) -->
+<div id="pixPanel">
+  <div id="pixPanelBg" onclick="closePixPanel()"></div>
+  <div id="pixPanelContent">
+    <div id="pixPanelHeader">
+      <div class="pix-panel-title">
+        💸 Pix Recebido
+        <button class="pix-panel-close" onclick="closePixPanel()">✕</button>
+      </div>
+      <div class="pix-panel-stats">
+        <div class="pix-stat"><span class="pix-stat-value" id="pixTotalCount">0</span>recebidos</div>
+        <div class="pix-stat"><span class="pix-stat-value" id="pixTotalValue">R$ 0,00</span>total</div>
+      </div>
+    </div>
+    <div class="pix-panel-actions">
+      <button class="pix-action-btn" id="btnPixNotif" onclick="togglePixNotifications()">🔔 Ativar Notificações</button>
+    </div>
+    <div class="pix-list" id="pixList">
+      <div class="pix-empty">
+        <div class="pix-empty-icon">💸</div>
+        <div class="pix-empty-title">Aguardando Pix...</div>
+        <div class="pix-empty-sub">Quando um Pix for recebido, ele aparecerá aqui em tempo real.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIFAS PANEL (somente leitura) -->
+<div id="rifasPanel">
+  <div id="rifasPanelBg" onclick="closeRifasPanel()"></div>
+  <div id="rifasPanelContent">
+    <div id="rifasPanelHeader">
+      <div class="rifas-panel-title">
+        🎟️ Controle de Rifas
+        <button class="rifas-panel-close" onclick="closeRifasPanel()">✕</button>
+      </div>
+      <div class="rifas-tabs">
+        <button class="rifas-tab active" id="rtab-btn-1" onclick="switchRifaTab(1)">🌹 Namorados (finalizada)</button>
+        <button class="rifas-tab" id="rtab-btn-2" onclick="switchRifaTab(2)">✨ Próxima rifa</button>
+      </div>
+    </div>
+
+    <div class="rifas-tab-content active" id="rtab-1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">Dias dos Namorados</span>
+        <span class="badge-finalizado">✓ Finalizada</span>
+      </div>
+      <p style="font-size:.72rem;color:#94a3b8;margin-bottom:12px">Valor unit.: R$ 5,00 · Somente visualização.</p>
+
+      <div class="rifa-cards">
+        <div class="rifa-card">
+          <div class="rifa-card-label">Arrecadado</div>
+          <div class="rifa-card-value" style="color:#34D399">R$ 815,00</div>
+          <div class="rifa-card-sub">de R$ 815,00</div>
+          <div class="rifa-progress-bar"><div class="rifa-progress-fill" style="width:100%"></div></div>
+          <div class="rifa-progress-pct">100%</div>
+        </div>
+        <div class="rifa-card">
+          <div class="rifa-card-label">Falta arrecadar</div>
+          <div class="rifa-card-value" style="color:#f59e0b">R$ 0,00</div>
+          <div class="rifa-card-sub">0 sem pagar</div>
+        </div>
+        <div class="rifa-card">
+          <div class="rifa-card-label">Total de rifas</div>
+          <div class="rifa-card-value" style="color:#A78BFA">163</div>
+          <div class="rifa-card-sub">rifas na campanha</div>
+        </div>
+        <div class="rifa-card">
+          <div class="rifa-card-label">Já pagaram</div>
+          <div class="rifa-card-value" style="color:#EDEDF0">29</div>
+          <div class="rifa-card-sub">de 29 participantes</div>
+        </div>
+      </div>
+
+      <div class="rifa-section-title">Turma 302 <span class="badge-purple">18 pessoas</span></div>
+      <div class="rifa-table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th style="text-align:right">Rifas</th><th style="text-align:right">Pago</th></tr></thead>
+          <tbody id="rifa1-302"></tbody>
+        </table>
+      </div>
+
+      <div class="rifa-section-title">Turma 301 <span class="badge-purple">10 pessoas</span></div>
+      <div class="rifa-table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th style="text-align:right">Rifas</th><th style="text-align:right">Pago</th></tr></thead>
+          <tbody id="rifa1-301"></tbody>
+        </table>
+      </div>
+
+      <div class="rifa-section-title">Professor(a) <span class="badge-purple">1 pessoa</span></div>
+      <div class="rifa-table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th style="text-align:right">Rifas</th><th style="text-align:right">Pago</th></tr></thead>
+          <tbody id="rifa1-prof"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rifas-tab-content" id="rtab-2">
+      <div id="rifa2-loading" style="display:none;text-align:center;padding:30px;color:#94a3b8;font-size:.82rem">⏳ Carregando dados...</div>
+      <div id="rifa2-placeholder" class="rifa-futura-placeholder">
+        <div class="rifa-futura-icon">🎟️</div>
+        <div class="rifa-futura-title">Nenhuma rifa ativa no momento</div>
+        <div class="rifa-futura-desc">Quando uma nova rifa for iniciada, os dados aparecerão aqui automaticamente.</div>
+      </div>
+      <div id="rifa2-content" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MENSAL PANEL (somente leitura) -->
+<div id="mensalPanel">
+  <div id="mensalPanelBg" onclick="closeMensalPanel()"></div>
+  <div id="mensalPanelContent">
+    <div id="mensalPanelHeader">
+      <div class="mensal-panel-title">
+        📅 Arrecadação Mensal
+        <button class="mensal-panel-close" onclick="closeMensalPanel()">✕</button>
+      </div>
+      <div class="mensal-panel-stats">
+        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalGeral">R$ 0,00</span>total arrecadado</div>
+        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalPessoas">0</span>pagamentos</div>
+      </div>
+    </div>
+    <div class="mensal-body" id="mensalBody">
+      <div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
+        <div style="font-size:30px;margin-bottom:10px">📅</div>
+        <div style="font-weight:600;">Nenhum mês cadastrado</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="footer-note">
   Esta página só exibe os valores — nenhuma edição é feita por aqui.<br>
   Os dados atualizam automaticamente, sem precisar recarregar a página.
@@ -1337,7 +1477,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
-  import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js';
+  import { getFirestore, doc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js';
 
   const app = initializeApp({
     apiKey: "AIzaSyDQ0oea2ZrAn_dtzqOWh_BBDQzWQS2Q6eU",
@@ -1418,12 +1558,12 @@
       `).join('');
       html += `<div class="arrecadacoes-wrap">${cards}</div>`;
     }
-    html += `<div style="padding:10px 16px 0"><div class="btn-pix">
+    html += `<div style="padding:10px 16px 0"><button class="btn-pix" onclick="openPixPanel()">
       <span class="pix-dot"></span>
       <span class="pix-icon">💸</span>
       <span class="pix-label">Pix Recebido</span>
-      <span class="pix-count-badge" style="${pixLogs.length ? '' : 'display:none'}">${pixLogs.length}</span>
-    </div></div>`;
+      <span class="pix-count-badge" id="pixCountBadge" style="${pixLogs.length ? '' : 'display:none'}">${pixLogs.length}</span>
+    </button></div>`;
     row.innerHTML = html;
   }
 
@@ -1445,7 +1585,7 @@
     if (e.type === 'fixed') return `${e.count}× · ${fmt(e.value)} por unidade`;
     if (e.type === 'free') {
       const n = (e.freeValues || []).length;
-      return `${n} adição${n !== 1 ? 'ões' : ''}`;
+      return n > 0 ? `${n} ${n === 1 ? 'adição' : 'adições'}` : '';
     }
     return '';
   }
@@ -1467,9 +1607,11 @@
 
   function renderCategory(cat) {
     const total = catTotal(cat);
-    const rows = (cat.entries || []).length === 0
+    const entries = cat.entries || [];
+    const sortedEntries = [...entries].sort((a, b) => (a.type === 'withdraw' ? 1 : 0) - (b.type === 'withdraw' ? 1 : 0));
+    const rows = entries.length === 0
       ? `<div class="empty-state"><div class="empty-state-icon">➕</div>Nenhuma entrada ainda</div>`
-      : cat.entries.map(e => renderEntry(e)).join('');
+      : sortedEntries.map(e => renderEntry(e)).join('');
 
     return `
       <div class="section">
@@ -1496,17 +1638,356 @@
   onSnapshot(doc(db, 'formatura', 'dados'), (snap) => {
     categories = snap.exists() ? (snap.data().categories || []) : [];
     render();
-    setSyncStatus('saved', '✓ Ao vivo');
+    setSyncStatus('saved', '✓ Sincronizado');
   }, () => setSyncStatus('error', '⚠ Sem conexão'));
 
   onSnapshot(doc(db, 'formatura', 'pix'), (snap) => {
+    const before = pixSeenIds ? new Set(pixSeenIds) : new Set();
     pixLogs = snap.exists() ? (snap.data().logs || []) : [];
+    pixSeenIds = new Set(pixLogs.map(p => p.id));
+    // Notifica sobre Pix novos (se a pessoa ativou notificações neste navegador)
+    if (before.size > 0) {
+      pixLogs.forEach(p => { if (!before.has(p.id)) sendPixNotification(p); });
+    }
     render();
+    renderPixList();
   }, () => {});
 
   onSnapshot(doc(db, 'formatura', 'arrecadacoes'), (snap) => {
     arrecadacoes = snap.exists() ? (snap.data().items || []) : [];
     render();
+  }, () => {});
+
+  // ═══════════════ PIX: painel de leitura + notificações ═══════════════
+  let pixSeenIds = null;
+  let pixNotifEnabled = false;
+  const fmtPix = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+
+  function loadPixNotifState() {
+    try { pixNotifEnabled = localStorage.getItem('formatura_view_pix_notif') === '1'; } catch(e) {}
+  }
+  function savePixNotifState() {
+    try { localStorage.setItem('formatura_view_pix_notif', pixNotifEnabled ? '1' : '0'); } catch(e) {}
+  }
+  function updateNotifBtn() {
+    const btn = document.getElementById('btnPixNotif');
+    if (!btn) return;
+    btn.classList.toggle('active', pixNotifEnabled);
+    btn.textContent = pixNotifEnabled ? '🔕 Desativar Notificações' : '🔔 Ativar Notificações';
+  }
+  loadPixNotifState();
+
+  const VAPID_PUBLIC_KEY = 'BE4MscUkWvkoRhjXPj_ixZ57h4-PBnUHlxsxKug1BW8T57EU-bkAR5zun0td8aJUxzu6_nQcru15_Z8J9XcPfNE';
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+  async function showLocalNotification(title, options) {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+        if (reg) { await reg.showNotification(title, options); return; }
+      }
+      new Notification(title, options);
+    } catch (e) {}
+  }
+  async function enablePushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const existing = await reg.pushManager.getSubscription();
+      const sub = existing || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      await fetch('/.netlify/functions/mp-save-subscription', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub, action: 'add' }),
+      });
+    } catch (e) {}
+  }
+  async function disablePushNotifications() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+      if (!reg) return;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        await fetch('/.netlify/functions/mp-save-subscription', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub, action: 'remove' }),
+        });
+        await sub.unsubscribe();
+      }
+    } catch (e) {}
+  }
+  window.togglePixNotifications = async function() {
+    if (pixNotifEnabled) {
+      pixNotifEnabled = false;
+      savePixNotifState();
+      updateNotifBtn();
+      disablePushNotifications();
+      return;
+    }
+    if (!('Notification' in window)) { alert('Seu navegador não suporta notificações.'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      pixNotifEnabled = true;
+      savePixNotifState();
+      updateNotifBtn();
+      await enablePushNotifications();
+      showLocalNotification('💸 Formatura Pix', { body: 'Notificações ativadas! Você receberá alertas mesmo com o site fechado.' });
+    } else {
+      alert('Permissão de notificação negada.\nAbra as configurações do navegador e permita notificações para este site.');
+    }
+  };
+  function sendPixNotification(p) {
+    if (!pixNotifEnabled || Notification.permission !== 'granted') return;
+    const banco = p.bank || 'Banco não identificado';
+    const body = 'Pix recebido do banco ' + banco + '\nValor: ' + fmtPix(p.value) + '\nHorário: ' + p.hora;
+    showLocalNotification('Formatura: Pix recebido', { body, tag: p.id, requireInteraction: false });
+  }
+
+  function renderPixList() {
+    const list = document.getElementById('pixList');
+    if (!list) return;
+    const totalVal = pixLogs.reduce((s, p) => s + Number(p.value || 0), 0);
+    const tc = document.getElementById('pixTotalCount');
+    const tv = document.getElementById('pixTotalValue');
+    if (tc) tc.textContent = pixLogs.length;
+    if (tv) tv.textContent = fmtPix(totalVal);
+    if (pixLogs.length === 0) {
+      list.innerHTML = `<div class="pix-empty">
+        <div class="pix-empty-icon">💸</div>
+        <div class="pix-empty-title">Aguardando Pix...</div>
+        <div class="pix-empty-sub">Quando um Pix for recebido, ele aparecerá aqui em tempo real.</div>
+      </div>`;
+      return;
+    }
+    list.innerHTML = pixLogs.map(p => `
+      <div class="pix-card">
+        <div class="pix-card-icon">💸</div>
+        <div class="pix-card-body">
+          <div class="pix-card-status">✓ Pix recebido</div>
+          <div class="pix-card-bank">${p.bank || 'Banco não identificado'}</div>
+          <div class="pix-card-value">${fmtPix(p.value)}</div>
+          ${p.assignedTo ? `<div class="pix-card-assigned">↳ ${p.assignedTo}</div>` : ''}
+        </div>
+        <div class="pix-card-meta">
+          <div class="pix-card-date">${p.data}</div>
+          <div class="pix-card-time">${p.hora}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.openPixPanel = function() {
+    renderPixList();
+    updateNotifBtn();
+    document.getElementById('pixPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closePixPanel = function() {
+    document.getElementById('pixPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // ═══════════════ RIFAS: painel de leitura ═══════════════
+  const RIFA1_DATA = {
+    "302": [
+      {name:"Alesson",rifas:5,pago:25},{name:"André Eduardo",rifas:6,pago:30},
+      {name:"Anne",rifas:7,pago:35},{name:"Cristhian Cleber",rifas:5,pago:25},
+      {name:"Cristian Yago",rifas:5,pago:25},{name:"Daniel",rifas:5,pago:25},
+      {name:"Enzo",rifas:5,pago:25},{name:"Flávia",rifas:5,pago:25},
+      {name:"Gabriel",rifas:6,pago:30},{name:"Joan",rifas:5,pago:25},
+      {name:"Kamylle",rifas:5,pago:25},{name:"Marcos José",rifas:5,pago:25},
+      {name:"Moisés",rifas:5,pago:25},{name:"Pâmela",rifas:5,pago:25},
+      {name:"Rayssa",rifas:5,pago:25},{name:"Rodrigo",rifas:6,pago:30},
+      {name:"Samuel",rifas:5,pago:25},{name:"Wesley",rifas:5,pago:25},
+    ],
+    "301": [
+      {name:"Bianca",rifas:5,pago:25},{name:"Enzo Lucas",rifas:5,pago:25},
+      {name:"Kassiane",rifas:5,pago:25},{name:"Keily",rifas:20,pago:100},
+      {name:"Kimberlly",rifas:5,pago:25},{name:"Lara",rifas:5,pago:25},
+      {name:"Leonardo",rifas:5,pago:25},{name:"Renan",rifas:5,pago:25},
+      {name:"Sarah",rifas:5,pago:25},{name:"Victor",rifas:5,pago:25},
+    ],
+    "prof": [ {name:"Ivanete",rifas:3,pago:15} ]
+  };
+  function fmtRifa(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+  function renderRifa1Row(p) {
+    return `<tr>
+      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;vertical-align:middle">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34D399;flex-shrink:0"></span>
+          <span style="font-weight:600;font-size:.85rem">${p.name}</span>
+        </div>
+      </td>
+      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;text-align:right;font-size:.8rem;color:#94a3b8">${p.rifas}×</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;text-align:right">
+        <span style="font-weight:700;font-size:.82rem;color:#34D399">✓ ${fmtRifa(p.pago)}</span>
+      </td>
+    </tr>`;
+  }
+  function buildRifa1Table() {
+    ['302','301','prof'].forEach(t => {
+      const tbody = document.getElementById('rifa1-' + t);
+      if (tbody && RIFA1_DATA[t]) tbody.innerHTML = RIFA1_DATA[t].map(renderRifa1Row).join('');
+    });
+  }
+  window.switchRifaTab = function(n) {
+    [1,2].forEach(i => {
+      document.getElementById('rtab-' + i).classList.toggle('active', i === n);
+      document.getElementById('rtab-btn-' + i).classList.toggle('active', i === n);
+    });
+  };
+  function loadRifa2() {
+    getDoc(doc(db, 'rifas', 'rifa2')).then(snap => {
+      if (snap.exists()) renderRifa2(snap.data());
+    }).catch(() => {});
+  }
+  function renderRifa2(data) {
+    document.getElementById('rifa2-placeholder').style.display = 'none';
+    const el = document.getElementById('rifa2-content');
+    el.style.display = 'block';
+    const totalArrecadado = data.totalArrecadado || 0;
+    const totalMeta = data.totalMeta || 0;
+    const pct = totalMeta > 0 ? Math.min(100, (totalArrecadado / totalMeta) * 100).toFixed(1) : '0.0';
+    el.innerHTML = `
+      <div style="margin-bottom:12px">
+        <span style="font-size:13px;font-weight:700;color:#EDEDF0">🎟️ ${data.titulo || 'Nova Rifa'}</span>
+        <span style="background:rgba(252,211,77,.15);color:#FCD34D;border-radius:99px;padding:2px 8px;font-size:.6rem;font-weight:700;text-transform:uppercase;margin-left:6px">🔴 Ativa</span>
+      </div>
+      <div class="rifa-cards">
+        <div class="rifa-card">
+          <div class="rifa-card-label">Arrecadado</div>
+          <div class="rifa-card-value" style="color:#34D399">${fmt(totalArrecadado)}</div>
+          <div class="rifa-card-sub">de ${fmt(totalMeta)}</div>
+          <div class="rifa-progress-bar"><div class="rifa-progress-fill" style="width:${pct}%"></div></div>
+          <div class="rifa-progress-pct">${pct}%</div>
+        </div>
+      </div>
+    `;
+  }
+  window.openRifasPanel = function() {
+    buildRifa1Table();
+    document.getElementById('rifasPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    loadRifa2();
+  };
+  window.closeRifasPanel = function() {
+    document.getElementById('rifasPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // ═══════════════ ARRECADAÇÃO MENSAL: painel de leitura ═══════════════
+  const ALUNOS_301 = [
+    'Ana Clara Moraes','Bianca Leticia Sousa','Carla Beatriz da Silva',
+    'Enzo Lucas Lira','Eveni Patricia Barroso','Gabrielly Roberta Silva',
+    'Jamilly Yarim de Oliveira','Joel da Silva de Assis','Karen Marcelle de Almeida',
+    'Kassiane Beatriz Conceicao','Keily Belen Torres','Kimberlly Vitoria Lopes',
+    'Lara Gabrielle Lisboa','Leonardo Lenin Jose','Lucas Davi Amaral',
+    'Neuliane Moraes Rodrigues','Renan Jordan de Albuquerque','Sandy Fabiola Almeida',
+    'Sarah de Araujo Rodrigues','Victor Rafael Goncalves'
+  ];
+  const ALUNOS_302 = [
+    'Alesson Ruan Nunes','Andre Eduardo Pascoal','Anne Caroline Correa',
+    'Cristhian Cleber Pinto','Cristian Yago da Costa','Daniel da Rocha Costa',
+    'Enzo dos Santos Dias','Flavia Fabiane Chaves','Gabriel Ferreira Barroso',
+    'Joan Brasil dos Santos','Kamylle Rafaelly Duarte','Marcos Jose de Souza',
+    'Marcus Yan da Silva','Moises dos Santos Pereira','Pamela Costa Miranda',
+    'Pedro Gustavo do Rosario','Rayssa Victoria Areias','Rodrigo Otavio Costa',
+    'Samuel Robertt da Costa','Thayssa Oliveira Nascimento','Wesley Eduardo Carvalho'
+  ];
+  const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                        'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  let mensalData = { valorPadrao: 10, meses: [] };
+
+  function updateMensalStats() {
+    let totalGeral = 0, totalPessoas = 0;
+    (mensalData.meses || []).forEach(m => {
+      Object.values(m.pagamentos || {}).forEach(v => { totalGeral += v; totalPessoas++; });
+    });
+    const tg = document.getElementById('mensalTotalGeral');
+    const tp = document.getElementById('mensalTotalPessoas');
+    if (tg) tg.textContent = fmt(totalGeral);
+    if (tp) tp.textContent = totalPessoas;
+  }
+  function renderAlunoMensal(nome, turma, valorPago) {
+    const pago = valorPago !== undefined && valorPago !== null;
+    return `
+      <div class="mensal-aluno-row${pago?' pago':''}">
+        <div class="mensal-aluno-dot${pago?' pago':''}"></div>
+        <span class="mensal-aluno-turma">${turma}</span>
+        <span class="mensal-aluno-nome">${nome}</span>
+        ${pago ? `<span class="mensal-aluno-valor">${fmt(valorPago)}</span>` : ''}
+      </div>
+    `;
+  }
+  function renderMesMensal(mes) {
+    const pags = mes.pagamentos || {};
+    const totalMes = Object.values(pags).reduce((s,v) => s+v, 0);
+    const qtdPagos = Object.keys(pags).length;
+    const totalAlunos = ALUNOS_301.length + ALUNOS_302.length;
+    const nomeMes = MESES_NOMES[mes.mesIdx];
+    const linhas301 = ALUNOS_301.map(n => renderAlunoMensal(n, '301', pags[n])).join('');
+    const linhas302 = ALUNOS_302.map(n => renderAlunoMensal(n, '302', pags[n])).join('');
+    return `
+      <div class="mensal-mes-card">
+        <div class="mensal-mes-header" onclick="toggleMesMensal('${mes.id}',this)">
+          <div>
+            <div class="mensal-mes-title">${nomeMes}</div>
+            <div class="mensal-mes-meta">${qtdPagos} de ${totalAlunos} pagaram</div>
+          </div>
+          <div class="mensal-mes-right">
+            <div class="mensal-mes-total">${fmt(totalMes)}</div>
+            <div class="mensal-mes-chevron">▶</div>
+          </div>
+        </div>
+        <div class="mensal-mes-body" id="mesBody-${mes.id}">
+          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">Turma 301</div>
+          ${linhas301}
+          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-top:1px solid #1E1E26;">Turma 302</div>
+          ${linhas302}
+        </div>
+      </div>
+    `;
+  }
+  function renderMensalBody() {
+    const body = document.getElementById('mensalBody');
+    if (!body) return;
+    updateMensalStats();
+    if (!mensalData.meses || mensalData.meses.length === 0) {
+      body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
+        <div style="font-size:30px;margin-bottom:10px">📅</div>
+        <div style="font-weight:600;">Nenhum mês cadastrado</div>
+      </div>`;
+      return;
+    }
+    body.innerHTML = mensalData.meses.map(renderMesMensal).join('');
+  }
+  window.toggleMesMensal = function(mesId, headerEl) {
+    const body = document.getElementById('mesBody-' + mesId);
+    if (!body) return;
+    const open = body.classList.toggle('open');
+    headerEl.classList.toggle('open', open);
+  };
+  window.openMensalPanel = function() {
+    renderMensalBody();
+    document.getElementById('mensalPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeMensalPanel = function() {
+    document.getElementById('mensalPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  onSnapshot(doc(db, 'formatura', 'mensal'), (snap) => {
+    mensalData = snap.exists() ? (snap.data().data || { valorPadrao: 10, meses: [] }) : { valorPadrao: 10, meses: [] };
+    if (document.getElementById('mensalPanel').classList.contains('open')) renderMensalBody();
   }, () => {});
 </script>
 </body>
