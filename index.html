@@ -107,11 +107,12 @@
     align-items: center;
     gap: 6px;
     box-shadow: var(--shadow);
-    transition: all .3s;
+    transition: color .3s, border-color .3s, opacity .6s ease;
   }
   #syncBadge.syncing { color: var(--blue); border-color: var(--blue-light); }
   #syncBadge.saved { color: var(--green); border-color: var(--green-light); }
   #syncBadge.error { color: var(--red); }
+  #syncBadge.hide { opacity: 0; pointer-events: none; }
   .sync-dot {
     width: 7px; height: 7px;
     border-radius: 50%;
@@ -1417,7 +1418,7 @@
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-rifas-toggle" id="btnRifasToggle" onclick="openRifasPanel()">🎟️ rifas<span class="rifa-live-dot" title="Rifa em andamento"></span></button>
-      <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()">📅 arrecadação mensal</button>
+      <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()" style="display:none">📅 arrecadação mensal</button>
     </div>
   </div>
   <div class="totals-row" id="totalsRow"></div>
@@ -2262,8 +2263,12 @@
 
   function setSyncStatus(state, text) {
     const badge = document.getElementById('syncBadge');
+    clearTimeout(badge._hideTimer);
     badge.className = state;
     document.getElementById('syncText').textContent = text;
+    if (state === 'saved') {
+      badge._hideTimer = setTimeout(() => badge.classList.add('hide'), 2500);
+    }
   }
 
   window.setSyncStatus = setSyncStatus;
