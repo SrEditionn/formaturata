@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Controle da Rifa</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh;padding:16px 12px}
+  h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.03em}
+  button{font-family:'Inter',sans-serif;cursor:pointer}
+  input,select{font-family:'Inter',sans-serif}
+
+  #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 16px;border-radius:99px;font-size:.78rem;font-weight:600;z-index:3000;box-shadow:0 4px 20px rgba(0,0,0,.2);display:none;white-space:nowrap}
+  #toast.show{display:block;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:12px;display:none}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:16px;padding:20px 18px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:92vh;overflow-y:auto}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;max-width:860px;margin:0 auto 18px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:11px 12px}
+  .card-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8}
+  .card-value{font-size:1.25rem;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+  .card-sub{font-size:.68rem;color:#94a3b8}
+  .progress-bar{height:4px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin-top:8px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:99px;transition:width .5s ease}
+  .progress-pct{font-size:.62rem;color:#94a3b8;margin-top:2px;text-align:right}
+
+  .tables-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;max-width:860px;margin:0 auto 16px}
+  .table-section{margin-bottom:0}
+  .section-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:6px}
+  .badge-purple{background:#eef2ff;color:#6366f1;border-radius:99px;padding:1px 7px;font-size:.62rem;font-weight:700}
+  .badge-green{background:#dcfce7;color:#16a34a;border-radius:99px;padding:1px 7px;font-size:.62rem;font-weight:700}
+  .table-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:4px 10px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding:5px 6px;border-bottom:2px solid #f1f5f9}
+  td{padding:7px 6px;border-bottom:1px solid #f1f5f9;font-size:.82rem}
+
+  .btn-pencil{font-size:.62rem;padding:3px 7px;border-radius:99px;background:#f1f5f9;color:#64748b;font-weight:600;border:none}
+  .btn-gear{font-size:.62rem;padding:3px 7px;border-radius:99px;background:#eef2ff;color:#6366f1;font-weight:600;border:none}
+  .btn-primary{padding:10px;border-radius:10px;border:none;background:#22c55e;color:#fff;font-weight:700;font-size:.85rem}
+  .btn-secondary{padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#fff;font-weight:600;font-size:.85rem}
+  .btn-indigo{padding:7px 14px;border-radius:10px;border:none;background:#6366f1;color:#fff;font-weight:700;font-size:.8rem;box-shadow:0 2px 8px rgba(99,102,241,.3);white-space:nowrap}
+  .btn-dark{padding:7px 14px;border-radius:10px;border:none;background:#0f172a;color:#fff;font-weight:700;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.2);white-space:nowrap}
+  .btn-teal{padding:7px 14px;border-radius:10px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:.8rem;box-shadow:0 2px 8px rgba(13,148,136,.3);white-space:nowrap}
+
+  .rifa-btn{width:38px;height:38px;border-radius:9px;border:2px solid #e2e8f0;background:#f8fafc;color:#94a3b8;font-weight:700;font-size:.85rem;transition:all .15s ease}
+  .rifa-btn.sel{border-color:#22c55e;background:#dcfce7;color:#16a34a}
+
+  input[type=number],input[type=text],select{width:100%;padding:8px 10px;border-radius:9px;border:2px solid #e2e8f0;font-size:.88rem;font-weight:500;outline:none;font-family:'Inter',sans-serif}
+  label.field-label{font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+  .header-actions{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;flex-wrap:nowrap}
+
+  /* Visibilidade toggle */
+  .turma-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;margin-bottom:8px}
+  .turma-toggle-label{font-size:.88rem;font-weight:600;color:#0f172a}
+  .toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+  .toggle-switch input{opacity:0;width:0;height:0}
+  .toggle-slider{position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:99px;transition:.3s}
+  .toggle-slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+  input:checked+.toggle-slider{background:#6366f1}
+  input:checked+.toggle-slider:before{transform:translateX(18px)}
+
+  @media print{
+    body{background:#fff;padding:12px}
+    .no-print{display:none!important}
+    .overlay{display:none!important}
+    #toast{display:none!important}
+    .btn-pencil,.btn-gear{display:none}
+    .table-wrap{border:1px solid #ccc!important}
+    .card{border:1px solid #ccc!important}
+    h1{font-size:1.4rem}
+    .turma-hidden-section{display:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ══ MODAL: Registrar pagamento ══ -->
+<div class="overlay" id="modal-pagar">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div id="mp-turma" style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:4px"></div>
+        <div id="mp-nome" style="font-size:1.25rem;font-weight:800;color:#0f172a"></div>
+        <div id="mp-meta" style="font-size:.82rem;color:#64748b;margin-top:2px"></div>
+      </div>
+      <button onclick="closeModal('modal-pagar')" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:#64748b">✕</button>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:.75rem;font-weight:600;color:#64748b;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Rifas pagas — clique para marcar</div>
+      <div id="rifa-buttons" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      <div id="mp-feedback" style="margin-top:8px;font-size:.85rem;font-weight:600;min-height:20px"></div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:.75rem;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Ou digitar valor pago (R$)</div>
+      <input type="number" id="mp-input" min="0" step="5" oninput="onValueInput()" style="width:100%" />
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-secondary" style="flex:1" onclick="closeModal('modal-pagar')">Cancelar</button>
+      <button class="btn-primary" style="flex:2" onclick="savePagamento()">Salvar pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Adicionar pessoa + gerenciar turmas ══ -->
+<div class="overlay" id="modal-add" onclick="closeModal('modal-add')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <!-- Abas -->
+    <div style="display:flex;gap:4px;margin-bottom:22px;background:#f1f5f9;border-radius:12px;padding:4px">
+      <button id="tab-add-btn" onclick="switchTab('add')" style="flex:1;padding:8px;border-radius:9px;border:none;font-weight:700;font-size:.85rem;background:#fff;color:#0f172a;box-shadow:0 1px 4px rgba(0,0,0,.08)">➕ Adicionar</button>
+      <button id="tab-vis-btn" onclick="switchTab('vis')" style="flex:1;padding:8px;border-radius:9px;border:none;font-weight:700;font-size:.85rem;background:transparent;color:#64748b">👁 Exibir turmas</button>
+    </div>
+
+    <!-- Aba Adicionar -->
+    <div id="tab-add">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-size:1.1rem;font-weight:800;color:#0f172a">Nova pessoa</div>
+        <button onclick="closeModal('modal-add')" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:#64748b">✕</button>
+      </div>
+      <div style="margin-bottom:14px"><label class="field-label">Nome</label><input type="text" id="add-nome" placeholder="Ex: João Silva" /></div>
+      <div style="margin-bottom:14px">
+        <label class="field-label">Turma</label>
+        <select id="add-turma" onchange="toggleNovaTurma()"></select>
+      </div>
+      <div id="add-nova-turma-wrap" style="margin-bottom:14px;display:none">
+        <label class="field-label">Nome da nova turma</label>
+        <input type="text" id="add-nova-turma" placeholder="Ex: 303 ou ext2" />
+      </div>
+      <div style="margin-bottom:18px">
+        <label class="field-label">Quantidade de rifas</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <button onclick="addRifasDelta(-1)" style="width:38px;height:38px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:1.2rem;font-weight:700;color:#64748b">−</button>
+          <input type="number" id="add-rifas" min="1" value="5" oninput="updateAddPreco()" style="width:80px;text-align:center;font-weight:700;font-size:1.1rem" />
+          <button onclick="addRifasDelta(1)" style="width:38px;height:38px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:1.2rem;font-weight:700;color:#64748b">+</button>
+          <span id="add-preco" style="font-size:.82rem;color:#94a3b8;white-space:nowrap">= R$ 25,00</span>
+        </div>
+      </div>
+      <div id="add-error" style="color:#ef4444;font-size:.82rem;margin-bottom:12px;font-weight:600;min-height:18px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-secondary" style="flex:1" onclick="closeModal('modal-add')">Cancelar</button>
+        <button class="btn-indigo" style="flex:2" onclick="addPessoa()">Adicionar</button>
+      </div>
+    </div>
+
+    <!-- Aba Visibilidade -->
+    <div id="tab-vis" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-size:1.1rem;font-weight:800;color:#0f172a">Exibir / ocultar turmas</div>
+        <button onclick="closeModal('modal-add')" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:#64748b">✕</button>
+      </div>
+      <p style="font-size:.8rem;color:#94a3b8;margin-bottom:14px">Turmas ocultas não aparecem na tela nem no PDF.</p>
+      <div id="vis-toggles"></div>
+      <button class="btn-indigo" style="width:100%;margin-top:8px" onclick="closeModal('modal-add')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Editar pessoa ══ -->
+<div class="overlay" id="modal-edit" onclick="closeModal('modal-edit')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div id="ep-turma" style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:4px"></div>
+        <div id="ep-nome" style="font-size:1.2rem;font-weight:800;color:#0f172a"></div>
+        <div id="ep-pago" style="font-size:.82rem;color:#64748b;margin-top:2px"></div>
+      </div>
+      <button onclick="closeModal('modal-edit')" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:#64748b">✕</button>
+    </div>
+    <div style="margin-bottom:22px">
+      <div style="font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Ajustar quantidade de rifas</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="editRifasDelta(-1)" style="width:38px;height:38px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:1.2rem;font-weight:700;color:#64748b">−</button>
+        <input type="number" id="ep-rifas" min="1" style="width:80px;text-align:center;font-weight:700;font-size:1rem" oninput="updateEditPreco()" />
+        <button onclick="editRifasDelta(1)" style="width:38px;height:38px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:1.2rem;font-weight:700;color:#64748b">+</button>
+        <span id="ep-preco" style="font-size:.82rem;color:#94a3b8;white-space:nowrap"></span>
+      </div>
+      <div id="ep-warning" style="margin-top:8px;font-size:.8rem;color:#f59e0b;font-weight:600;min-height:18px"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button class="btn-secondary" style="flex:1" onclick="closeModal('modal-edit')">Cancelar</button>
+      <button class="btn-indigo" style="flex:2" onclick="saveEditPessoa()">Salvar alteração</button>
+    </div>
+    <div style="border-top:1px solid #f1f5f9;padding-top:12px">
+      <div id="confirm-delete-wrap">
+        <button onclick="showConfirmDelete()" style="width:100%;padding:10px;border-radius:12px;border:2px solid #fecaca;background:#fff5f5;color:#ef4444;font-weight:700;font-size:.88rem">🗑 Remover <span id="ep-nome-del"></span></button>
+      </div>
+      <div id="confirm-delete-confirm" style="display:none">
+        <div style="font-size:.82rem;color:#ef4444;font-weight:600;text-align:center;margin-bottom:8px">Tem certeza? Isso apagará também os pagamentos.</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="hideConfirmDelete()" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#fff;font-weight:600;font-size:.85rem">Não</button>
+          <button onclick="removePessoa()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#ef4444;color:#fff;font-weight:700;font-size:.85rem">Sim, remover</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTEÚDO PRINCIPAL ══ -->
+<div style="text-align:center;margin-bottom:16px">
+  <h1>🎟️ Controle de Rifas 🎟️</h1>
+  <p style="color:#64748b;margin-top:4px;font-size:.78rem">Valor Unidade: R$ 5,00 · ⚙️ by @eijordanofc</p>
+  <div class="header-actions no-print">
+    <button class="btn-indigo" onclick="openModalAdd()">➕ Add</button>
+    <button class="btn-dark" onclick="exportarPDF()">📄 PDF</button>
+    <button class="btn-teal" onclick="salvarHTML()">💾 Salvar</button>
+  </div>
+</div>
+
+<div class="cards" id="cards"></div>
+<div id="tables-container"></div>
+
+<script>
+const PRICE = 5;
+const STORAGE_KEY = 'rifa-html-v2';
+
+const PESSOAS_INICIAL = [
+  {turma:"302",name:"Alesson",meta:25},{turma:"302",name:"André Eduardo",meta:50},
+  {turma:"302",name:"Anne",meta:35},{turma:"302",name:"Cristhian Cleber",meta:25},
+  {turma:"302",name:"Cristian Yago",meta:25},{turma:"302",name:"Daniel",meta:25},
+  {turma:"302",name:"Enzo",meta:25},{turma:"302",name:"Flávia",meta:25},
+  {turma:"302",name:"Gabriel",meta:30},{turma:"302",name:"Joan",meta:25},
+  {turma:"302",name:"Kamylle",meta:25},{turma:"302",name:"Marcos José",meta:25},
+  {turma:"302",name:"Moisés",meta:25},{turma:"302",name:"Pâmela",meta:25},
+  {turma:"302",name:"Pedro",meta:25},{turma:"302",name:"Rayssa",meta:25},
+  {turma:"302",name:"Rodrigo",meta:25},{turma:"302",name:"Samuel",meta:25},
+  {turma:"302",name:"Thayssa",meta:25},{turma:"302",name:"Wesley",meta:25},
+  {turma:"301",name:"Bianca",meta:25},{turma:"301",name:"Enzo Lucas",meta:25},
+  {turma:"301",name:"Gabrielly",meta:25},{turma:"301",name:"Karen",meta:25},
+  {turma:"301",name:"Kassiane",meta:25},{turma:"301",name:"Keily",meta:100},
+  {turma:"301",name:"Kimberlly",meta:25},{turma:"301",name:"Lara",meta:25},
+  {turma:"301",name:"Leonardo",meta:25},{turma:"301",name:"Lucas Davi",meta:25},
+  {turma:"301",name:"Renan",meta:25},{turma:"301",name:"Sarah",meta:25},
+  {turma:"301",name:"Victor",meta:25},
+  {turma:"ext",name:"Lívia Mikaely",meta:45},
+];
+
+const PAGAMENTOS_INICIAL = {
+};
+
+let state = {pessoas:[...PESSOAS_INICIAL], pagamentos:{...PAGAMENTOS_INICIAL}, ocultas:[]};
+let currentModalPessoa = null;
+let currentEditPessoa = null;
+let mpSelected = 0;
+let mpMax = 0;
+
+// ── Persist ────────────────────────────────────────────────────────────────
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ state = JSON.parse(raw); if(!state.ocultas) state.ocultas=[]; return; }
+  }catch(e){}
+  state = {pessoas:[...PESSOAS_INICIAL], pagamentos:{...PAGAMENTOS_INICIAL}, ocultas:[]};
+}
+
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+// ── Utils ──────────────────────────────────────────────────────────────────
+function fmt(v){ return "R$ " + v.toFixed(2).replace(".",","); }
+function getPago(name){ return state.pagamentos[name] ?? 0; }
+function isTurmaOculta(t){ return state.ocultas.includes(t); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.className = 'show';
+  setTimeout(()=>{ t.className=''; }, 2500);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── Tab switcher ────────────────────────────────────────────────────────────
+function switchTab(tab){
+  const isAdd = tab==='add';
+  document.getElementById('tab-add').style.display = isAdd ? 'block' : 'none';
+  document.getElementById('tab-vis').style.display = isAdd ? 'none' : 'block';
+  const btnAdd = document.getElementById('tab-add-btn');
+  const btnVis = document.getElementById('tab-vis-btn');
+  btnAdd.style.background = isAdd ? '#fff' : 'transparent';
+  btnAdd.style.color = isAdd ? '#0f172a' : '#64748b';
+  btnAdd.style.boxShadow = isAdd ? '0 1px 4px rgba(0,0,0,.08)' : 'none';
+  btnVis.style.background = !isAdd ? '#fff' : 'transparent';
+  btnVis.style.color = !isAdd ? '#0f172a' : '#64748b';
+  btnVis.style.boxShadow = !isAdd ? '0 1px 4px rgba(0,0,0,.08)' : 'none';
+  if(!isAdd) renderVisToggles();
+}
+
+// ── Visibilidade ────────────────────────────────────────────────────────────
+function renderVisToggles(){
+  const turmas = [...new Set(state.pessoas.map(p=>p.turma))];
+  const wrap = document.getElementById('vis-toggles');
+  wrap.innerHTML = turmas.map(t=>{
+    const label = t==='ext' ? 'Externos' : 'Turma '+t;
+    const checked = !isTurmaOculta(t) ? 'checked' : '';
+    return `<div class="turma-toggle-row">
+      <span class="turma-toggle-label">${label}</span>
+      <label class="toggle-switch">
+        <input type="checkbox" ${checked} onchange="toggleTurma('${t}',this.checked)" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function toggleTurma(turma, visible){
+  if(visible){
+    state.ocultas = state.ocultas.filter(t=>t!==turma);
+  } else {
+    if(!state.ocultas.includes(turma)) state.ocultas.push(turma);
+  }
+  saveState();
+  render();
+}
+
+// ══ MODAL PAGAMENTO ════════════════════════════════════════════════════════
+function openModalPagar(name){
+  const p = state.pessoas.find(x=>x.name===name);
+  if(!p) return;
+  currentModalPessoa = p;
+  const pago = getPago(name);
+  mpMax = Math.floor(p.meta / PRICE);
+  mpSelected = Math.floor(pago / PRICE);
+  document.getElementById('mp-turma').textContent = 'Turma ' + p.turma;
+  document.getElementById('mp-nome').textContent = p.name;
+  document.getElementById('mp-meta').textContent = 'Meta: ' + fmt(p.meta) + ' · ' + mpMax + ' rifa' + (mpMax!==1?'s':'');
+  document.getElementById('mp-input').max = p.meta;
+  document.getElementById('mp-input').value = mpSelected * PRICE;
+  renderRifaButtons();
+  openModal('modal-pagar');
+}
+
+function renderRifaButtons(){
+  const wrap = document.getElementById('rifa-buttons');
+  wrap.innerHTML = '';
+  for(let n=1; n<=mpMax; n++){
+    const btn = document.createElement('button');
+    btn.className = 'rifa-btn' + (n<=mpSelected?' sel':'');
+    btn.textContent = n;
+    btn.onclick = ()=>{ mpSelected = (n===mpSelected ? n-1 : n); syncModal(); };
+    wrap.appendChild(btn);
+  }
+  updateMpFeedback();
+}
+
+function syncModal(){
+  document.getElementById('mp-input').value = mpSelected * PRICE;
+  renderRifaButtons();
+}
+
+function onValueInput(){
+  const p = currentModalPessoa;
+  if(!p) return;
+  const v = Math.min(p.meta, Math.max(0, Number(document.getElementById('mp-input').value)));
+  mpSelected = Math.round(v / PRICE);
+  renderRifaButtons();
+}
+
+function updateMpFeedback(){
+  const p = currentModalPessoa;
+  if(!p) return;
+  const fb = document.getElementById('mp-feedback');
+  if(mpSelected===0){ fb.style.color='#ef4444'; fb.textContent='Nenhuma rifa paga'; return; }
+  const txt = mpSelected + ' rifa'+(mpSelected!==1?'s':'') + ' paga'+(mpSelected!==1?'s':'') + ' = ' + fmt(mpSelected*PRICE);
+  if(mpSelected < mpMax){
+    fb.innerHTML = '<span style="color:#16a34a;font-weight:600">'+txt+'</span> <span style="color:#f59e0b;font-weight:600">· falta '+fmt(p.meta - mpSelected*PRICE)+'</span>';
+  } else {
+    fb.innerHTML = '<span style="color:#16a34a;font-weight:600">'+txt+' ✓ Quitado!</span>';
+  }
+}
+
+function savePagamento(){
+  const p = currentModalPessoa;
+  if(!p) return;
+  const val = mpSelected * PRICE;
+  if(val===0) delete state.pagamentos[p.name];
+  else state.pagamentos[p.name] = val;
+  saveState();
+  render();
+  showToast(p.name + ' atualizado!');
+  closeModal('modal-pagar');
+}
+
+// ══ MODAL ADICIONAR ════════════════════════════════════════════════════════
+function openModalAdd(){
+  document.getElementById('add-nome').value='';
+  document.getElementById('add-rifas').value=5;
+  document.getElementById('add-error').textContent='';
+  document.getElementById('add-nova-turma-wrap').style.display='none';
+  document.getElementById('add-nova-turma').value='';
+  updateAddPreco();
+  populateTurmaSelect();
+  switchTab('add');
+  openModal('modal-add');
+}
+
+function populateTurmaSelect(){
+  const sel = document.getElementById('add-turma');
+  const turmas = [...new Set(state.pessoas.map(p=>p.turma))];
+  sel.innerHTML = '<option value="">Selecionar turma…</option>';
+  turmas.forEach(t=>{
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t==='ext' ? 'Externos (ext)' : 'Turma '+t;
+    sel.appendChild(opt);
+  });
+  const opt = document.createElement('option');
+  opt.value='__nova__';
+  opt.textContent='+ Nova turma…';
+  sel.appendChild(opt);
+}
+
+function toggleNovaTurma(){
+  const v = document.getElementById('add-turma').value;
+  document.getElementById('add-nova-turma-wrap').style.display = v==='__nova__' ? 'block' : 'none';
+}
+
+function addRifasDelta(d){
+  const inp = document.getElementById('add-rifas');
+  inp.value = Math.max(1, Number(inp.value)+d);
+  updateAddPreco();
+}
+
+function updateAddPreco(){
+  const r = Math.max(1,Number(document.getElementById('add-rifas').value));
+  document.getElementById('add-preco').textContent = '= ' + fmt(r*PRICE);
+}
+
+function addPessoa(){
+  const nome = document.getElementById('add-nome').value.trim();
+  const turmaRaw = document.getElementById('add-turma').value;
+  const novaTurma = document.getElementById('add-nova-turma').value.trim();
+  const turma = turmaRaw==='__nova__' ? novaTurma : turmaRaw;
+  const rifas = Math.max(1, Number(document.getElementById('add-rifas').value));
+  const errEl = document.getElementById('add-error');
+  if(!nome){errEl.textContent='⚠ Informe o nome.';return;}
+  if(!turma){errEl.textContent='⚠ Informe a turma.';return;}
+  errEl.textContent='';
+  state.pessoas.push({name:nome,turma,meta:rifas*PRICE});
+  saveState();
+  render();
+  showToast(nome + ' adicionado(a)!');
+  closeModal('modal-add');
+}
+
+// ══ MODAL EDITAR ═══════════════════════════════════════════════════════════
+function openModalEdit(name){
+  const p = state.pessoas.find(x=>x.name===name);
+  if(!p) return;
+  currentEditPessoa = p;
+  document.getElementById('ep-turma').textContent = 'Turma ' + p.turma;
+  document.getElementById('ep-nome').textContent = p.name;
+  document.getElementById('ep-nome-del').textContent = p.name;
+  document.getElementById('ep-pago').textContent = 'Já pagou: ' + fmt(getPago(p.name));
+  document.getElementById('ep-rifas').value = Math.floor(p.meta/PRICE);
+  updateEditPreco();
+  hideConfirmDelete();
+  openModal('modal-edit');
+}
+
+function editRifasDelta(d){
+  const inp = document.getElementById('ep-rifas');
+  inp.value = Math.max(1, Number(inp.value)+d);
+  updateEditPreco();
+}
+
+function updateEditPreco(){
+  const p = currentEditPessoa;
+  if(!p) return;
+  const r = Math.max(1,Number(document.getElementById('ep-rifas').value));
+  document.getElementById('ep-preco').textContent = '= ' + fmt(r*PRICE);
+  const pago = getPago(p.name);
+  document.getElementById('ep-warning').textContent = pago > r*PRICE
+    ? '⚠ O valor já pago ('+fmt(pago)+') é maior que a nova meta. O pagamento será ajustado.' : '';
+}
+
+function saveEditPessoa(){
+  const p = currentEditPessoa;
+  if(!p) return;
+  const rifas = Math.max(1,Number(document.getElementById('ep-rifas').value));
+  const novaMeta = rifas * PRICE;
+  state.pessoas = state.pessoas.map(x=>x.name===p.name ? {...x,meta:novaMeta} : x);
+  if(state.pagamentos[p.name]!==undefined && state.pagamentos[p.name]>novaMeta)
+    state.pagamentos[p.name] = novaMeta;
+  saveState();
+  render();
+  showToast(p.name + ' atualizado!');
+  closeModal('modal-edit');
+}
+
+function showConfirmDelete(){ document.getElementById('confirm-delete-wrap').style.display='none'; document.getElementById('confirm-delete-confirm').style.display='block'; }
+function hideConfirmDelete(){ document.getElementById('confirm-delete-wrap').style.display='block'; document.getElementById('confirm-delete-confirm').style.display='none'; }
+
+function removePessoa(){
+  const p = currentEditPessoa;
+  if(!p) return;
+  state.pessoas = state.pessoas.filter(x=>x.name!==p.name);
+  delete state.pagamentos[p.name];
+  saveState();
+  render();
+  showToast(p.name + ' removido(a).');
+  closeModal('modal-edit');
+}
+
+// ══ EXPORTAR PDF ════════════════════════════════════════════════════════════
+function exportarPDF(){ window.print(); }
+
+// ══ SALVAR HTML COM DADOS EMBUTIDOS ════════════════════════════════════════
+function salvarHTML(){
+  const template = document.documentElement.outerHTML;
+  // Injeta os dados atuais no script de inicialização
+  const dadosJSON = JSON.stringify(state);
+  const novoHTML = template.replace(
+    /\/\/ ══ INIT ══+\nloadState\(\);/,
+    `// ══ INIT ══════════════════════════════════════════════════════════════════════\nstate = ${dadosJSON}; if(!state.ocultas) state.ocultas=[];`
+  );
+  const blob = new Blob([novoHTML], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rifa_controle.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Arquivo HTML salvo!');
+}
+
+// ══ RENDER ══════════════════════════════════════════════════════════════════
+function render(){ renderCards(); renderTables(); }
+
+function renderCards(){
+  const visiveis = state.pessoas.filter(p=>!isTurmaOculta(p.turma));
+  const naoExtras = visiveis.filter(p=>p.turma!=='ext');
+  const totalMeta = naoExtras.reduce((s,p)=>s+p.meta,0);
+  const totalRecebido = visiveis.reduce((s,p)=>s+(state.pagamentos[p.name]??0),0);
+  const totalFalta = Math.max(0, totalMeta - totalRecebido);
+  const totalRifas = naoExtras.reduce((s,p)=>s+Math.floor(p.meta/PRICE),0);
+  const pagantes = visiveis.filter(p=>getPago(p.name)>0).length;
+  const semPagar = naoExtras.filter(p=>getPago(p.name)===0).length;
+  const pct = totalMeta>0 ? Math.min(100,(totalRecebido/totalMeta)*100).toFixed(1) : '0.0';
+
+  document.getElementById('cards').innerHTML = `
+    <div class="card">
+      <div class="card-label">Arrecadado</div>
+      <div class="card-value" style="color:#22c55e">${fmt(totalRecebido)}</div>
+      <div class="card-sub">de ${fmt(totalMeta)}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-pct">${pct}%</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Falta arrecadar</div>
+      <div class="card-value" style="color:#f59e0b">${fmt(totalFalta)}</div>
+      <div class="card-sub">${semPagar} sem pagar</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total de rifas</div>
+      <div class="card-value" style="color:#6366f1">${totalRifas}</div>
+      <div class="card-sub">rifas na campanha</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Já pagaram</div>
+      <div class="card-value" style="color:#0f172a">${pagantes}</div>
+      <div class="card-sub">de ${naoExtras.length} participantes</div>
+    </div>
+  `;
+}
+
+function renderPersonRow(p){
+  const pago = getPago(p.name);
+  const status = pago===0 ? 'none' : pago>=p.meta ? 'full' : 'partial';
+  const rifasMeta = Math.floor(p.meta/PRICE);
+  const pct = Math.min(100,(pago/p.meta)*100);
+  const dotColor = status==='full'?'#22c55e':status==='partial'?'#f59e0b':'#ef4444';
+  const amtColor = status==='full'?'#16a34a':status==='partial'?'#b45309':'#ef4444';
+  const progressBar = pago>0&&pago<p.meta
+    ? `<div style="padding-left:16px;margin-top:4px"><div style="height:3px;background:#f1f5f9;border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#f59e0b;border-radius:99px"></div></div></div>` : '';
+  const amtCell = pago>0
+    ? `<span style="font-weight:700;font-size:.85rem;color:${amtColor}">${status==='full'?'✓ ':''}${fmt(pago)}</span>`
+    : `<span style="color:#cbd5e1;font-size:.85rem">—</span>`;
+
+  return `<tr>
+    <td style="padding:10px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>
+        <span style="font-weight:600;font-size:.88rem">${p.name}</span>
+      </div>${progressBar}
+    </td>
+    <td style="padding:10px 8px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:.82rem;color:#94a3b8">${rifasMeta}x</td>
+    <td style="padding:10px 8px;border-bottom:1px solid #f1f5f9;text-align:right">${amtCell}</td>
+    <td style="padding:10px 8px;border-bottom:1px solid #f1f5f9;text-align:center" class="no-print">
+      <div style="display:flex;gap:4px;justify-content:center">
+        <button class="btn-pencil" onclick="openModalPagar('${escAttr(p.name)}')">✏️</button>
+        <button class="btn-gear" onclick="openModalEdit('${escAttr(p.name)}')">⚙️</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function renderTableSection(lista, title, hidden){
+  const rows = lista.map(renderPersonRow).join('');
+  const hiddenClass = hidden ? ' turma-hidden-section' : '';
+  const hiddenStyle = hidden ? 'display:none' : '';
+  return `<div class="table-section${hiddenClass}" style="${hiddenStyle}">
+    <div class="section-title">${title}<span class="badge-purple">${lista.length} pessoas</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Nome</th><th style="text-align:right">Rifas</th>
+          <th style="text-align:right">Pago</th>
+          <th style="text-align:center" class="no-print"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderTables(){
+  const turmasUnicas = [...new Set(state.pessoas.map(p=>p.turma))];
+  const t302 = state.pessoas.filter(p=>p.turma==='302');
+  const t301 = state.pessoas.filter(p=>p.turma==='301');
+  const extras = state.pessoas.filter(p=>p.turma==='ext');
+  const outras = turmasUnicas.filter(t=>t!=='302'&&t!=='301'&&t!=='ext');
+
+  let html = '';
+  if(t302.length>0||t301.length>0){
+    html += `<div class="tables-grid">`;
+    if(t302.length>0) html += renderTableSection(t302,'Turma 302', isTurmaOculta('302'));
+    if(t301.length>0) html += renderTableSection(t301,'Turma 301', isTurmaOculta('301'));
+    html += `</div>`;
+  }
+  if(extras.length>0){
+    html += `<div style="max-width:900px;margin:0 auto 24px">${renderTableSection(extras,'Externos', isTurmaOculta('ext'))}</div>`;
+  }
+  if(outras.length>0){
+    html += `<div class="tables-grid">`;
+    outras.forEach(t=>{
+      const lista = state.pessoas.filter(p=>p.turma===t);
+      html += renderTableSection(lista,'Turma '+t, isTurmaOculta(t));
+    });
+    html += `</div>`;
+  }
+  document.getElementById('tables-container').innerHTML = html;
+}
+
+function escAttr(s){ return s.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+
+// ══ INIT ══════════════════════════════════════════════════════════════════════
+loadState();
+render();
+
+document.getElementById('modal-pagar').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-pagar'); });
+</script>
+</body>
+</html>
