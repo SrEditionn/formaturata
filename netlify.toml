@@ -17,6 +17,21 @@
   to = "/rifa-view.html"
   status = 200
 
+[[redirects]]
+  from = "/buffet-view"
+  to = "/buffet-view.html"
+  status = 200
+
+[[redirects]]
+  from = "/buffetview"
+  to = "/buffet-view.html"
+  status = 200
+
+[[redirects]]
+  from = "/buffet"
+  to = "/buffet-view.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]

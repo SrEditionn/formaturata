@@ -70,8 +70,6 @@
 
   /* Logs Panel */
 
-  /* Mensal Panel */
-
   /* Rifas Panel */
 
   /* Overlays/Modals */
@@ -862,7 +860,6 @@
     margin-top: 6px;
   }
   .btn-rifas-toggle:hover { border-color: #A78BFA; color: #A78BFA; background: rgba(167,139,250,.12); }
-  .btn-mensal-toggle:hover { border-color: #34D399; color: #34D399; background: rgba(52,211,153,.12); }
 
   /* ── RIFA EM ANDAMENTO: brilho no botão do cabeçalho ── */
   .rifa-live-dot { display: none; width: 6px; height: 6px; border-radius: 50%; background: #34D399; box-shadow: 0 0 6px #34D399; }
@@ -902,120 +899,26 @@
   }
   .btn-add-arrecadacao:hover { border-color: #34D399; background: rgba(52,211,153,.1); }
 
-  /* ── PAINEL MENSAL ── */
-  #mensalPanel { position: fixed; inset: 0; z-index: 300; display: none; }
-  #mensalPanel.open { display: flex; }
-  #mensalPanelBg { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
-  #mensalPanelContent {
-    position: relative; margin-left: auto; width: min(520px, 100%);
-    height: 100%; background: var(--bg); overflow-y: auto;
-    display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,.12);
-  }
-  #mensalPanelHeader {
-    background: linear-gradient(135deg, #059669 0%, rgba(52,211,153,.3) 100%);
-    padding: 18px 18px 14px; position: sticky; top: 0; z-index: 1000;
-  }
-  .mensal-panel-title {
-    font-size: 17px; font-weight: 800; color: white;
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
-  }
-  .mensal-panel-close {
-    background: rgba(255,255,255,.08); border: 1px solid var(--border); border-radius: 8px;
-    width: 30px; height: 30px; color: white; font-size: 14px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .mensal-panel-stats { display: flex; gap: 8px; }
-  .mensal-stat {
-    background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 10px;
-    padding: 8px 14px; color: white; font-size: 12px; font-weight: 600;
-    flex: 1; text-align: center;
-  }
-  .mensal-stat-value { font-size: 16px; font-weight: 800; display: block; margin-bottom: 2px; }
-  .mensal-config-row {
-    display: flex; gap: 8px; padding: 12px 16px 0; align-items: center; flex-wrap: wrap;
-  }
-  .mensal-config-btn {
-    background: rgba(52,211,153,.06); border: 1.5px solid rgba(52,211,153,.25); border-radius: 10px;
-    padding: 8px 14px; font-size: 12px; font-weight: 600; color: #34D399;
-    cursor: pointer; display: flex; align-items: center; gap: 5px;
-    transition: all .15s; font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-  .mensal-config-btn:hover { background: rgba(52,211,153,.1); border-color: #34D399; }
-  .mensal-body { padding: 14px 16px 30px; }
-  .mensal-mes-card {
-    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
-    margin-bottom: 12px; overflow: hidden; box-shadow: none;
-  }
-  .mensal-mes-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 13px 16px; cursor: pointer; background: var(--white);
-    border-bottom: 1px solid var(--border); transition: background .12s;
-  }
-  .mensal-mes-header:hover { background: rgba(255,255,255,.04); }
-  .mensal-mes-header.open { border-bottom-color: #1E1E26; }
-  .mensal-mes-title { font-size: 14px; font-weight: 800; color: var(--text); }
-  .mensal-mes-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .mensal-mes-right { display: flex; align-items: center; gap: 8px; }
-  .mensal-mes-total { font-size: 15px; font-weight: 800; color: #34D399; }
-  .mensal-mes-chevron { font-size: 12px; color: var(--muted); transition: transform .2s; }
-  .mensal-mes-header.open .mensal-mes-chevron { transform: rotate(90deg); }
-  .mensal-mes-body { display: none; }
-  .mensal-mes-body.open { display: block; }
-  .mensal-aluno-row {
-    display: flex; align-items: center; padding: 9px 16px;
-    border-bottom: 1px solid var(--border); gap: 10px;
-    transition: background .1s; cursor: pointer;
-  }
-  .mensal-aluno-row:last-child { border-bottom: none; }
-  .mensal-aluno-row:hover { background: rgba(255,255,255,.04); }
-  .mensal-aluno-dot {
-    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
-    background: rgba(52,211,153,.1); border: 2px solid rgba(52,211,153,.25); transition: all .15s;
-  }
-  .mensal-aluno-dot.pago { background: #34D399; border-color: rgba(52,211,153,.6); }
-  .mensal-aluno-nome { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
-  .mensal-aluno-turma { font-size: 10px; color: var(--muted); font-weight: 600; margin-right: 2px; }
-  .mensal-aluno-valor {
-    font-size: 12px; font-weight: 700; color: #34D399;
-    background: rgba(52,211,153,.1); border-radius: 8px; padding: 3px 9px; display: none;
-  }
-  .mensal-aluno-row.pago .mensal-aluno-valor { display: block; }
-  .mensal-aluno-row.pago .mensal-aluno-nome { color: #34D399; }
-  .mensal-total-btn {
-    margin: 8px 16px 12px;
-    background: linear-gradient(135deg, rgba(52,211,153,.2), rgba(52,211,153,.12));
-    color: #34D399; border: 1.5px solid rgba(52,211,153,.35); border-radius: 12px;
-    padding: 12px 18px; font-size: 13px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; gap: 8px;
-    transition: opacity .15s; font-family: 'Plus Jakarta Sans', sans-serif;
-    width: calc(100% - 32px);
-  }
-  .mensal-total-btn:hover { opacity: .88; }
-  .mensal-total-badge {
-    background: rgba(255,255,255,.08); border: 1px solid var(--border); border-radius: 8px;
-    padding: 2px 10px; font-size: 13px; font-weight: 800; margin-left: auto;
-  }
-  .mensal-pag-info {
-    background: rgba(52,211,153,.06);
-    border: 1px solid rgba(52,211,153,.2);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
-  }
-  .mensal-pag-nome { font-size: 15px; font-weight: 800; color: var(--text); }
-  .mensal-pag-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  #rifasPanel {
+  /* ── BOTÃO DO BUFFET ── */
+  .btn-buffet-toggle:hover { border-color: #34D399; color: #34D399; background: rgba(52,211,153,.12); }
+  .bf-sub { font-size: .66rem; color: var(--muted); padding-left: 14px; margin-top: 2px; }
+  .bf-extra { background: rgba(167,139,250,.15); color: #A78BFA; border-radius: 99px; padding: 0 6px; font-weight: 700; margin-left: 2px; }
+  .arrecadacao-card-sub { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-top: 3px; }
+
+  #rifasPanel, #buffetPanel {
     position: fixed;
     inset: 0;
     z-index: 300;
     display: none;
   }
-  #rifasPanel.open { display: flex; }
+  #rifasPanel.open, #buffetPanel.open { display: flex; }
 
-  #rifasPanelBg {
+  #rifasPanelBg, #buffetPanelBg {
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,.45);
   }
-  #rifasPanelContent {
+  #rifasPanelContent, #buffetPanelContent {
     position: relative;
     margin-left: auto;
     width: min(520px, 100%);
@@ -1028,7 +931,7 @@
   }
 
   /* Header do painel */
-  #rifasPanelHeader {
+  #rifasPanelHeader, #buffetPanelHeader {
     background: var(--white);
     border-bottom: 1px solid var(--border);
     padding: 16px 18px 12px;
@@ -1418,7 +1321,7 @@
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-rifas-toggle" id="btnRifasToggle" onclick="openRifasPanel()">🎟️ rifas<span class="rifa-live-dot" title="Rifa em andamento"></span></button>
-      <button class="btn-rifas-toggle btn-mensal-toggle" onclick="openMensalPanel()" style="display:none">📅 arrecadação mensal</button>
+      <button class="btn-rifas-toggle btn-buffet-toggle" onclick="openBuffetPanel()">🍽️ buffet</button>
     </div>
   </div>
   <div class="totals-row" id="totalsRow"></div>
@@ -1621,78 +1524,9 @@
       <div id="rf-atual-body"></div>
     </div>
 
-    <!-- ── ABA 2: RIFA NAMORADOS (finalizada, só visualização) ── -->
+    <!-- ── ABA 2: RIFA DOS NAMORADOS (Firestore: formatura/rifa1) ── -->
     <div class="rifas-tab-content" id="rtab-namorados">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:13px;font-weight:700;color:#EDEDF0">Dias dos Namorados</span>
-        <span class="badge-finalizado">✓ Finalizada</span>
-      </div>
-      <p style="font-size:.72rem;color:#94a3b8;margin-bottom:12px">Valor unit.: R$ 5,00 · Somente visualização.</p>
-
-      <!-- Cards de resumo -->
-      <div class="rifa-cards">
-        <div class="rifa-card">
-          <div class="rifa-card-label">Arrecadado</div>
-          <div class="rifa-card-value" style="color:#34D399">R$ 815,00</div>
-          <div class="rifa-card-sub">de R$ 815,00</div>
-          <div class="rifa-progress-bar"><div class="rifa-progress-fill" style="width:100%"></div></div>
-          <div class="rifa-progress-pct">100%</div>
-        </div>
-        <div class="rifa-card">
-          <div class="rifa-card-label">Falta arrecadar</div>
-          <div class="rifa-card-value" style="color:#f59e0b">R$ 0,00</div>
-          <div class="rifa-card-sub">0 sem pagar</div>
-        </div>
-        <div class="rifa-card">
-          <div class="rifa-card-label">Total de rifas</div>
-          <div class="rifa-card-value" style="color:#A78BFA">163</div>
-          <div class="rifa-card-sub">rifas na campanha</div>
-        </div>
-        <div class="rifa-card">
-          <div class="rifa-card-label">Já pagaram</div>
-          <div class="rifa-card-value" style="color:#EDEDF0">29</div>
-          <div class="rifa-card-sub">de 29 participantes</div>
-        </div>
-      </div>
-
-      <!-- Tabela Turma 302 -->
-      <div class="rifa-section-title">Turma 302 <span class="badge-purple">18 pessoas</span></div>
-      <div class="rifa-table-wrap">
-        <table>
-          <thead><tr>
-            <th>Nome</th>
-            <th style="text-align:right">Rifas</th>
-            <th style="text-align:right">Pago</th>
-          </tr></thead>
-          <tbody id="rifa1-302"></tbody>
-        </table>
-      </div>
-
-      <!-- Tabela Turma 301 -->
-      <div class="rifa-section-title">Turma 301 <span class="badge-purple">10 pessoas</span></div>
-      <div class="rifa-table-wrap">
-        <table>
-          <thead><tr>
-            <th>Nome</th>
-            <th style="text-align:right">Rifas</th>
-            <th style="text-align:right">Pago</th>
-          </tr></thead>
-          <tbody id="rifa1-301"></tbody>
-        </table>
-      </div>
-
-      <!-- Tabela Professor(a) -->
-      <div class="rifa-section-title">Professor(a) <span class="badge-purple">1 pessoa</span></div>
-      <div class="rifa-table-wrap">
-        <table>
-          <thead><tr>
-            <th>Nome</th>
-            <th style="text-align:right">Rifas</th>
-            <th style="text-align:right">Pago</th>
-          </tr></thead>
-          <tbody id="rifa1-prof"></tbody>
-        </table>
-      </div>
+      <div id="rf-namorados-body"></div>
     </div>
 
   </div><!-- fim #rifasPanelContent -->
@@ -2001,99 +1835,110 @@
   </div>
 </div><!-- fim #logsPanel -->
 
-<!-- ══ PAINEL MENSAL ══ -->
-<div id="mensalPanel">
-  <div id="mensalPanelBg" onclick="closeMensalPanel()"></div>
-  <div id="mensalPanelContent">
-    <div id="mensalPanelHeader">
-      <div class="mensal-panel-title">
-        📅 Arrecadação Mensal
-        <button class="mensal-panel-close" onclick="closeMensalPanel()">✕</button>
-      </div>
-      <div class="mensal-panel-stats">
-        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalGeral">R$ 0,00</span>total arrecadado</div>
-        <div class="mensal-stat"><span class="mensal-stat-value" id="mensalTotalPessoas">0</span>pagamentos</div>
+<!-- ══ PAINEL DO BUFFET (Firestore: formatura/buffet) ══ -->
+<div id="buffetPanel">
+  <div id="buffetPanelBg" onclick="closeBuffetPanel()"></div>
+  <div id="buffetPanelContent">
+    <div id="buffetPanelHeader">
+      <div class="rifas-panel-title" style="margin-bottom:0">
+        🍽️ Controle do Buffet
+        <button class="rifas-panel-close" onclick="closeBuffetPanel()">✕</button>
       </div>
     </div>
-    <div class="mensal-config-row">
-      <button class="mensal-config-btn" onclick="openMensalInicioModal()">➕ Adicionar mês</button>
-      <button class="mensal-config-btn" style="color:#F87171;border-color:rgba(248,113,113,.15);" onclick="resetMensalData()">🗑 Limpar tudo</button>
-    </div>
-    <div class="mensal-body" id="mensalBody">
-      <div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
-        <div style="font-size:30px;margin-bottom:10px">📅</div>
-        <div style="font-weight:600;">Nenhum mês cadastrado</div>
-        <div style="margin-top:6px;font-size:12px;">Clique em "Adicionar mês" para começar</div>
-      </div>
+    <div class="rifas-tab-content active" id="bf-wrap">
+      <div id="bf-body"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ MODAL: PAGAMENTO DE ALUNO ══ -->
-<div id="mensalPagOverlay" onclick="closeMensalPagModal(event)" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;">
-  <div id="mensalPagModal" style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
+<!-- ══ MODAIS DO BUFFET ══ -->
+<!-- Registrar pagamento -->
+<div class="rf-overlay" id="bfModalPagar" onclick="bfCloseModal(event,'bfModalPagar')">
+  <div class="rf-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">💰 Registrar pagamento</div>
-    <div class="mensal-pag-info">
-      <div class="mensal-pag-nome" id="mensalPagNome">—</div>
-      <div class="mensal-pag-sub" id="mensalPagSub">—</div>
+    <div style="margin-bottom:18px">
+      <div class="rf-kicker" id="bfp-turma"></div>
+      <div class="rf-nome" id="bfp-nome"></div>
+      <div class="rf-meta" id="bfp-meta"></div>
     </div>
     <div class="field">
       <label>Valor pago (R$)</label>
-      <input type="number" id="mensalPagValor" placeholder="Ex: 10.00" step="0.01" min="0"
-        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
+      <input type="number" id="bfp-input" min="0" step="0.01" placeholder="0,00" oninput="bfFeedback()">
+      <div class="rf-feedback" id="bfp-feedback"></div>
     </div>
-    <button class="btn-confirm" onclick="confirmarPagamentoMensal()" style="background:linear-gradient(135deg,#059669,rgba(52,211,153,.3));margin-top:8px;">✓ Confirmar pagamento</button>
-    <button onclick="closeMensalPagModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #1E1E26;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+    <div class="rf-actions" style="margin-bottom:6px">
+      <button class="rf-btn rf-btn-green" onclick="bfQuitar()">✓ Quitar tudo</button>
+      <button class="rf-btn rf-btn-ghost" onclick="bfZerar()">Zerar</button>
+    </div>
+    <div class="rf-btnrow">
+      <button class="rf-btn-cancel" onclick="bfCloseModal(null,'bfModalPagar',true)">Cancelar</button>
+      <button class="btn-confirm" style="background:linear-gradient(135deg,#059669,rgba(52,211,153,.3))" onclick="bfSalvarPagamento()">✓ Salvar pagamento</button>
+    </div>
   </div>
 </div>
 
-<!-- ══ MODAL: ATRIBUIR TOTAL MENSAL A CATEGORIA ══ -->
-<div id="mensalAtribuirOverlay" onclick="closeMensalAtribuirModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div id="mensalAtribuirModal" style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
+<!-- Adicionar pessoa -->
+<div class="rf-overlay" id="bfModalAdd" onclick="bfCloseModal(event,'bfModalAdd')">
+  <div class="rf-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">📊 Adicionar total à categoria</div>
-    <div class="mensal-pag-info">
-      <div class="mensal-pag-nome" id="mensalAtribuirMes">—</div>
-      <div class="mensal-pag-sub" id="mensalAtribuirValor">—</div>
-    </div>
+    <div class="modal-title" style="margin-bottom:16px">Nova pessoa no buffet</div>
+    <div class="field"><label>Nome do aluno</label><input type="text" id="bfa-nome" placeholder="Ex: João Silva" maxlength="40"></div>
+    <div class="field"><label>Turma</label><select id="bfa-turma" onchange="bfToggleNovaTurma()"></select></div>
+    <div class="field" id="bfa-nova-wrap" style="display:none"><label>Nome da nova turma</label><input type="text" id="bfa-nova" placeholder="Ex: 303" maxlength="20"></div>
     <div class="field">
-      <label>Categoria</label>
-      <select id="mensalAtribuirCat" onchange="onMensalAtribuirCatChange()" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
-        <option value="">Selecione uma categoria...</option>
-      </select>
-      <label>Entrada</label>
-      <select id="mensalAtribuirEntry" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none">
-        <option value="">Selecione uma entrada...</option>
-      </select>
+      <label>Quantidade de convidados</label>
+      <div class="rf-stepper">
+        <button onclick="bfAddDelta(-1)">−</button>
+        <input type="number" id="bfa-conv" min="0" value="2" oninput="bfAddPrecoInput()">
+        <button onclick="bfAddDelta(1)">+</button>
+        <span id="bfa-preco"></span>
+      </div>
     </div>
-    <button class="btn-confirm" onclick="confirmarAtribuirMensal()" style="background:linear-gradient(135deg,#059669,rgba(52,211,153,.3));margin-top:8px;">✓ Adicionar à entrada</button>
-    <button onclick="closeMensalAtribuirModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #1E1E26;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+    <div class="field"><label>Quem vai <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label><input type="text" id="bfa-obs" placeholder="Ex: Pai e mãe" maxlength="40"></div>
+    <div class="rf-error" id="bfa-error"></div>
+    <div class="rf-btnrow">
+      <button class="rf-btn-cancel" onclick="bfCloseModal(null,'bfModalAdd',true)">Cancelar</button>
+      <button class="btn-confirm" onclick="bfAddPessoa()">Adicionar</button>
+    </div>
   </div>
 </div>
 
-<!-- ══ MODAL: MÊS INICIAL ══ -->
-<div id="mensalInicioOverlay" onclick="closeMensalInicioModal(event)" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.6);">
+<!-- Editar pessoa -->
+<div class="rf-overlay" id="bfModalEdit" onclick="bfCloseModal(event,'bfModalEdit')">
+  <div class="rf-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">📅 Mês inicial da arrecadação</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Escolha o mês de início. Os meses até dezembro serão criados automaticamente.</p>
-    <div class="field">
-      <label>Mês inicial</label>
-      <select id="mensalInicioMes" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:10px">
-        <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-        <option value="3">Março</option><option value="4">Abril</option>
-        <option value="5">Maio</option><option value="6">Junho</option>
-        <option value="7">Julho</option><option value="8">Agosto</option>
-        <option value="9">Setembro</option><option value="10">Outubro</option>
-        <option value="11">Novembro</option><option value="12">Dezembro</option>
-      </select>
-      <label>Valor mensal padrão (R$)</label>
-      <input type="number" id="mensalValorPadrao" value="10" step="0.01" min="0"
-        style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;box-sizing:border-box;">
+    <div style="margin-bottom:18px">
+      <div class="rf-kicker" id="bfe-turma"></div>
+      <div class="rf-meta" id="bfe-pago"></div>
     </div>
-    <button class="btn-confirm" onclick="confirmarMesInicial()" style="background:linear-gradient(135deg,#059669,rgba(52,211,153,.3));margin-top:8px;">✓ Criar meses</button>
-    <button onclick="closeMensalInicioModal(null,true)" style="width:100%;margin-top:8px;background:none;border:1.5px solid #1E1E26;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Cancelar</button>
+    <div class="field"><label>Nome</label><input type="text" id="bfe-nome" maxlength="40"></div>
+    <div class="field">
+      <label>Quantidade de convidados</label>
+      <div class="rf-stepper">
+        <button onclick="bfEditDelta(-1)">−</button>
+        <input type="number" id="bfe-conv" min="0" oninput="bfUpdateEditPreco()">
+        <button onclick="bfEditDelta(1)">+</button>
+        <span id="bfe-preco"></span>
+      </div>
+      <div class="rf-warn" id="bfe-warning" style="margin-top:8px;font-size:.8rem;min-height:18px"></div>
+    </div>
+    <div class="field"><label>Quem vai <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label><input type="text" id="bfe-obs" placeholder="Ex: Pai e mãe" maxlength="40"></div>
+    <div class="rf-btnrow" style="margin-bottom:14px">
+      <button class="rf-btn-cancel" onclick="bfCloseModal(null,'bfModalEdit',true)">Cancelar</button>
+      <button class="btn-confirm" onclick="bfSaveEdit()">Salvar alteração</button>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:14px">
+      <div id="bfe-del-wrap">
+        <button onclick="bfShowConfirmDelete()" style="width:100%;padding:11px;border-radius:12px;border:1.5px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:#F87171;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit">🗑 Remover <span id="bfe-nome-del"></span></button>
+      </div>
+      <div id="bfe-del-confirm" style="display:none">
+        <div style="font-size:.82rem;color:#F87171;font-weight:600;text-align:center;margin-bottom:8px">Tem certeza? Isso apagará também os pagamentos.</div>
+        <div class="rf-btnrow">
+          <button class="rf-btn-cancel" onclick="bfHideConfirmDelete()">Não</button>
+          <button class="btn-confirm" style="background:#ef4444" onclick="bfRemover()">Sim, remover</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2210,7 +2055,7 @@
       startLogsRealtimeSync();
       if (window._startPixRealtimeSync) window._startPixRealtimeSync();
       if (window._startArrecadacoesSync) window._startArrecadacoesSync();
-      if (window._startMensalSync) window._startMensalSync();
+      if (window._startBuffetSync) window._startBuffetSync();
       if (window._startRifa2Sync) window._startRifa2Sync();
     } catch(e) {
       alert('Erro ao conectar: verifique o Project ID.\n' + e.message);
@@ -3146,37 +2991,11 @@ const EXPORTED_DATA = ${dataJson};
 
   function fmtRifa(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
 
-  function renderRifa1Row(p) {
-    return `<tr>
-      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;vertical-align:middle">
-        <div style="display:flex;align-items:center;gap:7px">
-          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34D399;flex-shrink:0"></span>
-          <span style="font-weight:600;font-size:.85rem">${p.name}</span>
-        </div>
-      </td>
-      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;text-align:right;font-size:.8rem;color:#94a3b8">${p.rifas}×</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #0E0E11;text-align:right">
-        <span style="font-weight:700;font-size:.82rem;color:#34D399">✓ ${fmtRifa(p.pago)}</span>
-      </td>
-    </tr>`;
-  }
-
-  function buildRifa1Table() {
-    ['302','301','prof'].forEach(t => {
-      const tbody = document.getElementById('rifa1-' + t);
-      if (tbody && RIFA1_DATA[t]) {
-        tbody.innerHTML = RIFA1_DATA[t].map(renderRifa1Row).join('');
-      }
-    });
-  }
-
   // Painel abrir/fechar
   window.openRifasPanel = function(tab) {
-    buildRifa1Table();
     document.getElementById('rifasPanel').classList.add('open');
     document.body.style.overflow = 'hidden';
     switchRifaTab(typeof tab === 'string' ? tab : 'atual');
-    renderRifa2();
   };
 
   window.closeRifasPanel = function() {
@@ -3187,10 +3006,14 @@ const EXPORTED_DATA = ${dataJson};
 
   // Troca de abas: 'atual' (em andamento) | 'namorados' (finalizada)
   window.switchRifaTab = function(t) {
+    if (t !== 'atual' && t !== 'namorados') t = 'atual';
+    rfCloseAllModals();
+    rfUse(t);
     ['atual', 'namorados'].forEach(k => {
       document.getElementById('rtab-' + k).classList.toggle('active', k === t);
       document.getElementById('rtab-btn-' + k).classList.toggle('active', k === t);
     });
+    renderRifa2();
   };
 
   // ═══════════════════════════════════════════════════════
@@ -3230,8 +3053,17 @@ const EXPORTED_DATA = ${dataJson};
   const RIFA_TURMAS_PADRAO = ['302', '301', 'ext'];
 
   const rifa2Vazia = () => ({ titulo: 'Nova rifa', status: 'ativa', pessoas: [], pagamentos: {}, ocultas: [], transferido: null, seeded: false });
-  let rifa2 = rifa2Vazia();
-  let ignoreNextRifa2Snap = false;
+  // Duas rifas com o MESMO motor: 'atual' (formatura/rifa2) e 'namorados' (formatura/rifa1).
+  // `rifa2` aponta sempre para a rifa da aba aberta (rfCur) — todas as funções rf* usam ela.
+  const RF_DOCS = { atual: 'rifa2', namorados: 'rifa1' };
+  const rfStore = {
+    atual: rifa2Vazia(),
+    namorados: { ...rifa2Vazia(), titulo: 'Dia dos Namorados', status: 'finalizada' }
+  };
+  let rfCur = 'atual';
+  let rifa2 = rfStore.atual;
+  const ignoreNextRifaSnap = { atual: false, namorados: false };
+  function rfUse(k) { rfCur = k; rifa2 = rfStore[k]; }
   let rfPagarId = null, rfEditId = null, rfSel = 0, rfMax = 0;
 
   const $rf = id => document.getElementById(id);
@@ -3249,40 +3081,78 @@ const EXPORTED_DATA = ${dataJson};
     return { ...rifa2Vazia(), ...d, pessoas: d.pessoas || [], pagamentos: d.pagamentos || {}, ocultas: d.ocultas || [], transferido: d.transferido || null };
   }
 
-  function saveRifa2() {
+  function saveRifa2(k) {
+    k = k || rfCur;
     if (!db) return;
     setSyncStatus('syncing', 'Salvando...');
-    ignoreNextRifa2Snap = true;
-    setDoc(doc(db, 'formatura', 'rifa2'), { ...rifa2, updatedAt: Date.now() })
+    ignoreNextRifaSnap[k] = true;
+    setDoc(doc(db, 'formatura', RF_DOCS[k]), { ...rfStore[k], updatedAt: Date.now() })
       .then(() => setSyncStatus('saved', '✓ Sincronizado'))
-      .catch(() => { ignoreNextRifa2Snap = false; setSyncStatus('error', '⚠ Erro ao salvar'); });
+      .catch(() => { ignoreNextRifaSnap[k] = false; setSyncStatus('error', '⚠ Erro ao salvar'); });
   }
 
   // Salva + redesenha (usado depois de toda alteração)
   function rifa2Commit() { saveRifa2(); rifa2Refresh(); }
 
-  function rifa2AplicarSeed() {
-    if (rifa2.seeded || !RIFA2_SEED.length || rifa2.pessoas.length) return;
-    rifa2.pessoas = RIFA2_SEED.map((p, i) => ({ id: 's' + i, turma: String(p.turma), name: p.name, meta: p.meta }));
-    rifa2.seeded = true;
-    saveRifa2();
+  function rifa2AplicarSeed(k) {
+    const r = rfStore[k];
+    if (r.seeded || r.pessoas.length) return;
+    if (k === 'atual') {
+      if (!RIFA2_SEED.length) return;
+      r.pessoas = RIFA2_SEED.map((p, i) => ({ id: 's' + i, turma: String(p.turma), name: p.name, meta: p.meta }));
+      r.seeded = true;
+      saveRifa2('atual');
+      return;
+    }
+    // Namorados: traz os dados que antes eram fixos no código (R$ 815, 29 pessoas) para o Firestore,
+    // para a rifa ficar editável igual à outra. O valor JÁ foi lançado na tabela principal,
+    // então marcamos como enviado (legacy) para não ofertar enviar de novo (duplicaria o total).
+    const pessoas = [], pagamentos = {};
+    let i = 0, total = 0;
+    ['302', '301', 'prof'].forEach(t => (RIFA1_DATA[t] || []).forEach(p => {
+      const id = 'n' + (i++);
+      pessoas.push({ id, turma: t, name: p.name, meta: p.rifas * RIFA_PRICE });
+      pagamentos[id] = p.pago;
+      total += p.pago;
+    }));
+    r.pessoas = pessoas;
+    r.pagamentos = pagamentos;
+    r.titulo = 'Dia dos Namorados';
+    r.status = 'finalizada';
+    r.transferido = { legacy: true, catName: '', entryDesc: '', valor: total, ts: 0 };
+    r.seeded = true;
+    saveRifa2('namorados');
+  }
+
+  function rfUpdateTabLabels() {
+    const a = $rf('rtab-btn-atual'), n = $rf('rtab-btn-namorados');
+    if (a) a.textContent = rfStore.atual.status === 'ativa' ? '✨ Em andamento' : '🏁 Finalizada';
+    if (n) n.textContent = rfStore.namorados.status === 'ativa' ? '🌹 Namorados (em andamento)' : '🌹 Namorados (finalizada)';
   }
 
   // Atualiza o brilho do botão do cabeçalho e o painel (se estiver aberto)
   function rifa2Refresh() {
     const b = $rf('btnRifasToggle');
-    if (b) b.classList.toggle('rifa-live', rifa2.status === 'ativa');
+    if (b) b.classList.toggle('rifa-live', rfStore.atual.status === 'ativa');
+    rfUpdateTabLabels();
     if ($rf('rifasPanel').classList.contains('open')) renderRifa2();
   }
 
   function startRifa2Sync() {
     if (!db) return;
-    onSnapshot(doc(db, 'formatura', 'rifa2'), (snap) => {
-      if (ignoreNextRifa2Snap) { ignoreNextRifa2Snap = false; return; }
-      if (snap.exists()) rifa2 = rifa2Normalizar(snap.data());
-      rifa2AplicarSeed();
-      rifa2Refresh();
-    }, () => {});
+    Object.keys(RF_DOCS).forEach(k => {
+      onSnapshot(doc(db, 'formatura', RF_DOCS[k]), (snap) => {
+        if (ignoreNextRifaSnap[k]) { ignoreNextRifaSnap[k] = false; return; }
+        if (snap.exists()) {
+          rfStore[k] = rifa2Normalizar(snap.data());
+          if (k === rfCur) rifa2 = rfStore[k];
+        } else if (k === 'namorados' && snap.metadata && snap.metadata.fromCache) {
+          return; // ainda sem resposta do servidor: não semear por cima de dados reais
+        }
+        rifa2AplicarSeed(k);
+        rifa2Refresh();
+      }, () => {});
+    });
   }
   window._startRifa2Sync = startRifa2Sync;
 
@@ -3368,18 +3238,19 @@ const EXPORTED_DATA = ${dataJson};
   }
 
   function renderRifa2() {
-    const body = $rf('rf-atual-body');
+    const body = $rf('rf-' + rfCur + '-body');
     if (!body) return;
     const live = rifa2.status === 'ativa';
     const T = rifa2.transferido;
     const total = rfTotalTodos();
-    $rf('rtab-btn-atual').textContent = live ? '✨ Em andamento' : '🏁 Finalizada';
+    rfUpdateTabLabels();
 
     let btnFim = '';
     if (live) btnFim = `<button class="rf-btn rf-btn-dark" onclick="rfFinalizar()">🏁 Finalizar</button>`;
     else if (!T) btnFim = `<button class="rf-btn rf-btn-green" onclick="rfAbrirEnviar()">💰 Enviar valor à tabela</button><button class="rf-btn rf-btn-ghost" onclick="rfReabrir()">↩ Reabrir</button>`;
+    else btnFim = `<button class="rf-btn rf-btn-ghost" onclick="rfReabrir()">↩ Reabrir</button>`;
 
-    const enviado = T ? `<div class="rf-enviado">✓ <b>${fmtRifa(T.valor)}</b> enviados para “${rfEsc(T.catName)} › ${rfEsc(T.entryDesc)}”
+    const enviado = T ? `<div class="rf-enviado">✓ <b>${fmtRifa(T.valor)}</b> ${T.legacy ? 'já lançados na tabela principal' : `enviados para “${rfEsc(T.catName)} › ${rfEsc(T.entryDesc)}”`}
       ${Math.abs(total - T.valor) > 0.001 ? `<br><span class="rf-warn">⚠ O total atual da rifa (${fmtRifa(total)}) é diferente do valor enviado.</span>` : ''}
       <br><button class="rf-link rf-noprint" onclick="rfLiberarEnvio()">liberar novo envio</button></div>` : '';
 
@@ -3491,7 +3362,7 @@ const EXPORTED_DATA = ${dataJson};
     $rf('rfa-nova').value = '';
     rfUpdateAddPreco();
     const sel = $rf('rfa-turma');
-    const turmas = [...new Set([...RIFA_TURMAS_PADRAO, ...rifa2.pessoas.map(p => p.turma)])];
+    const turmas = [...new Set([...RIFA_TURMAS_PADRAO, ...(rfCur === 'namorados' ? ['prof'] : []), ...rifa2.pessoas.map(p => p.turma)])];
     sel.innerHTML = '<option value="">Selecionar turma…</option>'
       + turmas.map(t => `<option value="${rfEsc(t)}">${t === 'ext' ? 'Externos (ext)' : rfEsc(rfTurmaLabel(t))}</option>`).join('')
       + '<option value="__nova__">+ Nova turma…</option>';
@@ -3670,7 +3541,7 @@ const EXPORTED_DATA = ${dataJson};
     if (total <= 0) return;
     let entry;
     if (entryId === '__new__') {
-      entry = { id: uid(), type: 'locked', desc: $rf('rfx-nome').value.trim() || rifa2.titulo, value: total, link: 'rifa2' };
+      entry = { id: uid(), type: 'locked', desc: $rf('rfx-nome').value.trim() || rifa2.titulo, value: total, link: rfCur === 'atual' ? 'rifa2' : 'rifas' };
       if ($rf('rfx-cash').checked) entry.pendingCash = true;
       cat.entries.push(entry);
     } else {
@@ -3701,7 +3572,7 @@ const EXPORTED_DATA = ${dataJson};
 
   // Fechar painel com ESC
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeRifasPanel(); closeVendasPanel(); closeLogsPanel(); closePixPanel(); }
+    if (e.key === 'Escape') { closeRifasPanel(); closeBuffetPanel(); closeVendasPanel(); closeLogsPanel(); closePixPanel(); }
   });
 
   // ═══════════════════════════════════════════════════════
@@ -4470,6 +4341,371 @@ const EXPORTED_DATA = ${dataJson};
   }
 
   // ═══════════════════════════════════════════════════════
+  // BUFFET — Firestore: formatura/buffet  (valor SEPARADO do total principal)
+  //   pessoas [{id, turma, name, conv, obs}] · pagamentos {id: valor pago}
+  //   Valor fixo: R$ 50 por pessoa (o aluno + cada convidado)
+  // ═══════════════════════════════════════════════════════
+  const BF_PRICE = 50;       // valor por pessoa (aluno e cada convidado)
+  const BF_LIMITE = 2;       // convidados "padrão" por aluno (pode ter mais, é só editar)
+  const BF_TURMAS_PADRAO = ['302', '301', 'ext', 'prof'];
+
+  // Lista inicial (mesmos nomes da antiga lista de mensalidades).
+  // Quem não vai participar é só remover pelo ⚙️; a lista oficial do buffet entra depois.
+  const BF_ALUNOS_301 = [
+    'Ana Clara Moraes','Bianca Leticia Sousa','Carla Beatriz da Silva',
+    'Enzo Lucas Lira','Eveni Patricia Barroso','Gabrielly Roberta Silva',
+    'Jamilly Yarim de Oliveira','Joel da Silva de Assis','Karen Marcelle de Almeida',
+    'Kassiane Beatriz Conceicao','Keily Belen Torres','Kimberlly Vitoria Lopes',
+    'Lara Gabrielle Lisboa','Leonardo Lenin Jose','Lucas Davi Amaral',
+    'Neuliane Moraes Rodrigues','Renan Jordan de Albuquerque','Sandy Fabiola Almeida',
+    'Sarah de Araujo Rodrigues','Victor Rafael Goncalves'
+  ];
+  const BF_ALUNOS_302 = [
+    'Alesson Ruan Nunes','Andre Eduardo Pascoal','Anne Caroline Correa',
+    'Cristhian Cleber Pinto','Cristian Yago da Costa','Daniel da Rocha Costa',
+    'Enzo dos Santos Dias','Flavia Fabiane Chaves','Gabriel Ferreira Barroso',
+    'Joan Brasil dos Santos','Kamylle Rafaelly Duarte','Marcos Jose de Souza',
+    'Marcus Yan da Silva','Moises dos Santos Pereira','Pamela Costa Miranda',
+    'Pedro Gustavo do Rosario','Rayssa Victoria Areias','Rodrigo Otavio Costa',
+    'Samuel Robertt da Costa','Thayssa Oliveira Nascimento','Wesley Eduardo Carvalho'
+  ];
+
+  const bfVazio = () => ({ titulo: 'Buffet', pessoas: [], pagamentos: {}, seeded: false });
+  let bf = bfVazio();
+  let ignoreNextBfSnap = false;
+  let bfPagarId = null, bfEditId = null;
+
+  const $bf = id => document.getElementById(id);
+  const bfEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const bfFmt = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+  const bfPessoa = id => bf.pessoas.find(p => p.id === id);
+  const bfGetPago = id => bf.pagamentos[id] ?? 0;
+  const bfQtd = p => 1 + (Number(p.conv) || 0);
+  const bfDevido = p => bfQtd(p) * BF_PRICE;
+  const bfTurmaLabel = t => t === 'ext' ? 'Externos' : t === 'prof' ? 'Professor(a)' : 'Turma ' + t;
+
+  function bfTotais() {
+    const ps = bf.pessoas;
+    const pago = ps.reduce((s, p) => s + bfGetPago(p.id), 0);
+    const previsto = ps.reduce((s, p) => s + bfDevido(p), 0);
+    const convidados = ps.reduce((s, p) => s + (Number(p.conv) || 0), 0);
+    return {
+      alunos: ps.length, convidados, pessoas: ps.length + convidados,
+      pago, previsto, falta: Math.max(0, previsto - pago),
+      quitados: ps.filter(p => bfGetPago(p.id) >= bfDevido(p)).length
+    };
+  }
+
+  // ── Persistência / sync ────────────────────────────────────────────────
+  function bfNormalizar(d) {
+    return { ...bfVazio(), ...d, pessoas: d.pessoas || [], pagamentos: d.pagamentos || {} };
+  }
+
+  function saveBf() {
+    if (!db) return;
+    setSyncStatus('syncing', 'Salvando...');
+    ignoreNextBfSnap = true;
+    setDoc(doc(db, 'formatura', 'buffet'), { ...bf, updatedAt: Date.now() })
+      .then(() => setSyncStatus('saved', '✓ Sincronizado'))
+      .catch(() => { ignoreNextBfSnap = false; setSyncStatus('error', '⚠ Erro ao salvar'); });
+  }
+
+  function bfRefresh() {
+    renderArrecadacoes(); // atualiza o card do buffet na página inicial
+    if ($bf('buffetPanel') && $bf('buffetPanel').classList.contains('open')) renderBuffet();
+  }
+  function bfCommit() { saveBf(); bfRefresh(); }
+
+  function bfAplicarSeed() {
+    if (bf.seeded || bf.pessoas.length) return;
+    let i = 0;
+    const mk = (turma, lista) => lista.map(name => ({ id: 'b' + (i++), turma, name, conv: BF_LIMITE, obs: '' }));
+    bf.pessoas = [...mk('302', BF_ALUNOS_302), ...mk('301', BF_ALUNOS_301)];
+    bf.seeded = true;
+    saveBf();
+  }
+
+  function startBuffetSync() {
+    if (!db) return;
+    onSnapshot(doc(db, 'formatura', 'buffet'), (snap) => {
+      if (ignoreNextBfSnap) { ignoreNextBfSnap = false; return; }
+      if (snap.exists()) bf = bfNormalizar(snap.data());
+      else if (snap.metadata && snap.metadata.fromCache) return; // ainda sem resposta do servidor: não semear
+      bfAplicarSeed();
+      bfRefresh();
+    }, () => {});
+  }
+  window._startBuffetSync = startBuffetSync;
+
+  // ── Render (mesmo visual da rifa) ──────────────────────────────────────
+  function bfCardsHTML() {
+    const t = bfTotais();
+    const pct = t.previsto > 0 ? Math.min(100, (t.pago / t.previsto) * 100).toFixed(1) : '0.0';
+    return `<div class="rifa-cards">
+      <div class="rifa-card">
+        <div class="rifa-card-label">Arrecadado</div>
+        <div class="rifa-card-value" style="color:#34D399">${bfFmt(t.pago)}</div>
+        <div class="rifa-card-sub">de ${bfFmt(t.previsto)}</div>
+        <div class="rifa-progress-bar"><div class="rifa-progress-fill" style="width:${pct}%"></div></div>
+        <div class="rifa-progress-pct">${pct}%</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Falta arrecadar</div>
+        <div class="rifa-card-value" style="color:#f59e0b">${bfFmt(t.falta)}</div>
+        <div class="rifa-card-sub">${t.alunos - t.quitados} sem quitar</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Pessoas no buffet</div>
+        <div class="rifa-card-value" style="color:#A78BFA">${t.pessoas}</div>
+        <div class="rifa-card-sub">${t.alunos} alunos + ${t.convidados} convidados</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Já quitaram</div>
+        <div class="rifa-card-value" style="color:var(--text)">${t.quitados}</div>
+        <div class="rifa-card-sub">de ${t.alunos} alunos</div>
+      </div>
+    </div>`;
+  }
+
+  function bfRowHTML(p) {
+    const pago = bfGetPago(p.id), dev = bfDevido(p);
+    const status = pago === 0 ? 'none' : pago >= dev ? 'full' : 'partial';
+    const pct = Math.min(100, (pago / dev) * 100);
+    const cor = status === 'full' ? '#34D399' : status === 'partial' ? '#f59e0b' : '#F87171';
+    const bar = status === 'partial' ? `<div class="rf-mini"><div><span style="width:${pct}%"></span></div></div>` : '';
+    const conv = Number(p.conv) || 0;
+    const extra = conv > BF_LIMITE ? ` <span class="bf-extra">+${conv - BF_LIMITE} extra</span>` : '';
+    const sub = (conv === 0 ? 'sem convidados' : conv + ' convidado' + (conv !== 1 ? 's' : '')) + (p.obs ? ' · ' + bfEsc(p.obs) : '');
+    const amt = pago > 0
+      ? `<span style="font-weight:700;font-size:.82rem;color:${cor}">${status === 'full' ? '✓ ' : ''}${bfFmt(pago)}</span>`
+      : `<span style="color:var(--muted);opacity:.5;font-size:.85rem">—</span>`;
+    const td = 'padding:8px 6px;border-bottom:1px solid var(--border)';
+    return `<tr>
+      <td style="${td};vertical-align:middle">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cor};flex-shrink:0"></span>
+          <span style="font-weight:600;font-size:.85rem">${bfEsc(p.name)}</span>
+        </div>
+        <div class="bf-sub">${sub}${extra}</div>${bar}
+      </td>
+      <td style="${td};text-align:right;font-size:.8rem;color:#94a3b8">${bfQtd(p)}×</td>
+      <td style="${td};text-align:right">${amt}</td>
+      <td class="rf-noprint" style="${td};text-align:center">
+        <div style="display:flex;gap:4px;justify-content:center">
+          <button class="rf-pill" onclick="bfOpenPagar('${p.id}')">✏️</button>
+          <button class="rf-pill rf-pill-gear" onclick="bfOpenEdit('${p.id}')">⚙️</button>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  function bfTurmasOrdenadas() {
+    const ord = ['302', '301', 'ext'];
+    const pos = t => { const i = ord.indexOf(t); return i < 0 ? 99 : i; };
+    return [...new Set(bf.pessoas.map(p => p.turma))].sort((a, b) => pos(a) - pos(b));
+  }
+
+  function bfSectionHTML(t) {
+    const lista = bf.pessoas.filter(p => p.turma === t);
+    return `<div class="rifa-section-title">${bfEsc(bfTurmaLabel(t))}<span class="badge-purple">${lista.length} ${lista.length === 1 ? 'pessoa' : 'pessoas'}</span></div>
+      <div class="rifa-table-wrap"><table>
+        <thead><tr><th>Nome</th><th style="text-align:right">Pessoas</th><th style="text-align:right">Pago</th><th class="rf-noprint"></th></tr></thead>
+        <tbody>${lista.map(bfRowHTML).join('')}</tbody>
+      </table></div>`;
+  }
+
+  function renderBuffet() {
+    const body = $bf('bf-body');
+    if (!body) return;
+    const conteudo = !bf.pessoas.length
+      ? `<div class="rifa-futura-placeholder">
+          <div class="rifa-futura-icon">🍽️</div>
+          <div class="rifa-futura-title">Nenhum participante ainda</div>
+          <div class="rifa-futura-desc">Toque em <b>➕ Add</b> para cadastrar quem vai participar do buffet.</div>
+        </div>`
+      : bfCardsHTML() + bfTurmasOrdenadas().map(bfSectionHTML).join('');
+    body.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700;color:var(--text)">${bfEsc(bf.titulo)}</span>
+        <span class="badge-andamento">● Em andamento</span>
+      </div>
+      <p style="font-size:.72rem;color:#94a3b8;margin-bottom:12px">Valor por pessoa: ${bfFmt(BF_PRICE)} (aluno e cada convidado) · Padrão: ${BF_LIMITE} convidados · Valor separado do total principal.</p>
+      <div class="rf-actions rf-noprint">
+        <button class="rf-btn rf-btn-indigo" onclick="bfOpenAdd()">➕ Add</button>
+        <button class="rf-btn rf-btn-dark" onclick="bfExportPDF()">📄 PDF</button>
+      </div>
+      ${conteudo}`;
+  }
+
+  // ── Painel ─────────────────────────────────────────────────────────────
+  window.openBuffetPanel = function() {
+    $bf('buffetPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderBuffet();
+  };
+  window.closeBuffetPanel = function() {
+    document.querySelectorAll('.rf-overlay.open').forEach(el => el.classList.remove('open'));
+    $bf('buffetPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.bfCloseModal = function(ev, id, force) {
+    if (!force && ev && ev.target !== $bf(id)) return;
+    $bf(id).classList.remove('open');
+  };
+
+  // ── Registrar pagamento ────────────────────────────────────────────────
+  window.bfOpenPagar = function(id) {
+    const p = bfPessoa(id);
+    if (!p) return;
+    bfPagarId = id;
+    $bf('bfp-turma').textContent = bfTurmaLabel(p.turma);
+    $bf('bfp-nome').textContent = p.name;
+    $bf('bfp-meta').textContent = bfQtd(p) + ' pessoa' + (bfQtd(p) !== 1 ? 's' : '') + ' × ' + bfFmt(BF_PRICE) + ' = ' + bfFmt(bfDevido(p));
+    $bf('bfp-input').value = bfGetPago(id) || '';
+    bfFeedback();
+    $bf('bfModalPagar').classList.add('open');
+  };
+  window.bfQuitar = function() {
+    const p = bfPessoa(bfPagarId);
+    if (!p) return;
+    $bf('bfp-input').value = bfDevido(p);
+    bfFeedback();
+  };
+  window.bfZerar = function() { $bf('bfp-input').value = ''; bfFeedback(); };
+  window.bfFeedback = bfFeedback;
+  function bfFeedback() {
+    const p = bfPessoa(bfPagarId);
+    const fb = $bf('bfp-feedback');
+    if (!p) return;
+    const v = Math.max(0, Number($bf('bfp-input').value) || 0);
+    const dev = bfDevido(p);
+    if (v === 0) { fb.innerHTML = '<span style="color:#F87171">Nada pago</span>'; return; }
+    if (v > dev) { fb.innerHTML = `<span style="color:#34D399">${bfFmt(v)} ✓ Quitado</span> <span style="color:#f59e0b">· ${bfFmt(v - dev)} acima do previsto</span>`; return; }
+    fb.innerHTML = v === dev
+      ? `<span style="color:#34D399">${bfFmt(v)} ✓ Quitado!</span>`
+      : `<span style="color:#34D399">${bfFmt(v)}</span> <span style="color:#f59e0b">· falta ${bfFmt(dev - v)}</span>`;
+  }
+  window.bfSalvarPagamento = function() {
+    const p = bfPessoa(bfPagarId);
+    if (!p) return;
+    const antes = bfGetPago(p.id);
+    const val = Math.round(Math.max(0, Number($bf('bfp-input').value) || 0) * 100) / 100;
+    if (val === 0) delete bf.pagamentos[p.id];
+    else bf.pagamentos[p.id] = val;
+    if (val !== antes) logAction('value', `🍽️ Buffet — ${p.name}: ${bfFmt(antes)} → ${bfFmt(val)}`);
+    bfCommit();
+    bfCloseModal(null, 'bfModalPagar', true);
+  };
+
+  // ── Adicionar pessoa ───────────────────────────────────────────────────
+  function bfUpdatePreco(inputId, outId) {
+    const c = Math.max(0, Number($bf(inputId).value) || 0);
+    $bf(outId).textContent = '= ' + bfFmt((1 + c) * BF_PRICE) + ' (' + (1 + c) + ' pessoa' + (c ? 's' : '') + ')';
+  }
+  window.bfOpenAdd = function() {
+    $bf('bfa-nome').value = '';
+    $bf('bfa-conv').value = BF_LIMITE;
+    $bf('bfa-obs').value = '';
+    $bf('bfa-error').textContent = '';
+    $bf('bfa-nova-wrap').style.display = 'none';
+    $bf('bfa-nova').value = '';
+    bfUpdatePreco('bfa-conv', 'bfa-preco');
+    const turmas = [...new Set([...BF_TURMAS_PADRAO, ...bf.pessoas.map(p => p.turma)])];
+    $bf('bfa-turma').innerHTML = '<option value="">Selecionar turma…</option>'
+      + turmas.map(t => `<option value="${bfEsc(t)}">${bfEsc(bfTurmaLabel(t))}</option>`).join('')
+      + '<option value="__nova__">+ Nova turma…</option>';
+    $bf('bfModalAdd').classList.add('open');
+  };
+  window.bfToggleNovaTurma = function() {
+    $bf('bfa-nova-wrap').style.display = $bf('bfa-turma').value === '__nova__' ? 'block' : 'none';
+  };
+  window.bfAddDelta = function(d) {
+    const inp = $bf('bfa-conv');
+    inp.value = Math.max(0, (Number(inp.value) || 0) + d);
+    bfUpdatePreco('bfa-conv', 'bfa-preco');
+  };
+  window.bfAddPrecoInput = function() { bfUpdatePreco('bfa-conv', 'bfa-preco'); };
+  window.bfAddPessoa = function() {
+    const nome = $bf('bfa-nome').value.trim();
+    const raw = $bf('bfa-turma').value;
+    const turma = raw === '__nova__' ? $bf('bfa-nova').value.trim() : raw;
+    const conv = Math.max(0, Math.floor(Number($bf('bfa-conv').value) || 0));
+    const err = $bf('bfa-error');
+    if (!nome) { err.textContent = '⚠ Informe o nome.'; return; }
+    if (!turma) { err.textContent = '⚠ Informe a turma.'; return; }
+    err.textContent = '';
+    bf.pessoas.push({ id: uid(), turma, name: nome, conv, obs: $bf('bfa-obs').value.trim().slice(0, 40) });
+    logAction('add', `🍽️ Buffet — ${nome} adicionado(a) (${bfTurmaLabel(turma)}, ${conv} convidado${conv !== 1 ? 's' : ''})`);
+    bfCommit();
+    bfCloseModal(null, 'bfModalAdd', true);
+  };
+
+  // ── Editar pessoa ──────────────────────────────────────────────────────
+  window.bfOpenEdit = function(id) {
+    const p = bfPessoa(id);
+    if (!p) return;
+    bfEditId = id;
+    $bf('bfe-turma').textContent = bfTurmaLabel(p.turma);
+    $bf('bfe-pago').textContent = 'Já pagou: ' + bfFmt(bfGetPago(id));
+    $bf('bfe-nome').value = p.name;
+    $bf('bfe-conv').value = Number(p.conv) || 0;
+    $bf('bfe-obs').value = p.obs || '';
+    $bf('bfe-nome-del').textContent = p.name;
+    bfUpdateEditPreco();
+    bfHideConfirmDelete();
+    $bf('bfModalEdit').classList.add('open');
+  };
+  window.bfEditDelta = function(d) {
+    const inp = $bf('bfe-conv');
+    inp.value = Math.max(0, (Number(inp.value) || 0) + d);
+    bfUpdateEditPreco();
+  };
+  window.bfUpdateEditPreco = bfUpdateEditPreco;
+  function bfUpdateEditPreco() {
+    bfUpdatePreco('bfe-conv', 'bfe-preco');
+    const p = bfPessoa(bfEditId);
+    if (!p) return;
+    const novo = (1 + Math.max(0, Number($bf('bfe-conv').value) || 0)) * BF_PRICE;
+    const pago = bfGetPago(p.id);
+    $bf('bfe-warning').textContent = pago > novo ? '⚠ O valor já pago (' + bfFmt(pago) + ') é maior que o novo total.' : '';
+  }
+  window.bfSaveEdit = function() {
+    const p = bfPessoa(bfEditId);
+    if (!p) return;
+    const nome = $bf('bfe-nome').value.trim();
+    if (!nome) { $bf('bfe-nome').focus(); return; }
+    const conv = Math.max(0, Math.floor(Number($bf('bfe-conv').value) || 0));
+    const mud = [];
+    if (nome !== p.name) mud.push(`nome: "${p.name}" → "${nome}"`);
+    if (conv !== (Number(p.conv) || 0)) mud.push(`convidados: ${Number(p.conv) || 0} → ${conv}`);
+    if (mud.length) logAction('edit', `🍽️ Buffet — ${p.name}: ${mud.join(', ')}`);
+    p.name = nome;
+    p.conv = conv;
+    p.obs = $bf('bfe-obs').value.trim().slice(0, 40);
+    bfCommit();
+    bfCloseModal(null, 'bfModalEdit', true);
+  };
+  window.bfShowConfirmDelete = function() { $bf('bfe-del-wrap').style.display = 'none'; $bf('bfe-del-confirm').style.display = 'block'; };
+  window.bfHideConfirmDelete = bfHideConfirmDelete;
+  function bfHideConfirmDelete() { $bf('bfe-del-wrap').style.display = 'block'; $bf('bfe-del-confirm').style.display = 'none'; }
+  window.bfRemover = function() {
+    const p = bfPessoa(bfEditId);
+    if (!p) return;
+    bf.pessoas = bf.pessoas.filter(x => x.id !== p.id);
+    delete bf.pagamentos[p.id];
+    logAction('remove', `🍽️ Buffet — ${p.name} removido(a)`);
+    bfCommit();
+    bfCloseModal(null, 'bfModalEdit', true);
+  };
+
+  window.bfExportPDF = function() {
+    document.body.classList.add('print-buffet');
+    const fim = () => { document.body.classList.remove('print-buffet'); window.removeEventListener('afterprint', fim); };
+    window.addEventListener('afterprint', fim);
+    window.print();
+  };
+
+  // ═══════════════════════════════════════════════════════
   // ARRECADAÇÕES EXTRAS (Festa Junina, etc.)
   // ═══════════════════════════════════════════════════════
   let arrecadacoes = []; // [{id, nome, valor}]
@@ -4503,8 +4739,15 @@ const EXPORTED_DATA = ${dataJson};
     const row = document.getElementById('arrecadacoesRow');
     if (!row) return;
     let html = '';
-    if (arrecadacoes.length > 0) {
-      const cards = arrecadacoes.map(a => `
+    {
+      const bt = bfTotais();
+      const bfCard = `
+      <div class="arrecadacao-card" onclick="openBuffetPanel()">
+        <div class="arrecadacao-card-name">🍽️ Buffet</div>
+        <div class="arrecadacao-card-value">${bfFmt(bt.pago)}</div>
+        <div class="arrecadacao-card-sub">${bt.alunos ? bt.pessoas + ' pessoas · falta ' + bfFmt(bt.falta) : 'sem lista ainda'}</div>
+      </div>`;
+      const cards = bfCard + arrecadacoes.map(a => `
       <div class="arrecadacao-card" onclick="openArrecadacaoAction('${a.id}')">
         <div class="arrecadacao-card-name">${a.nome}</div>
         <div class="arrecadacao-card-value">${fmt(a.valor)}</div>
@@ -4520,6 +4763,7 @@ const EXPORTED_DATA = ${dataJson};
       <span class="pix-count-badge" id="pixCountBadge" style="display:none">0</span>
     </button></div>`;
     row.innerHTML = html;
+    updatePixBadge(); // o botão Pix é recriado a cada render
   }
 
   window.openArrecadacaoAction = function(id) {
@@ -4642,300 +4886,6 @@ const EXPORTED_DATA = ${dataJson};
   renderArrecadacoes();
 
   // ═══════════════════════════════════════════════════════
-  // ARRECADAÇÃO MENSAL
-  // ═══════════════════════════════════════════════════════
-  const ALUNOS_301 = [
-    'Ana Clara Moraes','Bianca Leticia Sousa','Carla Beatriz da Silva',
-    'Enzo Lucas Lira','Eveni Patricia Barroso','Gabrielly Roberta Silva',
-    'Jamilly Yarim de Oliveira','Joel da Silva de Assis','Karen Marcelle de Almeida',
-    'Kassiane Beatriz Conceicao','Keily Belen Torres','Kimberlly Vitoria Lopes',
-    'Lara Gabrielle Lisboa','Leonardo Lenin Jose','Lucas Davi Amaral',
-    'Neuliane Moraes Rodrigues','Renan Jordan de Albuquerque','Sandy Fabiola Almeida',
-    'Sarah de Araujo Rodrigues','Victor Rafael Goncalves'
-  ];
-  const ALUNOS_302 = [
-    'Alesson Ruan Nunes','Andre Eduardo Pascoal','Anne Caroline Correa',
-    'Cristhian Cleber Pinto','Cristian Yago da Costa','Daniel da Rocha Costa',
-    'Enzo dos Santos Dias','Flavia Fabiane Chaves','Gabriel Ferreira Barroso',
-    'Joan Brasil dos Santos','Kamylle Rafaelly Duarte','Marcos Jose de Souza',
-    'Marcus Yan da Silva','Moises dos Santos Pereira','Pamela Costa Miranda',
-    'Pedro Gustavo do Rosario','Rayssa Victoria Areias','Rodrigo Otavio Costa',
-    'Samuel Robertt da Costa','Thayssa Oliveira Nascimento','Wesley Eduardo Carvalho'
-  ];
-
-  const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                        'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  // mensalData = { valorPadrao: 10, meses: [{ id, mesIdx(0-11), pagamentos: {nomeAluno: valor} }] }
-  let mensalData = { valorPadrao: 10, meses: [] };
-  let ignoreNextMensalSnap = false;
-  let mensalPagTarget = null; // { mesId, nome, turma }
-  let mensalAtribuirTarget = null; // { mesId }
-
-  function saveMensalData() {
-    try { localStorage.setItem('formatura_mensal', JSON.stringify(mensalData)); } catch(e) {}
-    if (!db) return;
-    ignoreNextMensalSnap = true;
-    const docRef = doc(db, 'formatura', 'mensal');
-    setDoc(docRef, { data: mensalData, updatedAt: Date.now() }).catch(() => { ignoreNextMensalSnap = false; });
-  }
-
-  function startMensalSync() {
-    if (!db) return;
-    const saved = localStorage.getItem('formatura_mensal');
-    if (saved) { try { mensalData = JSON.parse(saved); } catch(e) {} }
-    const docRef = doc(db, 'formatura', 'mensal');
-    onSnapshot(docRef, (snap) => {
-      if (ignoreNextMensalSnap) { ignoreNextMensalSnap = false; return; }
-      if (snap.exists()) {
-        mensalData = snap.data().data || { valorPadrao: 10, meses: [] };
-        try { localStorage.setItem('formatura_mensal', JSON.stringify(mensalData)); } catch(e) {}
-      }
-      if (document.getElementById('mensalPanel').classList.contains('open')) renderMensalBody();
-      updateMensalStats();
-    }, () => {});
-  }
-  window._startMensalSync = startMensalSync;
-
-  function updateMensalStats() {
-    let totalGeral = 0, totalPessoas = 0;
-    (mensalData.meses || []).forEach(m => {
-      Object.values(m.pagamentos || {}).forEach(v => { totalGeral += v; totalPessoas++; });
-    });
-    const tg = document.getElementById('mensalTotalGeral');
-    const tp = document.getElementById('mensalTotalPessoas');
-    if (tg) tg.textContent = fmt(totalGeral);
-    if (tp) tp.textContent = totalPessoas;
-  }
-
-  function renderMensalBody() {
-    const body = document.getElementById('mensalBody');
-    if (!body) return;
-    updateMensalStats();
-    if (!mensalData.meses || mensalData.meses.length === 0) {
-      body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#9ca3af;font-size:13px;">
-        <div style="font-size:30px;margin-bottom:10px">📅</div>
-        <div style="font-weight:600;">Nenhum mês cadastrado</div>
-        <div style="margin-top:6px;font-size:12px;">Clique em "Adicionar mês" para começar</div>
-      </div>`;
-      return;
-    }
-    body.innerHTML = mensalData.meses.map(mes => renderMesMensal(mes)).join('');
-  }
-
-  function renderMesMensal(mes) {
-    const pags = mes.pagamentos || {};
-    const totalMes = Object.values(pags).reduce((s,v) => s+v, 0);
-    const qtdPagos = Object.keys(pags).length;
-    const totalAlunos = ALUNOS_301.length + ALUNOS_302.length;
-    const nomeMes = MESES_NOMES[mes.mesIdx];
-
-    const linhas301 = ALUNOS_301.map(n => renderAlunoMensal(mes.id, n, '301', pags[n])).join('');
-    const linhas302 = ALUNOS_302.map(n => renderAlunoMensal(mes.id, n, '302', pags[n])).join('');
-
-    return `
-      <div class="mensal-mes-card">
-        <div class="mensal-mes-header" onclick="toggleMesMensal('${mes.id}',this)">
-          <div>
-            <div class="mensal-mes-title">${nomeMes}</div>
-            <div class="mensal-mes-meta">${qtdPagos} de ${totalAlunos} pagaram</div>
-          </div>
-          <div class="mensal-mes-right">
-            <div class="mensal-mes-total">${fmt(totalMes)}</div>
-            <div class="mensal-mes-chevron">▶</div>
-          </div>
-        </div>
-        <div class="mensal-mes-body" id="mesBody-${mes.id}">
-          <button class="mensal-total-btn" onclick="openMensalAtribuirModal('${mes.id}')">
-            📊 Adicionar total à categoria
-            <span class="mensal-total-badge">${fmt(totalMes)}</span>
-          </button>
-          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">Turma 301</div>
-          ${linhas301}
-          <div style="padding:4px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-top:1px solid #1E1E26;">Turma 302</div>
-          ${linhas302}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderAlunoMensal(mesId, nome, turma, valorPago) {
-    const pago = valorPago !== undefined && valorPago !== null;
-    return `
-      <div class="mensal-aluno-row${pago?' pago':''}" onclick="openMensalPagModal('${mesId}','${nome.replace(/'/g,"\\'")}','${turma}')">
-        <div class="mensal-aluno-dot${pago?' pago':''}"></div>
-        <span class="mensal-aluno-turma">${turma}</span>
-        <span class="mensal-aluno-nome">${nome}</span>
-        ${pago ? `<span class="mensal-aluno-valor">${fmt(valorPago)}</span>` : ''}
-      </div>
-    `;
-  }
-
-  window.toggleMesMensal = function(mesId, headerEl) {
-    const body = document.getElementById('mesBody-' + mesId);
-    if (!body) return;
-    const open = body.classList.toggle('open');
-    headerEl.classList.toggle('open', open);
-  };
-
-  window.openMensalPanel = function() {
-    document.getElementById('mensalPanel').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    renderMensalBody();
-  };
-  window.closeMensalPanel = function() {
-    document.getElementById('mensalPanel').classList.remove('open');
-    document.body.style.overflow = '';
-  };
-
-  window.openMensalInicioModal = function() {
-    document.getElementById('mensalInicioOverlay').style.display = 'flex';
-  };
-  window.closeMensalInicioModal = function(e, force) {
-    if (!force && e && e.target !== document.getElementById('mensalInicioOverlay')) return;
-    document.getElementById('mensalInicioOverlay').style.display = 'none';
-  };
-
-  window.confirmarMesInicial = function() {
-    const mesInicio = parseInt(document.getElementById('mensalInicioMes').value);
-    const valor = parseFloat(document.getElementById('mensalValorPadrao').value) || 10;
-    const mesesExistentes = new Set((mensalData.meses || []).map(m => m.mesIdx));
-    const novos = [];
-    for (let i = mesInicio - 1; i <= 11; i++) {
-      if (!mesesExistentes.has(i)) {
-        mensalData.meses = mensalData.meses || [];
-        mensalData.meses.push({ id: uid(), mesIdx: i, pagamentos: {} });
-        novos.push(MESES_NOMES[i]);
-      }
-    }
-    mensalData.meses.sort((a, b) => a.mesIdx - b.mesIdx);
-    mensalData.valorPadrao = valor;
-    if (novos.length > 0) logAction('add', `📅 Meses adicionados à arrecadação mensal: ${novos.join(', ')} (valor padrão: ${fmt(valor)})`);
-    saveMensalData();
-    closeMensalInicioModal(null, true);
-    renderMensalBody();
-  };
-
-  window.resetMensalData = function() {
-    if (!confirm('⚠️ Limpar todos os dados mensais?\n\nIsso vai apagar tudo para todos os dispositivos.')) return;
-    if (!confirm('Tem certeza mesmo?\n\nTodos os pagamentos e meses cadastrados serão perdidos.')) return;
-    if (!confirm('Última confirmação!\n\nEsta ação é irreversível. Continuar mesmo assim?')) return;
-    if (!confirm('🔴 APAGAR TUDO agora?\n\nIsso vai limpar toda a arrecadação mensal permanentemente.')) return;
-    logAction('remove', '🗑 Arrecadação mensal inteira apagada (todos os meses e pagamentos)');
-    mensalData = { valorPadrao: 10, meses: [] };
-    saveMensalData();
-    renderMensalBody();
-  };
-
-  // Abrir modal de pagamento de aluno
-  window.openMensalPagModal = function(mesId, nome, turma) {
-    const mes = (mensalData.meses || []).find(m => m.id === mesId);
-    if (!mes) return;
-    mensalPagTarget = { mesId, nome, turma };
-    const pago = mes.pagamentos && mes.pagamentos[nome];
-    document.getElementById('mensalPagNome').textContent = nome;
-    document.getElementById('mensalPagSub').textContent = `Turma ${turma} · ${MESES_NOMES[mes.mesIdx]}`;
-    document.getElementById('mensalPagValor').value = pago !== undefined ? pago : (mensalData.valorPadrao || 10);
-
-    const overlay = document.getElementById('mensalPagOverlay');
-    overlay.style.display = 'flex';
-    setTimeout(() => document.getElementById('mensalPagValor').select(), 80);
-  };
-
-  window.closeMensalPagModal = function(e, force) {
-    if (!force && e && e.target !== document.getElementById('mensalPagOverlay')) return;
-    document.getElementById('mensalPagOverlay').style.display = 'none';
-    mensalPagTarget = null;
-  };
-
-  window.confirmarPagamentoMensal = function() {
-    if (!mensalPagTarget) return;
-    const { mesId, nome } = mensalPagTarget;
-    const valor = parseFloat(document.getElementById('mensalPagValor').value);
-    const mes = (mensalData.meses || []).find(m => m.id === mesId);
-    if (!mes) return;
-    mes.pagamentos = mes.pagamentos || {};
-    const jaExistia = mes.pagamentos[nome] !== undefined;
-    if (isNaN(valor) || valor < 0) {
-      logAction('remove', `📅 Pagamento removido — ${nome} (${MESES_NOMES[mes.mesIdx]})`);
-      delete mes.pagamentos[nome];
-    } else {
-      if (jaExistia) {
-        logAction('edit', `📅 Pagamento atualizado — ${nome} (${MESES_NOMES[mes.mesIdx]}): ${fmt(mes.pagamentos[nome])} → ${fmt(valor)}`);
-      } else {
-        logAction('add', `📅 Pagamento registrado — ${nome} (${MESES_NOMES[mes.mesIdx]}): ${fmt(valor)}`);
-      }
-      mes.pagamentos[nome] = valor;
-    }
-    saveMensalData();
-    closeMensalPagModal(null, true);
-    renderMensalBody();
-  };
-
-  // Abrir modal de atribuir total mensal a uma categoria
-  window.openMensalAtribuirModal = function(mesId) {
-    const mes = (mensalData.meses || []).find(m => m.id === mesId);
-    if (!mes) return;
-    const totalMes = Object.values(mes.pagamentos || {}).reduce((s,v) => s+v, 0);
-    mensalAtribuirTarget = { mesId };
-
-    document.getElementById('mensalAtribuirMes').textContent = MESES_NOMES[mes.mesIdx];
-    document.getElementById('mensalAtribuirValor').textContent = `Total: ${fmt(totalMes)} · ${Object.keys(mes.pagamentos||{}).length} pagamentos`;
-
-    // Popular select de categorias
-    const catSel = document.getElementById('mensalAtribuirCat');
-    catSel.innerHTML = '<option value="">Selecione uma categoria...</option>' +
-      categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    document.getElementById('mensalAtribuirEntry').innerHTML = '<option value="">Selecione uma entrada...</option>';
-
-    const overlay = document.getElementById('mensalAtribuirOverlay');
-    overlay.style.display = 'flex';
-  };
-
-  window.closeMensalAtribuirModal = function(e, force) {
-    if (!force && e && e.target !== document.getElementById('mensalAtribuirOverlay')) return;
-    document.getElementById('mensalAtribuirOverlay').style.display = 'none';
-    mensalAtribuirTarget = null;
-  };
-
-  window.onMensalAtribuirCatChange = function() {
-    const catId = document.getElementById('mensalAtribuirCat').value;
-    const entrySel = document.getElementById('mensalAtribuirEntry');
-    if (!catId) { entrySel.innerHTML = '<option value="">Selecione uma entrada...</option>'; return; }
-    const cat = categories.find(c => c.id === catId);
-    if (!cat) return;
-    entrySel.innerHTML = '<option value="">Selecione uma entrada...</option>' +
-      cat.entries.map(e => `<option value="${e.id}">${e.desc || 'Entrada'} — ${fmt(e.type==='fixed'?e.value*e.count:(e.type==='locked'||e.type==='withdraw')?e.value:(e.freeValues||[]).reduce((a,b)=>a+b,0))}</option>`).join('');
-  };
-
-  window.confirmarAtribuirMensal = function() {
-    const catId = document.getElementById('mensalAtribuirCat').value;
-    const entryId = document.getElementById('mensalAtribuirEntry').value;
-    if (!catId || !entryId || !mensalAtribuirTarget) return;
-    const mes = (mensalData.meses || []).find(m => m.id === mensalAtribuirTarget.mesId);
-    if (!mes) return;
-    const totalMes = Object.values(mes.pagamentos || {}).reduce((s,v) => s+v, 0);
-    const cat = categories.find(c => c.id === catId);
-    if (!cat) return;
-    const entry = cat.entries.find(e => e.id === entryId);
-    if (!entry) return;
-    if (entry.type === 'free') {
-      entry.freeValues = entry.freeValues || [];
-      entry.freeValues.push(totalMes);
-    } else if (entry.type === 'fixed') {
-      entry.count = (entry.count || 0) + 1;
-    } else if (entry.type === 'locked') {
-      entry.value = (entry.value || 0) + totalMes;
-    }
-    logAction('value', `Total mensal de ${MESES_NOMES[mes.mesIdx]} (${fmt(totalMes)}) adicionado em "${cat.name} › ${entry.desc||'Entrada'}"`);
-    saveToFirebase();
-    render();
-    closeMensalAtribuirModal(null, true);
-  };
-
-  window._startMensalSync = startMensalSync;
-
-  // ═══════════════════════════════════════════════════════
   // FIM NOVAS FUNCIONALIDADES
   // ═══════════════════════════════════════════════════════
 
@@ -5012,10 +4962,20 @@ const EXPORTED_DATA = ${dataJson};
   body.print-rifa { overflow: visible !important; height: auto !important; }
   body.print-rifa > *:not(#rifasPanel) { display: none !important; }
   body.print-rifa #rifasPanel { position: static !important; display: block !important; }
-  body.print-rifa #rifasPanelBg, body.print-rifa #rifasPanelHeader, body.print-rifa #rtab-namorados { display: none !important; }
+  body.print-rifa #rifasPanelBg, body.print-rifa #rifasPanelHeader { display: none !important; }
   body.print-rifa #rifasPanelContent { width: 100% !important; height: auto !important; margin: 0 !important; overflow: visible !important; box-shadow: none !important; background: #fff !important; }
-  body.print-rifa #rtab-atual { display: block !important; padding: 0 !important; }
+  body.print-rifa .rifas-tab-content:not(.active) { display: none !important; }
+  body.print-rifa .rifas-tab-content.active { display: block !important; padding: 0 !important; }
   body.print-rifa .rifa-card, body.print-rifa .rifa-table-wrap { break-inside: avoid; }
+
+  /* PDF do buffet */
+  body.print-buffet { overflow: visible !important; height: auto !important; }
+  body.print-buffet > *:not(#buffetPanel) { display: none !important; }
+  body.print-buffet #buffetPanel { position: static !important; display: block !important; }
+  body.print-buffet #buffetPanelBg, body.print-buffet #buffetPanelHeader { display: none !important; }
+  body.print-buffet #buffetPanelContent { width: 100% !important; height: auto !important; margin: 0 !important; overflow: visible !important; box-shadow: none !important; background: #fff !important; }
+  body.print-buffet #bf-wrap { padding: 0 !important; }
+  body.print-buffet .rifa-card, body.print-buffet .rifa-table-wrap { break-inside: avoid; }
 }
 </style>
 

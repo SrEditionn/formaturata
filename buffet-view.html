@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buffet — Formatura 2026</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#111116">
+<script>
+  document.documentElement.setAttribute('data-theme', 'amoled');
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #111116;
+    --white: #1A1A22;
+    --surface: #1E1E28;
+    --text: #EDEDF0;
+    --muted: #8E8EA8;
+    --border: #272732;
+    --green: #34D399;
+    --green-light: rgba(52,211,153,.12);
+    --accent: #A78BFA;
+    --accent-light: rgba(167,139,250,.15);
+    --blue: #38BDF8;
+    --blue-light: rgba(56,189,248,.14);
+    --red: #F87171;
+    --gold: #FCD34D;
+    --shadow: 0 4px 24px rgba(0,0,0,.85);
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* SYNC BADGE */
+  #syncBadge {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 299;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow);
+    transition: color .3s, border-color .3s, opacity .6s ease;
+  }
+  #syncBadge.syncing { color: var(--blue); border-color: var(--blue-light); }
+  #syncBadge.saved { color: var(--green); border-color: var(--green-light); }
+  #syncBadge.error { color: var(--red); }
+  #syncBadge.hide { opacity: 0; pointer-events: none; }
+  .sync-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+
+  /* HEADER */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .header-title span { color: var(--accent); }
+  .header-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+
+  /* Estilos visuais do controle de rifa (adaptados) */
+  .rifa-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  @media (min-width: 900px) {
+    .rifa-cards { grid-template-columns: repeat(4, 1fr); }
+  }
+  .rifa-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 11px 12px;
+  }
+  .rifa-card-label { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .rifa-card-value { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
+  .rifa-card-sub { font-size: .68rem; color: var(--muted); }
+  .rifa-progress-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+  .rifa-progress-fill { height: 100%; background: linear-gradient(90deg, #34D399, #34D399); border-radius: 99px; }
+  .rifa-progress-pct { font-size: .62rem; color: var(--muted); margin-top: 2px; text-align: right; }
+
+  .rifa-section-title {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #1E1E26;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .badge-purple { background: rgba(167,139,250,.15); color: #A78BFA; border-radius: 99px; padding: 1px 7px; font-size: .62rem; font-weight: 700; }
+  .badge-green  { background: rgba(52,211,153,.15); color: #34D399; border-radius: 99px; padding: 1px 7px; font-size: .62rem; font-weight: 700; }
+  .rifa-table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 11px; padding: 4px 10px; margin-bottom: 14px; }
+  .rifa-table-wrap table { width: 100%; border-collapse: collapse; }
+  .rifa-table-wrap th { text-align: left; font-size: .62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 5px 6px; border-bottom: 2px solid #1E1E26; }
+  .rifa-table-wrap td { padding: 7px 6px; border-bottom: 1px solid var(--border); font-size: .82rem; }
+
+  .badge-finalizado {
+    background: rgba(52,211,153,.1);
+    color: #34D399;
+    border-radius: 99px;
+    padding: 2px 8px;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+
+  /* Placeholder da rifa futura */
+  .rifa-futura-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+  }
+  .rifa-futura-icon { font-size: 36px; margin-bottom: 12px; }
+  .rifa-futura-title { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .rifa-futura-desc { font-size: 12px; line-height: 1.6; }
+
+
+
+  /* ── RIFA EM ANDAMENTO: brilho no botão do cabeçalho ── */
+  .rifa-live-dot { display: none; width: 6px; height: 6px; border-radius: 50%; background: #34D399; box-shadow: 0 0 6px #34D399; }
+  .btn-rifas-toggle.rifa-live { color: #C4B5FD; border-color: #A78BFA; background: rgba(167,139,250,.14); animation: rifaGlow 2.4s ease-in-out infinite; }
+  .btn-rifas-toggle.rifa-live .rifa-live-dot { display: inline-block; animation: rifaDot 1.6s ease-in-out infinite; }
+  @keyframes rifaGlow { 0%,100% { box-shadow: 0 0 5px rgba(167,139,250,.22); } 50% { box-shadow: 0 0 16px rgba(167,139,250,.55); } }
+  @keyframes rifaDot { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .btn-rifas-toggle.rifa-live, .btn-rifas-toggle.rifa-live .rifa-live-dot { animation: none; } }
+  .badge-andamento { background: rgba(245,158,11,.12); color: #f59e0b; border-radius: 99px; padding: 2px 8px; font-size: .6rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+
+  .footer-note {
+    text-align: center; font-size: 11.5px; color: var(--muted);
+    margin: 26px 16px 0; line-height: 1.6; padding-bottom: 10px;
+  }
+
+
+  /* ── Página da rifa (somente leitura) ── */
+  .rv-wrap { max-width: 860px; margin: 0 auto; padding: 16px 14px 60px; }
+  .rv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 0 16px; align-items: start; }
+  .header { text-align: center; }
+  .header-top { justify-content: center; }
+  .header-sub { margin-bottom: 0; }
+  .rifa-cards { margin-bottom: 18px; }
+
+  .bf-sub { font-size: .66rem; color: var(--muted); padding-left: 14px; margin-top: 2px; }
+  .bf-extra { background: rgba(167,139,250,.15); color: #A78BFA; border-radius: 99px; padding: 0 6px; font-weight: 700; margin-left: 2px; }
+</style>
+</head>
+<body>
+
+<div id="syncBadge">
+  <div class="sync-dot"></div>
+  <span id="syncText">Conectando...</span>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">🍽️ Controle do <span>Buffet</span></div>
+      <div class="header-sub">Site by @eijordanofc · somente leitura</div>
+    </div>
+  </div>
+</div>
+
+<div class="rv-wrap">
+  <div id="rvBody"></div>
+  <div class="footer-note">
+    Esta página só exibe os valores — nenhuma edição é feita por aqui.<br>
+    Os dados atualizam automaticamente, sem precisar recarregar a página.
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
+  import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js';
+
+  const app = initializeApp({
+    apiKey: "AIzaSyDQ0oea2ZrAn_dtzqOWh_BBDQzWQS2Q6eU",
+    authDomain: "taterceiro-4bccc.firebaseapp.com",
+    projectId: "taterceiro-4bccc",
+    storageBucket: "taterceiro-4bccc.firebasestorage.app",
+    messagingSenderId: "547692032539",
+    appId: "1:547692032539:web:f824159bbbf064af3b3ebe",
+    measurementId: "G-C6H410HSJZ"
+  });
+  const db = getFirestore(app);
+
+  const fmt = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+
+  function setSyncStatus(state, text) {
+    const badge = document.getElementById('syncBadge');
+    clearTimeout(badge._hideTimer);
+    badge.className = state;
+    document.getElementById('syncText').textContent = text;
+    if (state === 'saved') {
+      badge._hideTimer = setTimeout(() => badge.classList.add('hide'), 2500);
+    }
+  }
+
+  // ═══════════════ BUFFET (somente leitura) — Firestore: formatura/buffet ═══════════════
+  const BF_PRICE = 50;
+  const BF_LIMITE = 2;
+  const bfVazio = () => ({ titulo: 'Buffet', pessoas: [], pagamentos: {} });
+  let bf = bfVazio();
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pagoDe = id => bf.pagamentos[id] ?? 0;
+  const qtd = p => 1 + (Number(p.conv) || 0);
+  const devido = p => qtd(p) * BF_PRICE;
+  const turmaLabel = t => t === 'ext' ? 'Externos' : t === 'prof' ? 'Professor(a)' : 'Turma ' + t;
+
+  function normalizar(d) {
+    return { ...bfVazio(), ...d, pessoas: d.pessoas || [], pagamentos: d.pagamentos || {} };
+  }
+
+  function cardsHTML() {
+    const ps = bf.pessoas;
+    const pago = ps.reduce((s, p) => s + pagoDe(p.id), 0);
+    const previsto = ps.reduce((s, p) => s + devido(p), 0);
+    const convidados = ps.reduce((s, p) => s + (Number(p.conv) || 0), 0);
+    const quitados = ps.filter(p => pagoDe(p.id) >= devido(p)).length;
+    const falta = Math.max(0, previsto - pago);
+    const pct = previsto > 0 ? Math.min(100, (pago / previsto) * 100).toFixed(1) : '0.0';
+    return `<div class="rifa-cards">
+      <div class="rifa-card">
+        <div class="rifa-card-label">Arrecadado</div>
+        <div class="rifa-card-value" style="color:#34D399">${fmt(pago)}</div>
+        <div class="rifa-card-sub">de ${fmt(previsto)}</div>
+        <div class="rifa-progress-bar"><div class="rifa-progress-fill" style="width:${pct}%"></div></div>
+        <div class="rifa-progress-pct">${pct}%</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Falta arrecadar</div>
+        <div class="rifa-card-value" style="color:#f59e0b">${fmt(falta)}</div>
+        <div class="rifa-card-sub">${ps.length - quitados} sem quitar</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Pessoas no buffet</div>
+        <div class="rifa-card-value" style="color:#A78BFA">${ps.length + convidados}</div>
+        <div class="rifa-card-sub">${ps.length} alunos + ${convidados} convidados</div>
+      </div>
+      <div class="rifa-card">
+        <div class="rifa-card-label">Já quitaram</div>
+        <div class="rifa-card-value" style="color:var(--text)">${quitados}</div>
+        <div class="rifa-card-sub">de ${ps.length} alunos</div>
+      </div>
+    </div>`;
+  }
+
+  function rowHTML(p) {
+    const pago = pagoDe(p.id), dev = devido(p);
+    const status = pago === 0 ? 'none' : pago >= dev ? 'full' : 'partial';
+    const pct = Math.min(100, (pago / dev) * 100);
+    const cor = status === 'full' ? '#34D399' : status === 'partial' ? '#f59e0b' : '#F87171';
+    const bar = status === 'partial' ? `<div style="padding-left:14px;margin-top:4px"><div style="height:3px;background:var(--border);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#f59e0b;border-radius:99px"></div></div></div>` : '';
+    const conv = Number(p.conv) || 0;
+    const extra = conv > BF_LIMITE ? ` <span class="bf-extra">+${conv - BF_LIMITE} extra</span>` : '';
+    const sub = (conv === 0 ? 'sem convidados' : conv + ' convidado' + (conv !== 1 ? 's' : '')) + (p.obs ? ' · ' + esc(p.obs) : '');
+    const amt = pago > 0
+      ? `<span style="font-weight:700;font-size:.82rem;color:${cor}">${status === 'full' ? '✓ ' : ''}${fmt(pago)}</span>`
+      : `<span style="color:var(--muted);opacity:.5;font-size:.85rem">—</span>`;
+    const td = 'padding:8px 6px;border-bottom:1px solid var(--border)';
+    return `<tr>
+      <td style="${td};vertical-align:middle">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cor};flex-shrink:0"></span>
+          <span style="font-weight:600;font-size:.85rem">${esc(p.name)}</span>
+        </div>
+        <div class="bf-sub">${sub}${extra}</div>${bar}
+      </td>
+      <td style="${td};text-align:right;font-size:.8rem;color:#94a3b8">${qtd(p)}×</td>
+      <td style="${td};text-align:right">${amt}</td>
+    </tr>`;
+  }
+
+  function sectionHTML(t) {
+    const lista = bf.pessoas.filter(p => p.turma === t);
+    return `<div class="rv-section"><div class="rifa-section-title">${esc(turmaLabel(t))}<span class="badge-purple">${lista.length} ${lista.length === 1 ? 'pessoa' : 'pessoas'}</span></div>
+      <div class="rifa-table-wrap"><table>
+        <thead><tr><th>Nome</th><th style="text-align:right">Pessoas</th><th style="text-align:right">Pago</th></tr></thead>
+        <tbody>${lista.map(rowHTML).join('')}</tbody>
+      </table></div></div>`;
+  }
+
+  function bodyHTML() {
+    if (!bf.pessoas.length) {
+      return `<div class="rifa-futura-placeholder">
+        <div class="rifa-futura-icon">🍽️</div>
+        <div class="rifa-futura-title">Ainda sem participantes</div>
+        <div class="rifa-futura-desc">Assim que a lista for cadastrada, os dados aparecem aqui automaticamente.</div>
+      </div>`;
+    }
+    const ord = ['302', '301', 'ext'];
+    const pos = t => { const i = ord.indexOf(t); return i < 0 ? 99 : i; };
+    const turmas = [...new Set(bf.pessoas.map(p => p.turma))].sort((a, b) => pos(a) - pos(b));
+    return cardsHTML() + `<div class="rv-grid">${turmas.map(sectionHTML).join('')}</div>`;
+  }
+
+  function render() {
+    document.title = bf.titulo + ' — Formatura 2026';
+    document.getElementById('rvBody').innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700;color:var(--text)">${esc(bf.titulo)}</span>
+        <span class="badge-andamento">● Em andamento</span>
+      </div>
+      <p style="font-size:.72rem;color:#94a3b8;margin-bottom:12px">Valor por pessoa: ${fmt(BF_PRICE)} (aluno e cada convidado) · Somente visualização.</p>` + bodyHTML();
+  }
+
+  onSnapshot(doc(db, 'formatura', 'buffet'), (snap) => {
+    bf = snap.exists() ? normalizar(snap.data()) : bfVazio();
+    render();
+    setSyncStatus('saved', '✓ Sincronizado');
+  }, () => setSyncStatus('error', '⚠ Sem conexão'));
+
+  render();
+</script>
+</body>
+</html>

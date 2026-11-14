@@ -355,7 +355,9 @@
     document.getElementById('rvBody').innerHTML = rvHeadHTML() + rvBodyHTML(true);
   }
 
-  onSnapshot(doc(db, 'formatura', 'rifa2'), (snap) => {
+  // ?r=namorados mostra a rifa dos Namorados (formatura/rifa1); sem parâmetro, a rifa em andamento (formatura/rifa2)
+  const RV_DOC = new URLSearchParams(location.search).get('r') === 'namorados' ? 'rifa1' : 'rifa2';
+  onSnapshot(doc(db, 'formatura', RV_DOC), (snap) => {
     rifa2 = snap.exists() ? rvNormalizar(snap.data()) : rifaVazia();
     render();
     setSyncStatus('saved', '✓ Sincronizado');
