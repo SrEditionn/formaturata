@@ -4349,26 +4349,20 @@ const EXPORTED_DATA = ${dataJson};
   const BF_LIMITE = 2;       // convidados "padrão" por aluno (pode ter mais, é só editar)
   const BF_TURMAS_PADRAO = ['302', '301', 'ext', 'prof'];
 
-  // Lista inicial (mesmos nomes da antiga lista de mensalidades).
-  // Quem não vai participar é só remover pelo ⚙️; a lista oficial do buffet entra depois.
-  const BF_ALUNOS_301 = [
-    'Ana Clara Moraes','Bianca Leticia Sousa','Carla Beatriz da Silva',
-    'Enzo Lucas Lira','Eveni Patricia Barroso','Gabrielly Roberta Silva',
-    'Jamilly Yarim de Oliveira','Joel da Silva de Assis','Karen Marcelle de Almeida',
-    'Kassiane Beatriz Conceicao','Keily Belen Torres','Kimberlly Vitoria Lopes',
-    'Lara Gabrielle Lisboa','Leonardo Lenin Jose','Lucas Davi Amaral',
-    'Neuliane Moraes Rodrigues','Renan Jordan de Albuquerque','Sandy Fabiola Almeida',
-    'Sarah de Araujo Rodrigues','Victor Rafael Goncalves'
+  // Lista oficial do buffet (planilha do Canva, 14/11): [turma, nome, convidados, valor já pago]
+  // Padrão: 2 convidados por aluno · professores: só a própria pessoa.
+  const BF_LISTA = [
+    ['prof','Prof. Márcia',0,50], ['301','Carla Beatriz da Silva',2,30], ['301','Karen Marcelle de Almeida',2,0],
+    ['301','Kassiane Beatriz Conceicao',2,0], ['301','Keily Belen Torres',2,50], ['301','Kimberlly Vitoria Lopes',3,200],
+    ['301','Lara Gabrielle Lisboa',2,50], ['301','Renan Jordan de Albuquerque',2,0], ['301','Sarah de Araujo Rodrigues',2,150],
+    ['301','Victor Rafael Goncalves',2,150], ['302','Alesson Ruan Nunes',2,0], ['302','Anne Caroline Correa',2,150],
+    ['302','Cristhian Cleber Pinto',2,150], ['302','Cristian Yago da Costa',2,0], ['302','Flavia Fabiane Chaves',2,150],
+    ['302','Gabriel Ferreira Barroso',2,10], ['302','Joan Brasil dos Santos',2,30], ['302','Kamylle Rafaelly Duarte',2,150],
+    ['302','Marcos Jose de Souza',2,30], ['302','Marcus Yan da Silva',2,0], ['302','Pamela Costa Miranda',2,100],
+    ['302','Samuel Robertt da Costa',2,0], ['302','Wesley Eduardo Carvalho',2,0], ['301','Neuliane Moraes Rodrigues',2,150],
+    ['301','Enzo Lucas Lira',2,0], ['301','Eveni Patricia Barroso',2,100], ['prof','Prof. Célia',0,50], ['prof','Prof. Ângela',0,0]
   ];
-  const BF_ALUNOS_302 = [
-    'Alesson Ruan Nunes','Andre Eduardo Pascoal','Anne Caroline Correa',
-    'Cristhian Cleber Pinto','Cristian Yago da Costa','Daniel da Rocha Costa',
-    'Enzo dos Santos Dias','Flavia Fabiane Chaves','Gabriel Ferreira Barroso',
-    'Joan Brasil dos Santos','Kamylle Rafaelly Duarte','Marcos Jose de Souza',
-    'Marcus Yan da Silva','Moises dos Santos Pereira','Pamela Costa Miranda',
-    'Pedro Gustavo do Rosario','Rayssa Victoria Areias','Rodrigo Otavio Costa',
-    'Samuel Robertt da Costa','Thayssa Oliveira Nascimento','Wesley Eduardo Carvalho'
-  ];
+  const BF_SEED_VERSION = 2;
 
   const bfVazio = () => ({ titulo: 'Buffet', pessoas: [], pagamentos: {}, seeded: false });
   let bf = bfVazio();
@@ -4417,11 +4411,12 @@ const EXPORTED_DATA = ${dataJson};
   function bfCommit() { saveBf(); bfRefresh(); }
 
   function bfAplicarSeed() {
-    if (bf.seeded || bf.pessoas.length) return;
-    let i = 0;
-    const mk = (turma, lista) => lista.map(name => ({ id: 'b' + (i++), turma, name, conv: BF_LIMITE, obs: '' }));
-    bf.pessoas = [...mk('302', BF_ALUNOS_302), ...mk('301', BF_ALUNOS_301)];
+    if (bf.seedVersion === BF_SEED_VERSION) return;
+    bf.pessoas = BF_LISTA.map(([turma, name, conv], i) => ({ id: 'b' + i, turma, name, conv, obs: '' }));
+    bf.pagamentos = {};
+    BF_LISTA.forEach(([, , , pago], i) => { if (pago > 0) bf.pagamentos['b' + i] = pago; });
     bf.seeded = true;
+    bf.seedVersion = BF_SEED_VERSION;
     saveBf();
   }
 
