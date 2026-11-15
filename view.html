@@ -1397,8 +1397,8 @@
         <button class="rifas-panel-close" onclick="closeRifasPanel()">✕</button>
       </div>
       <div class="rifas-tabs">
-        <button class="rifas-tab active" id="rtab-btn-atual" onclick="switchRifaTab('atual')">✨ Em andamento</button>
-        <button class="rifas-tab" id="rtab-btn-namorados" onclick="switchRifaTab('namorados')">🌹 Namorados (finalizada)</button>
+        <button class="rifas-tab" id="rtab-btn-namorados" onclick="switchRifaTab('namorados')">🌹 Rifa 1 · Namorados</button>
+        <button class="rifas-tab active" id="rtab-btn-atual" onclick="switchRifaTab('atual')">🧺 Rifa 2 · Cesta básica</button>
       </div>
     </div>
 
@@ -1910,7 +1910,6 @@
     const live = rifa2.status === 'ativa';
     const b = document.getElementById('btnRifasToggle');
     if (b) b.classList.toggle('rifa-live', live);
-    document.getElementById('rtab-btn-atual').textContent = live ? '✨ Em andamento' : '🏁 Finalizada';
     document.getElementById('rf-atual-body').innerHTML = rvHeadHTML() + rvBodyHTML(false);
     renderRifaNamorados();
   }
@@ -1933,7 +1932,6 @@
     rifa2 = r;
     document.getElementById('rf-namorados-body').innerHTML = rvHeadHTML() + rvBodyHTML(false);
     rifa2 = keep;
-    document.getElementById('rtab-btn-namorados').textContent = r.status === 'ativa' ? '🌹 Namorados (em andamento)' : '🌹 Namorados (finalizada)';
   }
   onSnapshot(doc(db, 'formatura', 'rifa1'), (snap) => {
     rifa1 = snap.exists() ? rvNormalizar(snap.data()) : null;

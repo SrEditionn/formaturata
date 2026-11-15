@@ -1438,7 +1438,7 @@
       <label>Vincular a uma página <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional)</span></label>
       <select id="entryLinkCreate">
         <option value="">Nenhuma</option>
-        <option value="rifas">🎟️ Rifa dos Namorados (finalizada)</option>
+        <option value="rifas">🎟️ Rifa 1 · Namorados</option>
         <option value="rifa2">🎟️ Rifa em andamento (nova)</option>
         <option value="vendas">🛍️ Controle de Vendas</option>
       </select>
@@ -1500,7 +1500,7 @@
       <label>Ao clicar na entrada, abrir</label>
       <select id="entryLinkSelect">
         <option value="">Nenhuma (comportamento normal)</option>
-        <option value="rifas">🎟️ Rifa dos Namorados (finalizada)</option>
+        <option value="rifas">🎟️ Rifa 1 · Namorados</option>
         <option value="rifa2">🎟️ Rifa em andamento (nova)</option>
         <option value="vendas">🛍️ Controle de Vendas</option>
       </select>
@@ -1524,8 +1524,8 @@
         <button class="rifas-panel-close" onclick="closeRifasPanel()">✕</button>
       </div>
       <div class="rifas-tabs">
-        <button class="rifas-tab active" id="rtab-btn-atual" onclick="switchRifaTab('atual')">✨ Em andamento</button>
-        <button class="rifas-tab" id="rtab-btn-namorados" onclick="switchRifaTab('namorados')">🌹 Namorados (finalizada)</button>
+        <button class="rifas-tab" id="rtab-btn-namorados" onclick="switchRifaTab('namorados')">🌹 Rifa 1 · Namorados</button>
+        <button class="rifas-tab active" id="rtab-btn-atual" onclick="switchRifaTab('atual')">🧺 Rifa 2 · Cesta básica</button>
       </div>
     </div>
 
@@ -3136,8 +3136,8 @@ const EXPORTED_DATA = ${dataJson};
 
   function rfUpdateTabLabels() {
     const a = $rf('rtab-btn-atual'), n = $rf('rtab-btn-namorados');
-    if (a) a.textContent = rfStore.atual.status === 'ativa' ? '✨ Em andamento' : '🏁 Finalizada';
-    if (n) n.textContent = rfStore.namorados.status === 'ativa' ? '🌹 Namorados (em andamento)' : '🌹 Namorados (finalizada)';
+    if (a) a.textContent = '🧺 Rifa 2 · Cesta básica';
+    if (n) n.textContent = '🌹 Rifa 1 · Namorados';
   }
 
   // Atualiza o brilho do botão do cabeçalho e o painel (se estiver aberto)
