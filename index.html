@@ -900,7 +900,17 @@
   .btn-add-arrecadacao:hover { border-color: #34D399; background: rgba(52,211,153,.1); }
 
   /* ── BOTÃO DO BUFFET ── */
-  .btn-buffet-toggle:hover { border-color: #34D399; color: #34D399; background: rgba(52,211,153,.12); }
+  /* ── BOTÃO DO BUFFET em destaque (a rifa já passou, o buffet é o foco agora) ── */
+  .btn-rifas-toggle.btn-buffet-toggle {
+    color: #fff; font-size: 13px; font-weight: 800; padding: 8px 16px; border-radius: 10px;
+    border: 1px solid #34D399; background: linear-gradient(135deg, #059669, #34D399);
+    box-shadow: 0 2px 14px rgba(52,211,153,.35); animation: bfGlow 2.4s ease-in-out infinite;
+  }
+  .btn-rifas-toggle.btn-buffet-toggle:hover { color: #fff; border-color: #6EE7B7; background: linear-gradient(135deg, #059669, #34D399); filter: brightness(1.1); }
+  @keyframes bfGlow { 0%,100% { box-shadow: 0 2px 10px rgba(52,211,153,.28); } 50% { box-shadow: 0 2px 22px rgba(52,211,153,.6); } }
+  @media (prefers-reduced-motion: reduce) { .btn-rifas-toggle.btn-buffet-toggle { animation: none; } }
+  .btn-rifas-toggle.rifa-live { color: var(--muted); border-color: var(--border); background: none; animation: none; }
+  .btn-rifas-toggle.rifa-live .rifa-live-dot { display: none; }
   .bf-sub { font-size: .66rem; color: var(--muted); padding-left: 14px; margin-top: 2px; }
   .bf-extra { background: rgba(167,139,250,.15); color: #A78BFA; border-radius: 99px; padding: 0 6px; font-weight: 700; margin-left: 2px; }
   .arrecadacao-card-sub { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-top: 3px; }
@@ -1320,8 +1330,8 @@
       <button class="btn-action secondary" onclick="openLogsPanel()">📜 Logs</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-rifas-toggle" id="btnRifasToggle" onclick="openRifasPanel()">🎟️ rifas<span class="rifa-live-dot" title="Rifa em andamento"></span></button>
       <button class="btn-rifas-toggle btn-buffet-toggle" onclick="openBuffetPanel()">🍽️ buffet</button>
+      <button class="btn-rifas-toggle" id="btnRifasToggle" onclick="openRifasPanel()">🎟️ rifas<span class="rifa-live-dot" title="Rifa em andamento"></span></button>
     </div>
   </div>
   <div class="totals-row" id="totalsRow"></div>
@@ -4357,12 +4367,12 @@ const EXPORTED_DATA = ${dataJson};
     ['301','Lara Gabrielle Lisboa',2,50], ['301','Renan Jordan de Albuquerque',2,0], ['301','Sarah de Araujo Rodrigues',2,150],
     ['301','Victor Rafael Goncalves',2,150], ['302','Alesson Ruan Nunes',2,0], ['302','Anne Caroline Correa',2,150],
     ['302','Cristhian Cleber Pinto',2,150], ['302','Cristian Yago da Costa',2,0], ['302','Flavia Fabiane Chaves',2,150],
-    ['302','Gabriel Ferreira Barroso',2,10], ['302','Joan Brasil dos Santos',2,30], ['302','Kamylle Rafaelly Duarte',2,150],
+    ['302','Gabriel Ferreira Barroso',1,10], ['302','Joan Brasil dos Santos',2,30], ['302','Kamylle Rafaelly Duarte',2,150],
     ['302','Marcos Jose de Souza',2,30], ['302','Marcus Yan da Silva',2,0], ['302','Pamela Costa Miranda',2,100],
     ['302','Samuel Robertt da Costa',2,0], ['302','Wesley Eduardo Carvalho',2,0], ['301','Neuliane Moraes Rodrigues',2,150],
-    ['301','Enzo Lucas Lira',2,0], ['301','Eveni Patricia Barroso',2,100], ['prof','Prof. Célia',0,50], ['prof','Prof. Ângela',0,0]
+    ['301','Enzo Lucas Lira',2,0], ['301','Eveni Patricia Barroso',1,100], ['prof','Prof. Célia',0,50], ['prof','Prof. Ângela',0,0]
   ];
-  const BF_SEED_VERSION = 2;
+  const BF_SEED_VERSION = 3;
 
   const bfVazio = () => ({ titulo: 'Buffet', pessoas: [], pagamentos: {}, seeded: false });
   let bf = bfVazio();
@@ -4412,6 +4422,14 @@ const EXPORTED_DATA = ${dataJson};
 
   function bfAplicarSeed() {
     if (bf.seedVersion === BF_SEED_VERSION) return;
+    if (bf.seedVersion === 2) {
+      // v2 → v3: só ajusta quem leva 1 convidado (não mexe no resto, que pode já ter sido editado)
+      const um = BF_LISTA.map(([t, n, c], i) => [n, c, 'b' + i]).filter(x => x[1] === 1);
+      um.forEach(([n, , id]) => { const p = bf.pessoas.find(x => x.id === id && x.name === n); if (p) p.conv = 1; });
+      bf.seedVersion = BF_SEED_VERSION;
+      saveBf();
+      return;
+    }
     bf.pessoas = BF_LISTA.map(([turma, name, conv], i) => ({ id: 'b' + i, turma, name, conv, obs: '' }));
     bf.pagamentos = {};
     BF_LISTA.forEach(([, , , pago], i) => { if (pago > 0) bf.pagamentos['b' + i] = pago; });
